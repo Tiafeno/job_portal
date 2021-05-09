@@ -1,0 +1,14 @@
+{
+    "name": "falicrea/job_portal",
+    "description": "Ressources humaine",
+    "require": {
+        "liquid/liquid": "^1.4",
+        "lodash-php/lodash-php": "^0.0.7"
+    },
+    "authors": [
+        {
+            "name": "Tiafeno",
+            "email": "tiafenofnel@gmail.com"
+        }
+    ]
+}

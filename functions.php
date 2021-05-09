@@ -1,6 +1,12 @@
 <?php
+use Liquid\Template;
 
-require_once 'framwork/loader.php'; // Load all elements
+require_once __DIR__ . '/framwork/loader.php'; // Load all elements
+require_once __DIR__ . '/vendor/autoload.php';
+
+\Liquid\Liquid::set('INCLUDE_PREFIX', '');
+$Liquid_engine = new Template(__DIR__ . '/templates');
+$Liquid_engine->setCache(new \Liquid\Cache\Local());
 
 define('__SITENAME__', 'job_portal');
 load_theme_textdomain(__SITENAME__, get_template_directory() . '/languages');
@@ -33,7 +39,7 @@ add_action('after_setup_theme', function () {
     // Register menu location
     register_nav_menus(array(
         'primary' => 'Menu Principal',
-        'social-network' => 'Réseau social',
+        'social-network' => 'Réseaux social',
     ));
 });
 

@@ -54,7 +54,7 @@
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu"> <i class="fa fa-bars"></i> </button>
-                <a class="navbar-brand" href="index.html">
+                <a class="navbar-brand" href="<?= home_url('/') ?>">
                     <?php if ( has_custom_logo() ): ?>
                     <img src="<?= esc_url( $logo[0] ) ?>" class="logo logo-display" alt="<?= get_bloginfo( 'name' ) ?>">
                     <img src="<?= esc_url( $logo[0] ) ?>" class="logo logo-scrolled" alt="<?= get_bloginfo( 'name' ) ?>">

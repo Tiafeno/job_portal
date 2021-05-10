@@ -56,16 +56,6 @@ class JobGrid_Widget extends Widget_Base
             ]
         );
 
-        $this->add_control(
-            'widget_contents',
-            [
-                'label' => __('contents', self::$slug),
-                'type' => \Elementor\Controls_Manager::TEXT,
-                'default' => __('contents', self::$slug),
-                'placeholder' => __('Option Contents', self::$slug),
-            ]
-        );
-
         $this->end_controls_section();
     }
 

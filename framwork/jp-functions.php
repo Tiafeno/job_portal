@@ -24,6 +24,7 @@ add_action('wp_enqueue_scripts', function() {
 
 
     // script
+    wp_register_script('jquery-validate', 'https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js', ['jquery']);
     wp_register_script('jp-bootstrap', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/js/bootstrap.min.js', ['jquery'], '1.0.0', true);
     wp_register_script('jp-bootsnav', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/js/bootsnav.js', ['jquery', 'jp-bootstrap'], '1.0.0', true);
     wp_register_script('jp-viewportchecker', get_stylesheet_directory_uri() . '/assets/js/viewportchecker.js', ['jquery'], '1.0.0', true);
@@ -35,10 +36,12 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_script('jp-custom', get_stylesheet_directory_uri() . '/assets/js/custom.js', [
         'jquery', 'jp-bootstrap', 'jp-bootsnav',
         'jp-viewportchecker', 'jp-slick', 'jp-wysihtml',
-        'jp-bootstrap-wysihtml5', 'jp-aos', 'jp-jquery-nice'
+        'jp-bootstrap-wysihtml5', 'jp-aos', 'jp-jquery-nice', 'jquery-validate'
     ], '1.0.0', true);
 
+    wp_enqueue_script('lodash');
     wp_enqueue_script('jp-custom');
+
 });
 
 add_filter('body_class', function ($classes) {
@@ -47,12 +50,10 @@ add_filter('body_class', function ($classes) {
 });
 
 class JP_Primary_Walker extends Walker_Nav_Menu {
-
     public function start_lvl( &$output, $depth = 0, $args = array() ) {
         $indent = str_repeat( "\t", $depth );
         $output .= "\n$indent<ul role=\"menu\" class=\" dropdown-menu\">\n";
     }
-
     public function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
         $indent = ( $depth ) ? str_repeat( "\t", $depth ) : '';
 
@@ -113,8 +114,6 @@ class JP_Primary_Walker extends Walker_Nav_Menu {
         $output .= apply_filters( 'walker_nav_menu_start_el', $item_output, $item, $depth, $args );
 
     }
-
-
     public function display_element( $element, &$children_elements, $max_depth, $depth, $args, &$output ) {
         if ( ! $element )
             return;

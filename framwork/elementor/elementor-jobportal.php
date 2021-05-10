@@ -14,9 +14,11 @@ namespace JobSearch;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 include 'job_search/widgets/jp-search.php';
 include 'job_grid/widgets/jp-job-grid.php';
+include 'job_registration/widgets/jp-registration.php';
 
 use Elementor\Plugin;
 use JobGrid\Widgets\JobGrid_Widget;
+use JobRegistration\Widgets\JobRegistration_Widget;
 use JobSearch\Widgets\JobSearch_Widget;
 
 // The Widget_Base class is not available immediately after plugins are loaded, so
@@ -25,8 +27,10 @@ add_action('elementor/widgets/widgets_registered', function () {
 
     $job_search = new JobSearch_Widget();
     $job_grid = new JobGrid_Widget();
+    $job_registration = new JobRegistration_Widget();
 
     // Let Elementor know about our widget
     Plugin::instance()->widgets_manager->register_widget_type($job_search);
     Plugin::instance()->widgets_manager->register_widget_type($job_grid);
+    Plugin::instance()->widgets_manager->register_widget_type($job_registration);
 });

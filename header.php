@@ -45,11 +45,21 @@
 <body <?php body_class(); ?> >
     <div class="page_preloader"></div>
     <!-- ======================= Start Navigation ===================== -->
-    <nav class="navbar navbar-default navbar-mobile navbar-fixed white no-background bootsnav">
+    <?php
+    $navClass = is_front_page() ? 'white no-background' : 'light';
+    $custom_logo_id = get_theme_mod( 'custom_logo' );
+    $logo = wp_get_attachment_image_src( $custom_logo_id , 'full' );
+    ?>
+    <nav class="navbar navbar-default navbar-mobile navbar-fixed <?= $navClass ?> bootsnav">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu"> <i class="fa fa-bars"></i> </button>
-                <a class="navbar-brand" href="index.html"> <img src="assets/img/logo-light.png" class="logo logo-display" alt=""> <img src="assets/img/logo.png" class="logo logo-scrolled" alt=""> </a>
+                <a class="navbar-brand" href="index.html">
+                    <?php if ( has_custom_logo() ): ?>
+                    <img src="<?= esc_url( $logo[0] ) ?>" class="logo logo-display" alt="<?= get_bloginfo( 'name' ) ?>">
+                    <img src="<?= esc_url( $logo[0] ) ?>" class="logo logo-scrolled" alt="<?= get_bloginfo( 'name' ) ?>">
+                    <?php endif; ?>
+                </a>
             </div>
             <div class="collapse navbar-collapse" id="navbar-menu">
                 <?php

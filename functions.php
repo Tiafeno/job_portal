@@ -11,16 +11,15 @@ $Liquid_engine->setCache(new \Liquid\Cache\Local());
 define('__SITENAME__', 'job_portal');
 load_theme_textdomain(__SITENAME__, get_template_directory() . '/languages');
 
-
 add_action('after_setup_theme', function () {
     /** @link https://codex.wordpress.org/Post_Thumbnails */
     add_theme_support('post-thumbnails');
     add_theme_support('category-thumbnails');
     add_theme_support('automatic-feed-links');
     add_theme_support('title-tag');
-    add_theme_support('job_portal-logo', array(
-        'height' => 100,
-        'width' => 250,
+    add_theme_support('custom-logo', array(
+        'height' => 38,
+        'width' => 150,
         'flex-width' => true,
     ));
     add_image_size('sidebar-thumb', 120, 120, true);
@@ -46,6 +45,4 @@ add_action('after_setup_theme', function () {
 add_action('init', function() {
     do_action('helper_register_jp_user_role');
     do_action('helper_register_jp_post_types');
-
-
 });

@@ -126,6 +126,9 @@ add_action('helper_register_jp_post_types', function () {
     ] );
 });
 
+/**
+ * Permet d'enregistrer un utilisateur (Employer ou Candidat)
+ */
 add_action('action_jobportal_register', function() {
     if ( ! isset($_POST['_wpnonce']) ) return;
     if (wp_verify_nonce($_POST['_wpnonce'], 'portaljob-register')) {
@@ -165,6 +168,10 @@ add_action('action_jobportal_register', function() {
         $phone_number = $_POST['phone'];
         $candidate->phones = [ $phone_number ];
 
-        do_action('send_email_new_candidate', $user_id); // Envoyer le mail
+        do_action('send_email_new_user', $user_id); // Envoyer le mail
     }
+});
+
+add_action('new_job', function() {
+
 });

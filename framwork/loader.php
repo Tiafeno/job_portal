@@ -3,7 +3,11 @@ require_once 'jp-actions.php';
 require_once 'jp-mailing.php';
 
 add_action('init', function() {
-    require_once 'elementor/elementor-jobportal.php';
+
+    if ( class_exists('Elementor\Widget_Base')) {
+        require_once 'elementor/elementor-jobportal.php';
+    }
+
 });
 
 

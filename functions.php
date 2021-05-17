@@ -1,6 +1,7 @@
 <?php
 use Liquid\Template;
 
+
 require_once __DIR__ . '/framwork/loader.php'; // Load all elements
 require_once __DIR__ . '/vendor/autoload.php';
 

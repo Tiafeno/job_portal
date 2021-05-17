@@ -49,6 +49,7 @@ add_filter('body_class', function ($classes) {
     return $classes;
 });
 
+
 class JP_Primary_Walker extends Walker_Nav_Menu {
     public function start_lvl( &$output, $depth = 0, $args = array() ) {
         $indent = str_repeat( "\t", $depth );

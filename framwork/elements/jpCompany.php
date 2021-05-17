@@ -1,7 +1,7 @@
 <?php
 
 
-namespace JobPortal\Framwork\Elements;
+namespace JP\Framwork\Elements;
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -41,8 +41,8 @@ final class jpCompany extends \WP_User
     public $greeting; // mr: Monsieur, mrs: Madame
     public $company_name;
     public $address;
-    public $region;
-    public $country;
+    public $region; // int - Reference with taxonomy 'Regionf'
+    public $country; // int - Reference with taxonomy 'country'
     public $nif;
     public $stat;
     public $phone_numbers = [];
@@ -56,7 +56,7 @@ final class jpCompany extends \WP_User
 
     public function profile_update($args = []) {
         foreach ($args as $arg_key => $value) {
-            if (property_exists('\\JobPortal\\Framwork\\Elements\\jpCompany', $arg_key)) {
+            if (property_exists('\\JP\\Framwork\\Elements\\jpCompany', $arg_key)) {
                 update_user_meta($this->ID, $arg_key, $value);
             }
         }

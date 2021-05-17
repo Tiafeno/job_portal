@@ -1,5 +1,5 @@
 <?php
-namespace JobPortal\Framwork\Elements;
+namespace JP\Framwork\Elements;
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -41,6 +41,7 @@ class jpCandidate extends \WP_User
     public $status; // Je cherche...
     public $drive_licences; // A, B, C & A`
     public $languages = [];
+    public $phones = [];
     public $mastered_technology = [];
     public $trainings = [];
     public $experiences = [];
@@ -49,7 +50,6 @@ class jpCandidate extends \WP_User
     public $branch_activity;
     //public $activated = 1;
 
-
     public function __construct($id = 0, $name = '', $site_id = '')
     {
         parent::__construct($id, $name, $site_id);
@@ -57,12 +57,10 @@ class jpCandidate extends \WP_User
 
     public function profile_update($args = []) {
         foreach ($args as $arg_key => $value) {
-            if (property_exists('\\JobPortal\\Framwork\\Elements\\jpCandidate', $arg_key)) {
+            if (property_exists('\\JP\\Framwork\\Elements\\jpCandidate', $arg_key)) {
                 update_user_meta($this->ID, $arg_key, $value);
             }
         }
     }
-
-
 
 }

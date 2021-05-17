@@ -1,7 +1,7 @@
 <?php
 
 
-namespace JobPortal\Framwork\Elements;
+namespace JP\Framwork\Elements;
 if (!defined('ABSPATH')) {
     exit;
 }

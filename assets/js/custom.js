@@ -23,7 +23,6 @@
             }
         ]
     });
-
     $('.employer-slide').slick({
         centerMode: true,
         centerPadding: '0px',
@@ -49,7 +48,6 @@
             }
         ]
     });
-
     $('.category-slide').slick({
         centerMode: true,
         centerPadding: '60px',
@@ -75,9 +73,9 @@
             }
         ]
     });
-
-    $(document).ready(function () {
+    $().ready(function () {
         "use strict";
+        $('select').niceSelect();
         $(window).scroll(function () {
             if ($(this).scrollTop() > 100) {
                 $('.scrollup').fadeIn();
@@ -89,23 +87,17 @@
             $("html, body").animate({scrollTop: 0}, 600);
             return false;
         });
-    });
-
-    $(document).ready(function () {
-        $('select').niceSelect();
-    });
-
-    $('.textarea').wysihtml5();
-
-    $('.extra-field-box').each(function () {
-        var $wrapp = $('.multi-box', this);
-        $(".add-field", $(this)).on('click', function () {
-            $('.dublicat-box:first-child', $wrapp).clone(true).appendTo($wrapp).find('input').val('').focus();
+        $('.extra-field-box').each(function () {
+            var $wrapp = $('.multi-box', this);
+            $(".add-field", $(this)).on('click', function () {
+                $('.dublicat-box:first-child', $wrapp).clone(true).appendTo($wrapp).find('input').val('').focus();
+            });
+            $('.dublicat-box .remove-field', $wrapp).on('click', function () {
+                if ($('.dublicat-box', $wrapp).length > 1)
+                    $(this).parent('.dublicat-box').remove();
+            });
         });
-        $('.dublicat-box .remove-field', $wrapp).on('click', function () {
-            if ($('.dublicat-box', $wrapp).length > 1)
-                $(this).parent('.dublicat-box').remove();
-        });
+        $('.textarea').wysihtml5();
     });
 
 })(jQuery);

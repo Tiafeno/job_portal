@@ -41,7 +41,7 @@ final class jpCompany extends \WP_User
     public $greeting; // mr: Monsieur, mrs: Madame
     public $company_name;
     public $address;
-    public $region; // int - Reference with taxonomy 'Regionf'
+    public $region; // int - Reference with taxonomy 'Region'
     public $country; // int - Reference with taxonomy 'country'
     public $nif;
     public $stat;

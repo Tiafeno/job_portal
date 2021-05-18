@@ -96,8 +96,7 @@
                 if ($('.dublicat-box', $wrapp).length > 1)
                     $(this).parent('.dublicat-box').remove();
             });
-        });
-        $('.textarea').wysihtml5();
+        })
     });
 
 })(jQuery);

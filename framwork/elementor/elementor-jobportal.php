@@ -15,8 +15,10 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 include 'job_search/widgets/jp-search.php';
 include 'job_grid/widgets/jp-job-grid.php';
 include 'job_registration/widgets/jp-registration.php';
+include 'job_add_annonce/widgets/jp-add-annonce.php';
 
 use Elementor\Plugin;
+use JobAddAnnonce\Widgets\JobAddAnnonce_Widget;
 use JobGrid\Widgets\JobGrid_Widget;
 use JobRegistration\Widgets\JobRegistration_Widget;
 use JobSearch\Widgets\JobSearch_Widget;
@@ -25,12 +27,9 @@ use JobSearch\Widgets\JobSearch_Widget;
 // we delay the class' use until Elementor widgets are registered
 add_action('elementor/widgets/widgets_registered', function () {
 
-    $job_search = new JobSearch_Widget();
-    $job_grid = new JobGrid_Widget();
-    $job_registration = new JobRegistration_Widget();
-
     // Let Elementor know about our widget
-    Plugin::instance()->widgets_manager->register_widget_type($job_search);
-    Plugin::instance()->widgets_manager->register_widget_type($job_grid);
-    Plugin::instance()->widgets_manager->register_widget_type($job_registration);
+    Plugin::instance()->widgets_manager->register_widget_type(new JobSearch_Widget());
+    Plugin::instance()->widgets_manager->register_widget_type(new JobGrid_Widget());
+    Plugin::instance()->widgets_manager->register_widget_type(new JobRegistration_Widget());
+    Plugin::instance()->widgets_manager->register_widget_type(new JobAddAnnonce_Widget());
 });

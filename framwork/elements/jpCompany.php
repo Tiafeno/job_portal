@@ -46,7 +46,7 @@ final class jpCompany extends \WP_User
     public $nif;
     public $stat;
     public $phone_numbers = [];
-    //public $activated = 1;
+    public $activated = 1;
     public $newsletter = 0; // bool
 
     public function __construct($id = 0, $name = '', $site_id = '')

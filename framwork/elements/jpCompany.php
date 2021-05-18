@@ -61,6 +61,25 @@ final class jpCompany extends \WP_User
             }
         }
     }
+}
+
+class CompanyHelper {
+    public function __construct() {
+        add_action('wp_ajax_nopriv_new_company', [$this, 'new_company']);
+        add_action('wp_ajax_new_company', [$this, 'new_company']);
+    }
+
+    public static function getInstance() {
+        return new self();
+    }
+
+    /**
+     *
+     */
+    public function new_company() {
+
+        return wp_send_json_success();
+    }
 
 
 }

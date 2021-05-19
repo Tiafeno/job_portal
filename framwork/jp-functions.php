@@ -12,6 +12,7 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_style('jp-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css');
     wp_register_style('semantic-dropdown', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/dropdown.min.css');
     wp_register_style('semantic-transition', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/transition.min.css');
+    wp_enqueue_style('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/css/alertify.css');
     wp_enqueue_style('style-name', get_stylesheet_uri(), [
         'elementor-frontend',
         'jp-bootstrap',
@@ -53,12 +54,14 @@ add_action('wp_enqueue_scripts', function() {
         'jp-aos',
         'semantic-dropdown',
         'semantic-transition',
-        'jquery-validate'
+        'jquery-validate',
+        'wpapi',
+        'lodash'
     ], '1.0.1', true);
 
     wp_register_script('comp-login', get_stylesheet_directory_uri() . '/assets/js/component-login.js', ['vuejs', 'wpapi'], null, true);
 
-    wp_enqueue_script('lodash');
+    wp_enqueue_script('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/alertify.min.js', ['jquery'], null, true);
     wp_enqueue_script('jp-custom');
 
 

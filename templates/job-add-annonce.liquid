@@ -3,12 +3,7 @@
         <div class="container">
             <h2>${heading}</h2>
             <form class="c-form" @submit="checkForm" method="post" action="" novalidate>
-                <p v-if="errors.length">
-                    <b>Please correct the following error(s):</b>
-                    <ul>
-                        <li style="color:red" v-for="error in errors">${ error }</li>
-                    </ul>
-                </p>
+
                 <!-- General Information -->
                 <div class="box">
                     <div class="box-header">
@@ -115,6 +110,12 @@
                 <div class="text-center">
                     <button type="submit" class="btn btn-m theme-btn full-width">Ajouter</button>
                 </div>
+                <p v-if="errors.length" style="margin-top: 40px">
+                    <b>Please correct the following error(s):</b>
+                <ul>
+                    <li style="color:red" v-for="error in errors">${ error }</li>
+                </ul>
+                </p>
             </form>
         </div>
         <button @click="newSection('create-annonce')">Next Form</button>
@@ -131,7 +132,7 @@
 </script>
 <div id="add-annonce">
 
-    <create-company v-if="isClient && !hasCompany" v-bind:me="Me"></create-company>
+    <create-company v-if="isClient && !hasCompany" v-bind:me="Me" v-on:has-company-account="hasCompanyAccountfn"></create-company>
     <comp-login v-if="!isClient"></comp-login>
 
     {% comment %}<create-annonce v-bind:st="stateView"></create-annonce>{% endcomment %}

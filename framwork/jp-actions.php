@@ -70,6 +70,36 @@ add_action('helper_register_jp_user_role', function () {
         'Candidate',
         $candidate_capabilities
     );
+
+    // for company
+    $company_capabilities = array(
+        'read' => true,  // true allows this capability
+        'upload_files' => true,
+        'edit_posts' => true,
+        'edit_users' => true,
+        'manage_options' => false,
+        'remove_users' => false,
+        'delete_others_pages' => true,
+        'delete_published_posts' => true,
+        'edit_others_posts' => true, // Allows user to edit others posts not just their own
+        'create_posts' => true, // Allows user to create new posts
+        'manage_categories' => true, // Allows user to manage post categories
+        'publish_posts' => true, // Allows the user to publish, otherwise posts stays in draft mode
+        'edit_themes' => false, // false denies this capability. User can’t edit your theme
+        'install_plugins' => false, // User cant add new plugins
+        'delete_plugins' => false,
+        'update_plugin' => false, // User can’t update any plugins
+        'update_core' => false, // user cant perform core updatesy
+        'create_users' => false,
+        'delete_themes' => false,
+        'install_themes' => false,
+    );
+    add_role(
+        'company',
+        'Company',
+        $company_capabilities
+    );
+
 });
 
 // Create post type
@@ -213,6 +243,27 @@ add_action('action_jobportal_register', function() {
         $candidate->phones = [ $phone_number ];
 
         do_action('send_email_new_user', $user_id); // Envoyer le mail
+    }
+});
+
+// Permet de se connecter avec AJAX
+add_action('wp_ajax_nopriv_ajaxlogin', function() {
+    // First check the nonce, if it fails the function will break
+    check_ajax_referer( 'ajax-login-nonce', 'security' );
+
+    // Nonce is checked, get the POST data and sign user on
+    $info = array();
+    $info['user_login'] = $_POST['username'];
+    $info['user_password'] = $_POST['password'];
+    $info['remember'] = true;
+
+    $user_signon = wp_signon( $info, false );
+    if ( !is_wp_error($user_signon) ){
+        wp_set_current_user($user_signon->ID);
+        wp_set_auth_cookie($user_signon->ID);
+        wp_send_json_success('Login successful, redirecting...');
+    } else {
+        wp_send_json_error('Error login information');
     }
 });
 

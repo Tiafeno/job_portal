@@ -1,6 +1,16 @@
 (function ($) {
     $().ready(() => {
-
+        // Return random password
+        const getRandomPassword = () => {
+            const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            const string_length = 8;
+            let randomstring = '';
+            for (var i = 0; i < string_length; i++) {
+                var rnum = Math.floor(Math.random() * chars.length);
+                randomstring += chars.substring(rnum, rnum + 1);
+            }
+            return randomstring;
+        };
         // Ajouter une entreprise
         const CreateCompany = {
             template: '#create-company',
@@ -31,6 +41,7 @@
             },
             methods: {
                 checkForm: function (e) {
+                    e.preventDefault();
                     this.errors = [];
                     const data = this.formData;
                     if (_.isEmpty(data.name)) {
@@ -55,33 +66,50 @@
                         this.errors.push('Champ a propos est requis');
                     }
 
-                    console.warn(data);
                     if (_.isEmpty(this.errors)) {
-                        //this.addCompany();
+                        this.addCompany();
                     }
-
-                    e.preventDefault();
                 },
                 addCompany: function () {
+                    const self = this;
                     this.loading = true;
                     const _email = this.formData.email;
                     const _name = this.formData.name;
-                    this.WPAPI.users().create({
+                    this.wordpress_api.users().create({
                         name: _name,
                         nickname: _name,
                         username: _name,
+                        password: getRandomPassword(),
                         email: _email,
                         first_name: "",
                         last_name: "",
                         roles: ['company'],
-                        meta: [
-
-                        ]
+                        meta: []
                     })
                         .then(function (response) {
-                            this.loading = false;
-                            console.log(response);
-                        })
+                            // Add this company for the employee
+                            self.wordpress_api.users().id(self.me.id).update({
+                                meta: {company_id: response.id}
+                            }).then(function (response) {
+                                self.loading = false;
+                                // Company add successfuly
+                                self.$emit('has-company-account', true);
+                            });
+                        }).catch(function (err) {
+                            self.loading = false;
+                            self.errorHandler(err);
+                    });
+                },
+                errorHandler: function (response) {
+                    console.log(response);
+                    switch (response.code) {
+                        case 'existing_user_email':
+                            alertify.alert('Erreur', response.message, function () {
+                            });
+                            break;
+                        default:
+                            break
+                    }
                 },
                 formatHTML: function (str) {
                     return str.replace(/(<([^>]+)>)/ig, "");
@@ -116,6 +144,7 @@
             props: ['st'],
             delimiters: ['${', '}']
         };
+
         // Application
         new Vue({
             el: '#add-annonce',
@@ -148,9 +177,10 @@
                 }
             },
             methods: {
-                changeTemplate: function ($event) {
-                    this.stateView = $event;
-                },
+                hasCompanyAccountfn: function($event) {
+                    console.log($event);
+                    this.hasCompany = $event;
+                }
 
             },
             delimiters: ['${', '}']

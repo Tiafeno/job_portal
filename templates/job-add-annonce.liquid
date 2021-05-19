@@ -109,19 +109,20 @@
                 </div>
             </form>
         </div>
+        <button @click="newSection('create-annonce')" >Next Form</button>
     </section>
     <!-- ====================== End Create Company ================ -->
 </script>
 
 
 <script id="create-annonce" type="text/x-template">
-    <section class="utf_create_company_area padd-top-80 padd-bot-80">
-
+    <section v-bind:class="[sectionClass, (st == 'create-annonce') ? '' : 'hidden']">
+        Teste annonce form
     </section>
     <!-- ====================== End Create Company ================ -->
 </script>
-
 <div id="add-annonce">
-    <create-company v-bind:st="stateView"></create-company>
-    {% comment %}<create-annonce></create-annonce>{% endcomment %}
+    <create-company v-bind:st="stateView" v-on:changed="changeTemplate($event)" ></create-company>
+    <create-annonce v-bind:st="stateView"></create-annonce>
+
 </div>

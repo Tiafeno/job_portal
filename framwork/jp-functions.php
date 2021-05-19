@@ -7,9 +7,11 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_style('jp-icons', get_stylesheet_directory_uri() . '/assets/plugins/icons/css/icons.css');
     wp_register_style('jp-animate', get_stylesheet_directory_uri() . '/assets/plugins/animate/animate.css');
     wp_register_style('jp-bootnav', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/css/bootsnav.css');
-    wp_register_style('jp-nice-select', get_stylesheet_directory_uri() . '/assets/plugins/nice-select/css/nice-select.css');
+    //wp_register_style('jp-nice-select', get_stylesheet_directory_uri() . '/assets/plugins/nice-select/css/nice-select.css');
     wp_register_style('jp-aos', get_stylesheet_directory_uri() . '/assets/plugins/aos-master/aos.css');
     wp_register_style('jp-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css');
+    wp_register_style('semantic-dropdown', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/dropdown.min.css');
+    wp_register_style('semantic-transition', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/transition.min.css');
     wp_enqueue_style('style-name', get_stylesheet_uri(), [
         'elementor-frontend',
         'jp-bootstrap',
@@ -17,7 +19,9 @@ add_action('wp_enqueue_scripts', function() {
         'jp-icons',
         'jp-animate',
         'jp-bootnav',
-        'jp-nice-select',
+        //'jp-nice-select',
+        'semantic-dropdown',
+        'semantic-transition',
         'jp-aos',
     ]);
     wp_enqueue_style('jp-responsive');
@@ -32,15 +36,27 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_script('jp-wysihtml', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/js/wysihtml5-0.3.0.js', ['jquery', 'jp-bootstrap'], '1.0.0', true);
     wp_register_script('jp-bootstrap-wysihtml5', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/js/bootstrap-wysihtml5.js', ['jquery', 'jp-bootstrap'], '1.0.0', true);
     wp_register_script('jp-aos', get_stylesheet_directory_uri() . '/assets/plugins/aos-master/aos.js', ['jquery'], '1.0.0', true);
-    wp_register_script('jp-jquery-nice', get_stylesheet_directory_uri() . '/assets/plugins/nice-select/js/jquery.nice-select.min.js', ['jquery'], '1.0.0', true);
+    //wp_register_script('jp-jquery-nice', get_stylesheet_directory_uri() . '/assets/plugins/nice-select/js/jquery.nice-select.min.js', ['jquery'], '1.0.0', true);
     wp_register_script('vuejs', get_stylesheet_directory_uri() . '/assets/js/vuejs/vue.js', [], '2.5.16', true); // dev
     wp_register_script('wpapi', get_stylesheet_directory_uri() . '/assets/js/wpapi/wpapi.js', [], null, true); // dev
+    wp_register_script('semantic-dropdown', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/dropdown.min.js', ['jquery'], null, true);
+    wp_register_script('semantic-transition', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/transition.min.js', ['jquery'], null, true);
 
     wp_register_script('jp-custom', get_stylesheet_directory_uri() . '/assets/js/custom.js', [
-        'jquery', 'jp-bootstrap', 'jp-bootsnav',
-        'jp-viewportchecker', 'jp-slick', 'jp-wysihtml',
-        'jp-bootstrap-wysihtml5', 'jp-aos', 'jp-jquery-nice', 'jquery-validate'
+        'jquery',
+        'jp-bootstrap',
+        'jp-bootsnav',
+        'jp-viewportchecker',
+        'jp-slick',
+        'jp-wysihtml',
+        'jp-bootstrap-wysihtml5',
+        'jp-aos',
+        'semantic-dropdown',
+        'semantic-transition',
+        'jquery-validate'
     ], '1.0.1', true);
+
+    wp_register_script('comp-login', get_stylesheet_directory_uri() . '/assets/js/component-login.js', ['vuejs', 'wpapi'], null, true);
 
     wp_enqueue_script('lodash');
     wp_enqueue_script('jp-custom');

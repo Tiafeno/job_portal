@@ -77,7 +77,6 @@ class CompanyHelper {
      *
      */
     public function new_company() {
-
         return wp_send_json_success();
     }
 

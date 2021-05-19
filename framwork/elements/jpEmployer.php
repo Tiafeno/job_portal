@@ -8,7 +8,6 @@ if (!defined('ABSPATH')) {
 class jpEmployer extends \WP_User
 {
     public $company_id = 0;
-
     public function __construct($id = 0, $name = '', $site_id = '')
     {
         parent::__construct($id, $name, $site_id);

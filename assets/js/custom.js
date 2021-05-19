@@ -75,7 +75,12 @@
     });
     $().ready(function () {
         "use strict";
-        $('select').niceSelect();
+        //$('select').niceSelect();
+        $('.utf_main_banner_area select')
+            .dropdown({
+                clearable: true,
+                placeholder: 'any'
+            });
         $(window).scroll(function () {
             if ($(this).scrollTop() > 100) {
                 $('.scrollup').fadeIn();

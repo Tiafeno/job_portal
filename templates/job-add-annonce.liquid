@@ -1,8 +1,14 @@
 <script id="create-company" type="text/x-template">
-    <section class="" v-bind:class="[sectionClass, (st == 'create-company') ? '' : 'hidden']" >
+    <section v-bind:class="[sectionClass]">
         <div class="container">
             <h2>${heading}</h2>
-            <form class="c-form">
+            <form class="c-form" @submit="checkForm" method="post" action="" novalidate>
+                <p v-if="errors.length">
+                    <b>Please correct the following error(s):</b>
+                    <ul>
+                        <li style="color:red" v-for="error in errors">${ error }</li>
+                    </ul>
+                </p>
                 <!-- General Information -->
                 <div class="box">
                     <div class="box-header">
@@ -12,14 +18,16 @@
                         <div class="row">
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Company Name</label>
-                                <input type="text" class="form-control" placeholder="Company Name">
+                                <input type="text" v-model="formData.name" name="name" class="form-control"
+                                       placeholder="Company Name" required>
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Category</label>
-                                <select class="wide form-control">
-                                    <option data-display="Location">Information Of Technology</option>
-                                    <option value="1">Hardware</option>
-                                    <option value="2">Machanical</option>
+                                <select v-model="formData.category" name="category" class="form-control ui dropdown">
+                                    <option value="">Selectionner</option>
+                                    {% for ctg in category %}
+                                        <option value="{{ ctg.term_id }}">{{ ctg.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                         </div>
@@ -35,55 +43,54 @@
                         <div class="row">
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Email</label>
-                                <input type="email" class="form-control" placeholder="Email">
+                                <input type="email" v-model="formData.email" name="email" class="form-control" placeholder="Email" required>
                             </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Address</label>
-                                <input type="text" class="form-control" placeholder="Address">
+                                <input type="text" v-model="formData.address" name="address" class="form-control"
+                                       placeholder="Address" required>
                             </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Phone Number</label>
-                                <input type="text" class="form-control" placeholder="Phone Number">
+                                <input type="text" v-model="formData.phone" name="phone" class="form-control"
+                                       placeholder="Phone Number">
                             </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
                                 <label>Country</label>
-                                <select class="wide form-control">
-                                    <option data-display="State">Afghanistan</option>
-                                    <option value="1">Albania</option>
-                                    <option value="2">Algeria</option>
-                                    <option value="3">Brazil</option>
-                                    <option value="4">Burundi</option>
-                                    <option value="5">Bulgaria</option>
-                                    <option value="6">Germany</option>
-                                    <option value="7">Grenada</option>
-                                    <option value="8">Guatemala</option>
-                                    <option value="9" disabled>Iceland</option>
+                                <select v-model="formData.country" name="country" class="form-control ui dropdown">
+                                    <option value="">Selectionner</option>
+                                    {% for country in all_country %}
+                                        <option value="{{ country.term_id }}">{{ country.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>City</label>
-                                <input type="text" class="form-control" placeholder="City">
+                                <input type="text" v-model="formData.city" name="city" class="form-control" placeholder="Ville" required>
                             </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
                                 <label>Zip Code</label>
-                                <input type="text" pattern="[0-9]" class="form-control" placeholder="Zip Code">
+                                <input type="text" v-model="formData.zipcode" name="zipcode" class="form-control" required
+                                       placeholder="Code postal">
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Website Link</label>
-                                <input type="text" class="form-control" placeholder="Website Link">
+                                <input type="text" v-model="formData.website" name="website" class="form-control"
+                                       placeholder="Website Link">
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Employees</label>
-                                <select class="wide form-control">
-                                    <option value="0" data-display="Employees">10 - 50</option>
-                                    <option value="1">50 - 100</option>
-                                    <option value="2">100 - 500</option>
-                                    <option value="3" disabled>500 - 1000</option>
+                                <select v-model="formData.employees" name="employees" class="ui dropdown form-control">
+                                    <option value="1-5">1-5</option>
+                                    <option value="5-10">5-10</option>
+                                    <option value="10-50">10-50</option>
+                                    <option value="100-500">100-500</option>
+                                    <option value="500-1000">500-1000</option>
                                 </select>
                             </div>
                         </div>
@@ -99,30 +106,34 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <label>About Company</label>
-                                <textarea class="form-control height-120 textarea" placeholder="About Company"></textarea>
+                                <textarea v-model="formData.description" name="description" class="form-control height-120 textarea"
+                                          placeholder="About Company"></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="text-center">
-                    <button type="submit" class="btn btn-m theme-btn full-width">Submit</button>
+                    <button type="submit" class="btn btn-m theme-btn full-width">Ajouter</button>
                 </div>
             </form>
         </div>
-        <button @click="newSection('create-annonce')" >Next Form</button>
+        <button @click="newSection('create-annonce')">Next Form</button>
     </section>
     <!-- ====================== End Create Company ================ -->
 </script>
 
 
 <script id="create-annonce" type="text/x-template">
-    <section v-bind:class="[sectionClass, (st == 'create-annonce') ? '' : 'hidden']">
+    <section v-bind:class="[sectionClass]">
         Teste annonce form
     </section>
     <!-- ====================== End Create Company ================ -->
 </script>
 <div id="add-annonce">
-    <create-company v-bind:st="stateView" v-on:changed="changeTemplate($event)" ></create-company>
-    <create-annonce v-bind:st="stateView"></create-annonce>
+
+    <create-company v-if="isClient && !hasCompany" v-bind:me="Me"></create-company>
+    <comp-login v-if="!isClient"></comp-login>
+
+    {% comment %}<create-annonce v-bind:st="stateView"></create-annonce>{% endcomment %}
 
 </div>

@@ -9,6 +9,11 @@ require_once __DIR__ . '/vendor/autoload.php';
 $Liquid_engine = new Template(__DIR__ . '/templates');
 $Liquid_engine->setCache(new \Liquid\Cache\Local());
 
+add_action('wp_head', function() {
+    global $Liquid_engine;
+    echo $Liquid_engine->parseFile('theme')->render([]);
+});
+
 define('__SITENAME__', 'job_portal');
 load_theme_textdomain(__SITENAME__, get_template_directory() . '/languages');
 

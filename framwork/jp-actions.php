@@ -124,6 +124,50 @@ add_action('helper_register_jp_post_types', function () {
         'show_in_rest'      => true,
         'rewrite'           => array( 'slug' => 'mastered_technology' ),
     ] );
+
+    // Pays
+    register_taxonomy( 'country', [ 'jp-jobs', 'post' ], [
+        'hierarchical'      => true,
+        'labels'            => array(
+            'name'              => 'Pays',
+            'singular_name'     => 'Pays',
+            'search_items'      => 'Trouver',
+            'all_items'         => 'Trouver des pays',
+            'edit_item'         => 'Modifier',
+            'update_item'       => 'Mettre à jour',
+            'add_new_item'      => 'Ajouter',
+            'menu_name'         => 'Pays',
+        ),
+        'show_ui'           => true,
+        'show_admin_column' => false,
+        'query_var'         => true,
+        'public'            => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'country' ),
+    ] );
+
+    // Categorie company
+    register_taxonomy( 'category_company', [ 'jp-jobs', 'post' ], [
+        'hierarchical'      => true,
+        'labels'            => array(
+            'name'              => 'Categorie entreprise',
+            'singular_name'     => 'Categorie entreprise',
+            'search_items'      => 'Trouver',
+            'all_items'         => 'Trouver des categories d\'entreprise',
+            'edit_item'         => 'Modifier',
+            'update_item'       => 'Mettre à jour',
+            'add_new_item'      => 'Ajouter',
+            'menu_name'         => "Categorie d'entreprise",
+        ),
+        'show_ui'           => true,
+        'show_admin_column' => false,
+        'query_var'         => true,
+        'public'            => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'category-company' ),
+    ] );
+
+
 });
 
 /**

@@ -53,6 +53,16 @@ add_filter('body_class', function ($classes) {
     return $classes;
 });
 
+add_action('rest_api_init', function() {
+
+    // Employer
+    register_meta('user', 'company_id', [
+        'type' =>  'integer',
+        'single' => true,
+        'show_in_rest' => true
+    ]);
+});
+
 
 class JP_Primary_Walker extends Walker_Nav_Menu {
     public function start_lvl( &$output, $depth = 0, $args = array() ) {

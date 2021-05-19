@@ -76,11 +76,10 @@
     $().ready(function () {
         "use strict";
         //$('select').niceSelect();
-        $('.utf_main_banner_area select')
-            .dropdown({
-                clearable: true,
-                placeholder: 'any'
-            });
+        $('.utf_main_banner_area select').dropdown({
+            clearable: true,
+            placeholder: 'any'
+        });
         $(window).scroll(function () {
             if ($(this).scrollTop() > 100) {
                 $('.scrollup').fadeIn();
@@ -101,7 +100,34 @@
                 if ($('.dublicat-box', $wrapp).length > 1)
                     $(this).parent('.dublicat-box').remove();
             });
-        })
+        });
+
+        // On verifie si l'entreprise existe toujours
+        setInterval(function () {
+            if (!_.isUndefined(wpApiSettings)) {
+                var wpnodeapi = new WPAPI({
+                    endpoint: wpApiSettings.root,
+                    nonce: wpApiSettings.nonce
+                });
+                wpnodeapi.users().me().context('edit').then(function (user) {
+                    // TODO: Seulement les employer peuvent publier des annonces
+                    if (_.indexOf(user.roles, 'administrator') >= 0) {
+                        // check if company existing
+                        var companyId = parseInt(user.meta.company_id);
+                        if (companyId === 0) return;
+                        wpnodeapi.users().id(companyId).then(function (resp) {
+                        }).catch(function (err) {
+                            if (err.code === "rest_user_invalid_id") {
+                                wpnodeapi.users().me().update({
+                                    meta: {company_id: 0}
+                                });
+                            }
+                        });
+                    }
+                })
+            }
+
+        }, 15000);
     });
 
 })(jQuery);

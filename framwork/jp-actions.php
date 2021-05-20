@@ -246,26 +246,31 @@ add_action('action_jobportal_register', function() {
     }
 });
 
-// Permet de se connecter avec AJAX
-add_action('wp_ajax_nopriv_ajaxlogin', function() {
-    // First check the nonce, if it fails the function will break
-    check_ajax_referer( 'ajax-login-nonce', 'security' );
+add_action('init', function() {
+    // Permet de se connecter avec AJAX
+    add_action('wp_ajax_nopriv_ajax_login', 'ajax_login');
 
-    // Nonce is checked, get the POST data and sign user on
-    $info = array();
-    $info['user_login'] = $_POST['username'];
-    $info['user_password'] = $_POST['password'];
-    $info['remember'] = true;
+    function ajax_login() {
+        // First check the nonce, if it fails the function will break
+        //check_ajax_referer( 'ajax-login-nonce', 'security' );
 
-    $user_signon = wp_signon( $info, false );
-    if ( !is_wp_error($user_signon) ){
-        wp_set_current_user($user_signon->ID);
-        wp_set_auth_cookie($user_signon->ID);
-        wp_send_json_success('Login successful, redirecting...');
-    } else {
-        wp_send_json_error('Error login information');
+        // Nonce is checked, get the POST data and sign user on
+        $info = array();
+        $info['user_login'] = $_POST['username'];
+        $info['user_password'] = $_POST['password'];
+        $info['remember'] = true;
+
+        $user_signon = wp_signon( $info, false );
+        if ( !is_wp_error($user_signon) ){
+            wp_set_current_user($user_signon->ID);
+            wp_set_auth_cookie($user_signon->ID);
+            wp_send_json_success('Login successful, redirecting...');
+        } else {
+            wp_send_json_error('Error login information');
+        }
     }
 });
+
 
 add_action('new_job', function() {
 

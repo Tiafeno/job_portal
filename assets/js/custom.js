@@ -104,7 +104,7 @@
 
         // On verifie si l'entreprise existe toujours
         setInterval(function () {
-            if (!_.isUndefined(wpApiSettings)) {
+            if (typeof wpApiSettings !== 'undefined') {
                 var wpnodeapi = new WPAPI({
                     endpoint: wpApiSettings.root,
                     nonce: wpApiSettings.nonce

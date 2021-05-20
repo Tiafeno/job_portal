@@ -44,29 +44,29 @@
                     e.preventDefault();
                     this.errors = [];
                     const data = this.formData;
-                    if (_.isEmpty(data.name)) {
+                    if (lodash.isEmpty(data.name)) {
                         this.errors.push('Le titre est requis');
                     }
-                    if (_.isEmpty(data.category)) {
+                    if (lodash.isEmpty(data.category)) {
                         this.errors.push('Champ categorie est requis');
                     }
-                    if (_.isEmpty(data.email)) {
+                    if (lodash.isEmpty(data.email)) {
                         this.errors.push('Champ email est requis');
                     }
-                    if (_.isEmpty(data.address)) {
+                    if (lodash.isEmpty(data.address)) {
                         this.errors.push('Champ adresse est requis');
                     }
-                    if (_.isEmpty(data.country)) {
+                    if (lodash.isEmpty(data.country)) {
                         this.errors.push('Champ pays est requis');
                     }
-                    if (_.isEmpty(data.city)) {
+                    if (lodash.isEmpty(data.city)) {
                         this.errors.push('Champ ville est requis');
                     }
-                    if (_.isEmpty(data.description)) {
+                    if (lodash.isEmpty(data.description)) {
                         this.errors.push('Champ a propos est requis');
                     }
 
-                    if (_.isEmpty(this.errors)) {
+                    if (lodash.isEmpty(this.errors)) {
                         this.addCompany();
                     }
                 },
@@ -104,10 +104,10 @@
                     console.log(response);
                     switch (response.code) {
                         case 'existing_user_email':
-                            alertify.alert('Erreur', response.message, function () {
-                            });
+                            alertify.alert('Erreur', response.message, function () {});
                             break;
                         default:
+                            alertify.alert('Information', response.message, function () {});
                             break
                     }
                 },
@@ -141,7 +141,7 @@
             created: function () {
 
             },
-            props: ['st'],
+            props: [],
             delimiters: ['${', '}']
         };
 
@@ -150,36 +150,47 @@
             el: '#add-annonce',
             components: {
                 'create-company': CreateCompany,
-                'comp-login': CompLogin
+                'comp-login': CompLogin,
+                'create-annonce': CreateAnnonce
             },
             data: {
                 isClient: false,
                 hasCompany: false,
                 Me: {},
-                WPAPI: new WPAPI({
-                    endpoint: window.wpApiSettings.root,
-                    nonce: window.wpApiSettings.nonce
-                }),
+                WPAPI: null,
                 stateView: '',
             },
             created: function () {
-                const self = this;
                 // Check if is client
                 // var job_handler_api is global js variable in localize for add-annonce widget
                 this.isClient = parseInt(job_handler_api.current_user_id) !== 0;
-                // Si le client est connecter, On verifie s'il existe deja une entreprise
-                if (this.isClient) {
-                    this.WPAPI.users().me().context('edit')
-                        .then(function (resp) {
-                            self.Me = _.clone(resp);
-                            self.hasCompany = self.Me.meta.company_id !== 0;
-                        });
+                if (typeof wpApiSettings === 'undefined') {
+                    return;
                 }
+                this.verifyClient();
             },
             methods: {
+                verifyClient: function() {
+                    const self = this;
+                    this.WPAPI = new WPAPI({
+                        endpoint: wpApiSettings.root,
+                        nonce: wpApiSettings.nonce
+                    });
+                    // Si le client est connecter, On verifie s'il existe deja une entreprise
+                    if (this.isClient) {
+                        this.WPAPI.users().me().context('edit')
+                            .then(function (resp) {
+                                self.Me = lodash.clone(resp);
+                                self.hasCompany = self.Me.meta.company_id !== 0;
+                            });
+                    }
+                },
                 hasCompanyAccountfn: function($event) {
                     console.log($event);
                     this.hasCompany = $event;
+                },
+                loggedIn: function(data) {
+                    window.location.reload();
                 }
 
             },

@@ -112,9 +112,9 @@
                 </div>
                 <p v-if="errors.length" style="margin-top: 40px">
                     <b>Please correct the following error(s):</b>
-                <ul>
-                    <li style="color:red" v-for="error in errors">${ error }</li>
-                </ul>
+                    <ul>
+                        <li style="color:red" v-for="error in errors">${ error }</li>
+                    </ul>
                 </p>
             </form>
         </div>
@@ -131,10 +131,7 @@
     <!-- ====================== End Create Company ================ -->
 </script>
 <div id="add-annonce">
-
+    <comp-login v-if="!isClient" v-on:login-success="loggedIn"></comp-login>
     <create-company v-if="isClient && !hasCompany" v-bind:me="Me" v-on:has-company-account="hasCompanyAccountfn"></create-company>
-    <comp-login v-if="!isClient"></comp-login>
-
-    {% comment %}<create-annonce v-bind:st="stateView"></create-annonce>{% endcomment %}
-
+    <create-annonce v-if="isClient && hasCompany" v-bind:me="Me"></create-annonce>
 </div>

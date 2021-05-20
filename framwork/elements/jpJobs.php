@@ -13,6 +13,7 @@ class jpJobs
     private $post;
     public
         $title,
+        $company,
         $description;
     public function __construct(\WP_Post $post) {
         $this->post = $post;
@@ -24,9 +25,11 @@ class jpJobs
      */
     public function __get($name)
     {
-        if (isset($this->post->{$name}))
+        if (isset($this->post->{$name})):
             return $this->post->{$name};
-        return $this->{$name};
+        endif;
+        $meta_value = get_post_meta($this->post->ID, $name, false);
+        return $meta_value;
     }
 
     public function __set($name, $value)

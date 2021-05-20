@@ -26,8 +26,6 @@ add_action('wp_enqueue_scripts', function() {
         'jp-aos',
     ]);
     wp_enqueue_style('jp-responsive');
-
-
     // script
     wp_register_script('jquery-validate', 'https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js', ['jquery']);
     wp_register_script('jp-bootstrap', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/js/bootstrap.min.js', ['jquery'], '1.0.0', true);
@@ -43,7 +41,6 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_script('axios', get_stylesheet_directory_uri() . '/assets/js/axios.min.js', [], null, true); // dev
     wp_register_script('semantic-dropdown', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/dropdown.min.js', ['jquery'], null, true);
     wp_register_script('semantic-transition', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/transition.min.js', ['jquery'], null, true);
-
     wp_register_script('jp-custom', get_stylesheet_directory_uri() . '/assets/js/custom.js', [
         'jquery',
         'jp-bootstrap',
@@ -60,13 +57,11 @@ add_action('wp_enqueue_scripts', function() {
         'lodash',
         'axios'
     ], '1.0.1', true);
-
     wp_register_script('comp-login', get_stylesheet_directory_uri() . '/assets/js/component-login.js', ['vuejs', 'wpapi', 'axios', 'lodash'], null, true);
     wp_localize_script('comp-login', 'com_login_params', [
         'ajax_url' => admin_url( 'admin-ajax.php' ),
         'nonce_field' => wp_create_nonce('ajax-login-nonce')
     ]);
-
     wp_enqueue_script('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/alertify.min.js', ['jquery'], null, true);
     wp_enqueue_script('jp-custom');
 

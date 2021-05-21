@@ -38,11 +38,11 @@ final class jpCompany extends \WP_User
 {
     // Ces champs doivent être mis à jour manuellement
     // Utiliser l'action 'profile_update' https://developer.wordpress.org/reference/hooks/profile_update/
-    public $greeting; // mr: Monsieur, mrs: Madame
     public $company_name;
     public $address;
     public $region; // int - Reference with taxonomy 'Region'
     public $country; // int - Reference with taxonomy 'country'
+    public $city;
     public $nif;
     public $stat;
     public $phone_numbers = [];

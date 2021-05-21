@@ -84,7 +84,16 @@
                         first_name: "",
                         last_name: "",
                         roles: ['company'],
-                        meta: []
+                        meta: {
+                            country: 0,
+                            city: 0,
+                            address: '',
+                            region: 0,
+                            nif: '',
+                            stat: '',
+                            newsletter: 0, // bool value to subscribe or not
+
+                        }
                     })
                         .then(function (response) {
                             // Add this company for the employee
@@ -178,8 +187,21 @@
                 submitForm: function() {
                     const self = this;
                     this.loading = true;
-                    this.wpapinode.jobs().then(function(resp) {
+                    this.wpapinode.jobs().create({
+                        'title': this.inputs.title,
+                        'content': this.inputs.description,
+                        'meta': {
+                            salary_range: this.inputs.salary_range,
+                            experience: this.inputs.experience,
+                            type: this.inputs.type,
+                            qualification: this.inputs.qualification,
+                            skills: this.inputs.skills,
+                        },
+                        'status': 'pending',
+                    }).then(function(resp) {
                         console.log(resp);
+                    }).catch(function(err) {
+
                     });
                 }
             },

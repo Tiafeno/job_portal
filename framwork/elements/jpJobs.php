@@ -11,10 +11,7 @@ if (!defined('ABSPATH')) {
 class jpJobs
 {
     private $post;
-    public
-        $title,
-        $company,
-        $description;
+    public $company_id = 0;
     public function __construct(\WP_Post $post) {
         $this->post = $post;
     }

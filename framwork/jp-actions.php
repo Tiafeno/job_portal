@@ -133,7 +133,7 @@ add_action('helper_register_jp_post_types', function () {
         'show_in_rest' => true
     ]);
     // Logiciel maitrisés
-    register_taxonomy( 'tech_mastery', [ 'jp-jobs', 'post' ], [
+    register_taxonomy( 'tech_mastery', [ 'post' ], [
         'hierarchical'      => true,
         'labels'            => array(
             'name'              => 'Mastered Technology',
@@ -156,7 +156,7 @@ add_action('helper_register_jp_post_types', function () {
     ] );
 
     // Pays
-    register_taxonomy( 'country', [ 'jp-jobs', 'post' ], [
+    register_taxonomy( 'country', [ 'post' ], [
         'hierarchical'      => true,
         'labels'            => array(
             'name'              => 'Pays',
@@ -177,7 +177,7 @@ add_action('helper_register_jp_post_types', function () {
     ] );
 
     // Categorie company
-    register_taxonomy( 'category_company', [ 'jp-jobs', 'post' ], [
+    register_taxonomy( 'category_company', [ 'post' ], [
         'hierarchical'      => true,
         'labels'            => array(
             'name'              => 'Categorie entreprise',

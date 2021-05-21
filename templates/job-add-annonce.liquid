@@ -128,7 +128,7 @@
     <section v-bind:class="[sectionClass]">
         <!-- ======================= Create Job ===================== -->
         <div class="container" data-aos="fade-up">
-            <form class="c-form">
+            <form class="c-form" @submit="checkAddForm" method="post" action="" novalidate>
                 <!-- General Information -->
                 <div class="box">
                     <div class="box-header">
@@ -138,15 +138,11 @@
                         <div class="row">
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Job Title</label>
-                                <input type="text" class="form-control" placeholder="Job Title">
-                            </div>
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Company Name</label>
-                                <input type="text" class="form-control" placeholder="Company Name">
+                                <input type="text" name="title" v-model="inputs.title" class="form-control" placeholder="Job Title">
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Category job</label>
-                                <select class="wide form-control">
+                                <select name="category" v-model="inputs.category" class="ui dropdown form-control">
                                     <option data-display="Location">Information Of Technology</option>
                                     <option value="1">Hardware</option>
                                     <option value="2">Machanical</option>
@@ -154,34 +150,30 @@
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Salary Range</label>
-                                <select class="wide form-control">
-                                    <option data-display="Salary Range">2,0000</option>
-                                    <option value="1">3,0000</option>
-                                    <option value="2">4,0000</option>
-                                </select>
+                                <input type="range" name="salary_range" v-model="inputs.salary_range" class="wide form-control">
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
                                 <label>Experience</label>
-                                <select class="wide form-control">
-                                    <option data-display="Experience">0 - 6 Mois</option>
+                                <select name="experience" v-model="inputs.experience" class="ui dropdown form-control">
+                                    <option :value="0" data-display="Experience">0 - 6 Mois</option>
                                     <option :value="year" v-for="year in [1, 2, 3, 4, 5]">${year} ans</option>
                                 </select>
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
                                 <label>Job Type</label>
-                                <select class="wide form-control">
-                                    <option data-display="Job Type">Full Time</option>
-                                    <option value="1">Part Time</option>
-                                    <option value="2">Freelancer</option>
+                                <select name="type" v-model="inputs.type" class="wide form-control">
+                                    <option :value="0" data-display="Job Type">Full Time</option>
+                                    <option :value="1">Part Time</option>
+                                    <option :value="2">Freelancer</option>
                                 </select>
                             </div>
                             <div class="col-md-6 col-sm-6 col-xs-12 m-clear">
                                 <label>Qualification Required</label>
-                                <input type="text" class="form-control" placeholder="Qualification">
+                                <input type="text" name="qualification" v-model="inputs.qualification" class="form-control" placeholder="Qualification">
                             </div>
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <label>Skills(Seperate with Comma)</label>
-                                <input type="text" class="form-control" placeholder="Skills">
+                                <input name="skills" v-model="inputs.skills" type="text" class="form-control" placeholder="Skills">
                             </div>
                         </div>
                     </div>
@@ -195,7 +187,7 @@
                     <div class="box-body">
                         <div class="row">
                             <div class="col-sm-12">
-                                <textarea name="description" class="form-control height-120 textarea"
+                                <textarea name="description" v-model="inputs.description" class="form-control height-120 textarea"
                                           placeholder="About job"></textarea>
                             </div>
                         </div>
@@ -203,7 +195,7 @@
                 </div>
 
                 <div class="text-center">
-                    <button type="submit" class="btn btn-m theme-btn full-width">Submit</button>
+                    <button type="submit" class="btn btn-m theme-btn full-width">Publier mon annonce</button>
                 </div>
             </form>
         </div>
@@ -214,5 +206,5 @@
 <div id="add-annonce">
     <comp-login v-if="!isClient" v-on:login-success="loggedIn"></comp-login>
     <create-company v-if="isClient && !hasCompany" v-bind:me="Me" v-on:has-company-account="hasCompanyAccountfn"></create-company>
-    <create-annonce v-if="isClient && hasCompany" v-bind:me="Me"></create-annonce>
+    <create-annonce v-if="isClient && hasCompany" v-bind:me="Me"  v-bind:wpapinode="WPAPI"></create-annonce>
 </div>

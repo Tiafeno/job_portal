@@ -96,18 +96,20 @@
                                 self.$emit('has-company-account', true);
                             });
                         }).catch(function (err) {
-                            self.loading = false;
-                            self.errorHandler(err);
+                        self.loading = false;
+                        self.errorHandler(err);
                     });
                 },
                 errorHandler: function (response) {
                     console.log(response);
                     switch (response.code) {
                         case 'existing_user_email':
-                            alertify.alert('Erreur', response.message, function () {});
+                            alertify.alert('Erreur', response.message, function () {
+                            });
                             break;
                         default:
-                            alertify.alert('Information', response.message, function () {});
+                            alertify.alert('Information', response.message, function () {
+                            });
                             break
                     }
                 },
@@ -136,12 +138,52 @@
                 return {
                     heading: "Ajouter une annonce",
                     sectionClass: 'utf_create_company_area padd-top-80 padd-bot-80',
+                    loading: false,
+                    errors: [],
+                    inputs: {
+                        title: '',
+                        salary_range: '',
+                        category: '',
+                        experience: 0,
+                        type: '', //CDI, CDD etc..
+                        qualification: '',
+                        skills: '',
+                        description: ''
+                    },
                 }
             },
             created: function () {
 
             },
-            props: [],
+            mounted: function () {
+                $('select')
+                    .dropdown({
+                        clearable: true,
+                        placeholder: 'any'
+                    })
+            },
+            methods: {
+                checkAddForm: function (ev) {
+                    ev.preventDefault();
+                    this.errors = [];
+                    if (lodash.isEmpty(this.inputs.title)) {
+                        this.errors.push("Le titre est requis");
+                    }
+                    if(lodash.isEmpty(this.inputs.description)) {
+                        this.errors.push("Description requis");
+                    }
+
+                    this.submitForm();
+                },
+                submitForm: function() {
+                    const self = this;
+                    this.loading = true;
+                    this.wpapinode.jobs().then(function(resp) {
+                        console.log(resp);
+                    });
+                }
+            },
+            props: ['me', 'wpapinode'],
             delimiters: ['${', '}']
         };
 
@@ -153,12 +195,14 @@
                 'comp-login': CompLogin,
                 'create-annonce': CreateAnnonce
             },
-            data: {
-                isClient: false,
-                hasCompany: false,
-                Me: {},
-                WPAPI: null,
-                stateView: '',
+            data: function () {
+                return {
+                    isClient: false,
+                    hasCompany: false,
+                    Me: {},
+                    WPAPI: null,
+                    stateView: '',
+                }
             },
             created: function () {
                 // Check if is client
@@ -170,12 +214,17 @@
                 this.verifyClient();
             },
             methods: {
-                verifyClient: function() {
+                verifyClient: function () {
                     const self = this;
                     this.WPAPI = new WPAPI({
                         endpoint: wpApiSettings.root,
                         nonce: wpApiSettings.nonce
                     });
+                    this.WPAPI.jobs = this.WPAPI.registerRoute( 'wp/v2', '/emploi/(?P<id>\\d+)',{
+                        // Listing any of these parameters will assign the built-in
+                        // chaining method that handles the parameter:
+                        params: [ 'before', 'after', 'author', 'par_page', 'offset', 'context', 'search' ]
+                    } )
                     // Si le client est connecter, On verifie s'il existe deja une entreprise
                     if (this.isClient) {
                         this.WPAPI.users().me().context('edit')
@@ -185,11 +234,11 @@
                             });
                     }
                 },
-                hasCompanyAccountfn: function($event) {
+                hasCompanyAccountfn: function ($event) {
                     console.log($event);
                     this.hasCompany = $event;
                 },
-                loggedIn: function(data) {
+                loggedIn: function (data) {
                     window.location.reload();
                 }
 

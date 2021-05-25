@@ -1,6 +1,13 @@
 <?php
 use Liquid\Template;
+// Disable warning php error
+error_reporting(E_ERROR | E_PARSE);
 
+defined('DS') ? null : define('DS', DIRECTORY_SEPARATOR);
+defined('__SITENAME__') ? null: define('__SITENAME__', 'job_portal');
+// URL value
+defined('_ACCOUNT_URL_') ? null: define('_ACCOUNT_URL_', DS .'mon-compte');
+defined('_ADD_ANNONCE_URL_') ? null: define('_ADD_ANNONCE_URL_', DS . 'add-annonce');
 
 require_once __DIR__ . '/framwork/loader.php'; // Load all elements
 require_once __DIR__ . '/vendor/autoload.php';
@@ -9,12 +16,23 @@ require_once __DIR__ . '/vendor/autoload.php';
 $Liquid_engine = new Template(__DIR__ . '/templates');
 $Liquid_engine->setCache(new \Liquid\Cache\Local());
 
+// Create filter
+$Liquid_engine->registerFilter('taxonomy', function($taxonomy_name) {
+    $result = get_terms([
+        'taxonomy' => $taxonomy_name,
+        'hide_empty' => false,
+        'number' => 100,
+        'fields' => 'all',
+    ]);
+    if (is_wp_error($result) || !is_array($result)) return [];
+    return $result;
+});
+
 add_action('wp_head', function() {
     global $Liquid_engine;
     echo $Liquid_engine->parseFile('theme')->render([]);
 });
 
-define('__SITENAME__', 'job_portal');
 load_theme_textdomain(__SITENAME__, get_template_directory() . '/languages');
 
 add_action('after_setup_theme', function () {

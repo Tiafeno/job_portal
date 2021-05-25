@@ -119,7 +119,7 @@
                         }).catch(function (err) {
                             if (err.code === "rest_user_invalid_id") {
                                 wpnodeapi.users().me().update({
-                                    meta: {company_id: 0}
+                                    meta: { company_id: 0 }
                                 });
                             }
                         });

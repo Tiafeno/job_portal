@@ -41,6 +41,23 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600&display=swap" rel="stylesheet">
+    <script type="text/javascript">
+        function renderLoginModel() {
+            // Application
+            if (typeof CompLogin === 'undefined') return;
+            new Vue({
+                el: '#signin',
+                components: { 'comp-login': CompLogin },
+                data: function () { return { } },
+                methods: {
+                    loggedIn: function (data) {
+                        window.location.reload();
+                    }
+                },
+                delimiters: ['${', '}']
+            });
+        }
+    </script>
 </head>
 <body <?php body_class(); ?> >
     <div class="page_preloader"></div>
@@ -76,84 +93,30 @@
                 );
                 ?>
 
-
+                <?php if (is_user_logged_in()): ?>
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="br-right"><a class="btn-signup red-btn" href="javascript:void(0)" data-toggle="modal" data-target="#signin"><i class="login-icon ti-user"></i>Login</a></li>
+                    <li class="br-right"><a class="btn-signup red-btn" onclick="renderLoginModel()" data-toggle="modal" data-target="#signin"><i class="login-icon ti-user"></i>Login</a></li>
                     <li class="sign-up"><a class="btn-signup red-btn" href="<?= home_url('/register') ?>"><span class="ti-briefcase"></span>Register</a></li>
                 </ul>
+                <?php endif; ?>
             </div>
         </div>
     </nav>
 
+    <?php if (is_user_logged_in()): ?>
     <!-- Signup Code -->
     <div class="modal fade" id="signin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content" id="myModalLabel1">
                 <div class="modal-body">
-                    <!-- Nav tabs -->
-                    <ul class="nav nav-tabs nav-advance theme-bg" role="tablist">
-                        <li class="nav-item active"> <a class="nav-link" data-toggle="tab" href="#employer" role="tab"> <i class="ti-user"></i> Job Seeker</a> </li>
-                        <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#candidate" role="tab"> <i class="ti-user"></i> Job Provider</a> </li>
-                    </ul>
-                    <!-- Nav tabs -->
-                    <!-- Tab panels -->
-                    <div class="tab-content">
-                        <!-- Employer Panel 1-->
-                        <div class="tab-pane fade in show active" id="employer" role="tabpanel">
-                            <form>
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Email Address">
-                                </div>
-                                <div class="form-group">
-                                    <input type="password" class="form-control" placeholder="Password">
-                                </div>
-                                <div class="form-group"> <span class="custom-checkbox">
-                <input type="checkbox" id="4">
-                <label for="4"></label>
-                Remember Me </span> <a href="#" title="Forget" class="fl-right">Forgot Password?</a>
-                                </div>
-                                <div class="form-group text-center">
-                                    <button type="button" class="btn theme-btn full-width btn-m">LogIn</button>
-                                </div>
-                            </form>
-                            <div class="log-option"><span>OR</span></div>
-                            <div class="row">
-                                <div class="col-md-6"> <a href="#" title="" class="fb-log-btn log-btn"><i class="fa fa-facebook"></i> Facebook</a> </div>
-                                <div class="col-md-6"> <a href="#" title="" class="gplus-log-btn log-btn"><i class="fa fa-google"></i> Google</a> </div>
-                            </div>
-                        </div>
-                        <!--/.Panel 1-->
-
-                        <!-- Candidate Panel 2-->
-                        <div class="tab-pane fade" id="candidate" role="tabpanel">
-                            <form>
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Email Address">
-                                </div>
-                                <div class="form-group">
-                                    <input type="password" class="form-control" placeholder="Password">
-                                </div>
-                                <div class="form-group"> <span class="custom-checkbox">
-                <input type="checkbox" id="44">
-                <label for="44"></label>
-                Remember Me </span> <a href="#" title="Forget" class="fl-right">Forgot Password?</a>
-                                </div>
-                                <div class="form-group text-center">
-                                    <button type="button" class="btn theme-btn full-width btn-m">LogIn</button>
-                                </div>
-                            </form>
-                            <div class="log-option"><span>OR</span></div>
-                            <div class="row">
-                                <div class="col-md-6"> <a href="#" title="" class="fb-log-btn log-btn"><i class="fa fa-facebook"></i> Facebook</a> </div>
-                                <div class="col-md-6"> <a href="#" title="" class="gplus-log-btn log-btn"><i class="fa fa-google"></i> Google</a> </div>
-                            </div>
-                        </div>
+                    <div class="tab-pane fade in show active" id="employer" role="tabpanel">
+                        <comp-login v-on:login-success="loggedIn"></comp-login>
                     </div>
-                    <!-- Tab panels -->
                 </div>
             </div>
         </div>
     </div>
     <!-- End Signup -->
+    <?php endif; ?>
     <!-- ======================= End Navigation ===================== -->
 

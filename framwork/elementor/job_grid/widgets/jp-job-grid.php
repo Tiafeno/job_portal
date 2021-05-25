@@ -8,6 +8,23 @@ class JobGrid_Widget extends Widget_Base
 {
     public static $slug = 'job-grid';
 
+    public function __construct($data = [], $args = null)
+    {
+        parent::__construct($data, $args);
+        // https://developers.elementor.com/creating-a-new-widget/adding-javascript-to-elementor-widgets/
+        wp_register_script('comp-job-grid', get_stylesheet_directory_uri() . '/assets/js/component-job-grid.js',
+            ['vuejs', 'wpapi', 'axios', 'lodash'], null, true);
+    }
+    public function get_script_depends()
+    {
+        wp_localize_script('comp-job-grid', 'apiSettings', [
+            'root' => esc_url_raw( rest_url() ),
+            'nonce' => wp_create_nonce( 'wp_rest' )
+        ]);
+        return ['comp-job-grid'];
+    }
+
+
     public function get_name()
     {
         return self::$slug;

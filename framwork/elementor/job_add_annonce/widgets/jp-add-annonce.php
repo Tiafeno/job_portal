@@ -8,20 +8,19 @@ use Elementor\Widget_Base;
 class JobAddAnnonce_Widget extends Widget_Base
 {
     public static $slug = 'job-add-annonce';
-
     public function __construct($data = [], $args = null)
     {
         parent::__construct($data, $args);
         // https://developers.elementor.com/creating-a-new-widget/adding-javascript-to-elementor-widgets/
         wp_register_script('comp-add-annonce', get_stylesheet_directory_uri() . '/assets/js/component-add-annonce.js',
             ['comp-login', 'lodash'], null, true);
-
     }
 
     public function get_script_depends()
     {
         wp_localize_script('comp-add-annonce', 'job_handler_api', [
-            'current_user_id' => intval(get_current_user_id())
+            'current_user_id' => intval(get_current_user_id()),
+            'account_url' => home_url( _ACCOUNT_URL_ )
         ]);
         return ['comp-add-annonce'];
     }
@@ -45,8 +44,7 @@ class JobAddAnnonce_Widget extends Widget_Base
     {
         return ['general'];
     }
-
-
+    
     /**
      * Render button widget output on the frontend.
      * Written in PHP and used to generate the final HTML.
@@ -56,23 +54,7 @@ class JobAddAnnonce_Widget extends Widget_Base
     protected function render()
     {
         global $Liquid_engine;
-
-        $category_company = get_terms([
-            'taxonomy' => 'category_company',
-            'hide_empty' => false,
-            'number' => 100,
-            'fields' => 'all',
-        ]);
-        $country = get_terms([
-            'taxonomy' => 'country',
-            'hide_empty' => false,
-            'number' => 100,
-            'fields' => 'all',
-        ]);
-        echo $Liquid_engine->parseFile('job-add-annonce')->render([
-            'all_country' => $country,
-            'category' => $category_company
-        ]);
+        echo $Liquid_engine->parseFile('job-add-annonce')->render([]);
     }
 }
 

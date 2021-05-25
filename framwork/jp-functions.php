@@ -57,15 +57,16 @@ add_action('wp_enqueue_scripts', function() {
         'lodash',
         'axios'
     ], '1.0.1', true);
+
     wp_register_script('comp-login', get_stylesheet_directory_uri() . '/assets/js/component-login.js', ['vuejs', 'wpapi', 'axios', 'lodash'], null, true);
     wp_localize_script('comp-login', 'com_login_params', [
         'ajax_url' => admin_url( 'admin-ajax.php' ),
         'nonce_field' => wp_create_nonce('ajax-login-nonce')
     ]);
+
     wp_enqueue_script('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/alertify.min.js', ['jquery'], null, true);
     wp_enqueue_script('jp-custom');
-
-
+    wp_enqueue_script('comp-login');
 });
 
 add_filter('body_class', function ($classes) {
@@ -74,13 +75,19 @@ add_filter('body_class', function ($classes) {
 });
 
 add_action('rest_api_init', function() {
-
-    // Employer
-    register_meta('user', 'company_id', [
-        'type' =>  'integer',
-        'single' => true,
-        'show_in_rest' => true
-    ]);
+    // Annonce API
+    $job_meta_int = ['experience', 'employer_id'];
+    foreach ($job_meta_int as $meta) {
+        register_post_meta('jp-jobs', $meta, [
+            'type' =>  'integer',
+            'single' => true,
+            'show_in_rest' => true,
+            'auth_callback' => function() {
+                //return current_user_can( 'edit_posts' );
+                return true;
+            }
+        ]);
+    }
 });
 
 

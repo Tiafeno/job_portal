@@ -30,7 +30,7 @@ const CompLogin = {
         submitLogin: function() {
             const self = this;
             this.loading = true;
-            var data = new FormData();
+            let data = new FormData();
             data.append('username', self.user_login);
             data.append('password', self.user_password);
             data.append('remember', true);

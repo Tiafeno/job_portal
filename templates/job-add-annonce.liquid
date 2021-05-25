@@ -1,14 +1,14 @@
+{% assign categories = 'category'|taxonomy %}
+{% assign countries = 'country'|taxonomy %}
+
 <script id="create-company" type="text/x-template">
     <section v-bind:class="[sectionClass]">
         <div class="container">
             <h2>${heading}</h2>
             <form class="c-form" @submit="checkForm" method="post" action="" novalidate>
-
                 <!-- General Information -->
                 <div class="box">
-                    <div class="box-header">
-                        <h4>General Information</h4>
-                    </div>
+                    <div class="box-header"><h4>General Information</h4></div>
                     <div class="box-body">
                         <div class="row">
                             <div class="col-md-4 col-sm-6 col-xs-12">
@@ -20,8 +20,7 @@
                                 <label>Category</label>
                                 <select v-model="formData.category" name="category" class="form-control ui dropdown">
                                     <option value="">Selectionner</option>
-                                    {% for ctg in category %}
-                                        <option value="{{ ctg.term_id }}">{{ ctg.name }}</option>
+                                    {% for categorie in categories %}<option value="{{ categorie.term_id }}">{{ categorie.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -40,34 +39,29 @@
                                 <label>Email</label>
                                 <input type="email" v-model="formData.email" name="email" class="form-control" placeholder="Email" required>
                             </div>
-
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Address</label>
                                 <input type="text" v-model="formData.address" name="address" class="form-control"
                                        placeholder="Address" required>
                             </div>
-
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>Phone Number</label>
                                 <input type="text" v-model="formData.phone" name="phone" class="form-control"
                                        placeholder="Phone Number">
                             </div>
-
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
                                 <label>Country</label>
                                 <select v-model="formData.country" name="country" class="form-control ui dropdown">
                                     <option value="">Selectionner</option>
-                                    {% for country in all_country %}
+                                    {% for country in countries %}
                                         <option value="{{ country.term_id }}">{{ country.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-
                             <div class="col-md-4 col-sm-6 col-xs-12">
                                 <label>City</label>
                                 <input type="text" v-model="formData.city" name="city" class="form-control" placeholder="Ville" required>
                             </div>
-
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
                                 <label>Zip Code</label>
                                 <input type="text" v-model="formData.zipcode" name="zipcode" class="form-control" required
@@ -110,20 +104,15 @@
                 <div class="text-center">
                     <button type="submit" class="btn btn-m theme-btn full-width">Ajouter</button>
                 </div>
-                <p v-if="errors.length" style="margin-top: 40px">
+                <div v-if="errors.length" style="margin-top: 40px">
                     <b>Please correct the following error(s):</b>
-                    <ul>
-                        <li style="color:red" v-for="error in errors">${ error }</li>
-                    </ul>
-                </p>
+                    <ul><li style="color:#ff0000" v-for="error in errors">${ error }</li></ul>
+                </div>
             </form>
         </div>
-        <button @click="newSection('create-annonce')">Next Form</button>
     </section>
     <!-- ====================== End Create Company ================ -->
 </script>
-
-
 <script id="create-annonce" type="text/x-template">
     <section v-bind:class="[sectionClass]">
         <!-- ======================= Create Job ===================== -->
@@ -136,44 +125,52 @@
                     </div>
                     <div class="box-body">
                         <div class="row">
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Job Title</label>
-                                <input type="text" name="title" v-model="inputs.title" class="form-control" placeholder="Job Title">
+                            <div class="col-md-8 col-sm-12 col-xs-12">
+                                <label>Titre</label>
+                                <input type="text" name="title" v-model="inputs.title" class="form-control" placeholder="Titre" required>
                             </div>
+
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Category job</label>
-                                <select name="category" v-model="inputs.category" class="ui dropdown form-control">
-                                    <option data-display="Location">Information Of Technology</option>
-                                    <option value="1">Hardware</option>
-                                    <option value="2">Machanical</option>
+                                <label>Category</label>
+                                <select name="category" v-model="inputs.category" class="ui dropdown form-control" required>
+                                    {% for categorie in categories %}
+                                        <option :value="{{ categorie.term_id }}">{{ categorie.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Salary Range</label>
-                                <input type="range" name="salary_range" v-model="inputs.salary_range" class="wide form-control">
-                            </div>
+
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
                                 <label>Experience</label>
-                                <select name="experience" v-model="inputs.experience" class="ui dropdown form-control">
+                                <select name="experience" v-model="inputs.experience" class="ui dropdown form-control" required>
                                     <option :value="0" data-display="Experience">0 - 6 Mois</option>
                                     <option :value="year" v-for="year in [1, 2, 3, 4, 5]">${year} ans</option>
                                 </select>
                             </div>
+
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
                                 <label>Job Type</label>
-                                <select name="type" v-model="inputs.type" class="wide form-control">
-                                    <option :value="0" data-display="Job Type">Full Time</option>
-                                    <option :value="1">Part Time</option>
-                                    <option :value="2">Freelancer</option>
+                                <select name="type" v-model="inputs.type" class="wide form-control" required>
+                                    {% assign job_type = 'job_type'|taxonomy %}
+                                    {% for type in job_type %}
+                                        <option :value="{{ type.term_id }}">{{ type.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
+
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <label>Salary Range (Maximum)</label>
+                                <select name="salary_range" v-model="inputs.salary_range" class="ui dropdown form-control">
+                                    {% assign _salaires = 'salaries'|taxonomy %}
+                                    {% for salaire in _salaires %}
+                                        <option :value="{{ salaire.term_id }}">{{ salaire.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
                             <div class="col-md-6 col-sm-6 col-xs-12 m-clear">
                                 <label>Qualification Required</label>
-                                <input type="text" name="qualification" v-model="inputs.qualification" class="form-control" placeholder="Qualification">
-                            </div>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                <label>Skills(Seperate with Comma)</label>
-                                <input name="skills" v-model="inputs.skills" type="text" class="form-control" placeholder="Skills">
+                                <input type="text" name="qualification" v-model="inputs.qualification"
+                                       class="form-control" placeholder="Qualification">
                             </div>
                         </div>
                     </div>
@@ -196,6 +193,10 @@
 
                 <div class="text-center">
                     <button type="submit" class="btn btn-m theme-btn full-width">Publier mon annonce</button>
+                </div>
+                <div v-if="errors.length" style="margin-top: 40px">
+                    <b>Please correct the following error(s):</b>
+                    <ul><li style="color:#ff0000" v-for="error in errors">${ error }</li></ul>
                 </div>
             </form>
         </div>

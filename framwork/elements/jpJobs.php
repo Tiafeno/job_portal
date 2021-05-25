@@ -10,8 +10,12 @@ if (!defined('ABSPATH')) {
 // L'objet Job
 class jpJobs
 {
+
+//    $job_experience
+//    $job_skills
+//    $job_employer_id
+
     private $post;
-    public $company_id = 0;
     public function __construct(\WP_Post $post) {
         $this->post = $post;
     }
@@ -40,6 +44,13 @@ class jpJobs
      */
     public function get_post() {
         return $this->post;
+    }
+
+    public function get_employer() {
+        $employer = get_user_by('ID', $this->employer_id);
+        if (!$employer) return false;
+        return $employer;
+
     }
 
 }

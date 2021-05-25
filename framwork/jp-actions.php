@@ -132,12 +132,16 @@ add_action('helper_register_jp_post_types', function () {
         'supports' => ['title', 'editor', 'excerpt', 'thumbnail', 'custom-fields'],
         'show_in_rest' => true
     ]);
+
+    // Ajouter category pour le 'jp-jobs'
+    register_taxonomy_for_object_type('category', 'jp-jobs');
+
     // Logiciel maitrisés
     register_taxonomy( 'tech_mastery', [ 'post' ], [
         'hierarchical'      => true,
         'labels'            => array(
-            'name'              => 'Mastered Technology',
-            'singular_name'     => 'Mastered Tech.',
+            'name'              => 'Logiciels',
+            'singular_name'     => 'Logiciel',
             'search_items'      => 'Trouver',
             'all_items'         => 'Trouver des tech.',
             'parent_item'       => 'Tech. parent',
@@ -145,7 +149,7 @@ add_action('helper_register_jp_post_types', function () {
             'edit_item'         => 'Modifier la technologie',
             'update_item'       => 'Mettre à jour',
             'add_new_item'      => 'Ajouter',
-            'menu_name'         => 'Mastered Technology',
+            'menu_name'         => 'Logiciels',
         ),
         'show_ui'           => true,
         'show_admin_column' => false,
@@ -153,7 +157,74 @@ add_action('helper_register_jp_post_types', function () {
         'public'            => true,
         'show_in_rest'      => true,
         'rewrite'           => array( 'slug' => 'mastered_technology' ),
-    ] );
+    ]);
+
+    //  Salaires
+    register_taxonomy( 'salaries', [ 'jp-jobs' ], [
+        'hierarchical'      => true,
+        'labels'            => array(
+            'name'              => 'Salaires',
+            'singular_name'     => 'Salaire',
+            'search_items'      => 'Trouver',
+            'all_items'         => 'Trouver des salaires.',
+            'parent_item'       => 'Tech. parent',
+            'parent_item_colon' => 'Tech. parent:',
+            'edit_item'         => 'Modifier le salaire',
+            'update_item'       => 'Mettre à jour',
+            'add_new_item'      => 'Ajouter',
+            'menu_name'         => 'Salaires',
+        ),
+        'show_ui'           => true,
+        'show_admin_column' => false,
+        'query_var'         => true,
+        'public'            => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'salaries' ),
+    ]);
+
+    //  Qualification
+    register_taxonomy( 'qualification', [ 'jp-jobs' ], [
+        'hierarchical'      => true,
+        'labels'            => array(
+            'name'              => 'Qualifications',
+            'singular_name'     => 'Qualification',
+            'search_items'      => 'Trouver',
+            'all_items'         => 'Trouver des qualifications',
+            'edit_item'         => 'Modifier la qualification',
+            'update_item'       => 'Mettre à jour',
+            'add_new_item'      => 'Ajouter',
+            'menu_name'         => 'Qualifications',
+        ),
+        'show_ui'           => true,
+        'show_admin_column' => false,
+        'query_var'         => true,
+        'public'            => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'qualification' ),
+    ]);
+
+    //  Type de travail
+    register_taxonomy( 'job_type', [ 'jp-jobs' ], [
+        'hierarchical'      => true,
+        'labels'            => array(
+            'name'              => 'Type de travail',
+            'singular_name'     => 'Type de travail',
+            'search_items'      => 'Trouver',
+            'all_items'         => 'Trouver des types',
+            'parent_item'       => 'Tech. parent',
+            'parent_item_colon' => 'Tech. parent:',
+            'edit_item'         => 'Modifier le type',
+            'update_item'       => 'Mettre à jour',
+            'add_new_item'      => 'Ajouter',
+            'menu_name'         => 'Type de travail',
+        ),
+        'show_ui'           => true,
+        'show_admin_column' => false,
+        'query_var'         => true,
+        'public'            => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'job_type' ),
+    ]);
 
     // Pays
     register_taxonomy( 'country', [ 'post' ], [
@@ -175,29 +246,6 @@ add_action('helper_register_jp_post_types', function () {
         'show_in_rest'      => true,
         'rewrite'           => array( 'slug' => 'country' ),
     ] );
-
-    // Categorie company
-    register_taxonomy( 'category_company', [ 'post' ], [
-        'hierarchical'      => true,
-        'labels'            => array(
-            'name'              => 'Categorie entreprise',
-            'singular_name'     => 'Categorie entreprise',
-            'search_items'      => 'Trouver',
-            'all_items'         => 'Trouver des categories d\'entreprise',
-            'edit_item'         => 'Modifier',
-            'update_item'       => 'Mettre à jour',
-            'add_new_item'      => 'Ajouter',
-            'menu_name'         => "Categorie d'entreprise",
-        ),
-        'show_ui'           => true,
-        'show_admin_column' => false,
-        'query_var'         => true,
-        'public'            => true,
-        'show_in_rest'      => true,
-        'rewrite'           => array( 'slug' => 'category-company' ),
-    ] );
-
-
 });
 
 /**
@@ -249,7 +297,6 @@ add_action('action_jobportal_register', function() {
 add_action('init', function() {
     // Permet de se connecter avec AJAX
     add_action('wp_ajax_nopriv_ajax_login', 'ajax_login');
-
     function ajax_login() {
         // First check the nonce, if it fails the function will break
         //check_ajax_referer( 'ajax-login-nonce', 'security' );
@@ -270,7 +317,6 @@ add_action('init', function() {
         }
     }
 });
-
 
 add_action('new_job', function() {
 

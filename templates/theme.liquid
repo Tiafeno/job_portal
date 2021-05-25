@@ -58,34 +58,30 @@
             </li>
         </ul>
         <!-- Nav tabs -->
-                <form @submit="checkLoginForm" method="post" action="" novalidate>
-                    <div class="form-group">
-                        <input type="text" v-model="user_login" name="user_login" class="form-control"
-                               placeholder="Email Address" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" v-model="user_password" name="user_password" class="form-control"
-                               placeholder="Password" required>
-                    </div>
-                    <div class="form-group"> <span class="custom-checkbox">
+        <form @submit="checkLoginForm" method="post" action="" novalidate>
+            <div class="form-group">
+                <input type="text" v-model="user_login" name="user_login" class="form-control"
+                       placeholder="Email Address" required>
+            </div>
+            <div class="form-group">
+                <input type="password" v-model="user_password" name="user_password" class="form-control"
+                       placeholder="Password" required>
+            </div>
+            <div class="form-group"> <span class="custom-checkbox">
                     <input type="checkbox" id="4">
                     <label for="4"></label>Remember Me </span>
-                        <a href="#" title="Forget" class="fl-right">Forgot Password?</a>
-                    </div>
-                    <div class="form-group text-center">
-                        <button type="submit" class="btn theme-btn full-width btn-m">LogIn</button>
-                    </div>
-                    <p v-if="errors.length" style="margin-top: 40px">
-                        <b>Please correct the following error(s):</b>
-                    <ul>
-                        <li style="color:red" v-for="error in errors">${ error }</li>
-                    </ul>
-                    </p>
-                </form>
-
+                <a href="#" title="Forget" class="fl-right">Forgot Password?</a>
             </div>
+            <div class="form-group text-center">
+                <button type="submit" class="btn theme-btn full-width btn-m">LogIn</button>
+            </div>
+            <p v-if="errors.length" style="margin-top: 40px">
+                <b>Please correct the following error(s):</b>
+            <ul>
+                <li style="color:red" v-for="error in errors">${ error }</li>
+            </ul>
+            </p>
+        </form>
 
-        </div>
-        <!-- Tab panels -->
     </div>
 </script>

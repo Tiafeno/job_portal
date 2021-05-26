@@ -18,12 +18,11 @@ get_header();
             <div class="widget-boxed-body">
                 <div class="side-list no-border">
                     <ul>
-                        <li v-for="salarie in items" :key="salarie.id">
+                        <li v-for="salarie in items">
                             <span class="custom-checkbox">
-                                <input type="checkbox" :id="salarie.slug">
-                                <label :for="salarie.slug"></label>
-
-                            </span> {{ salarie | priceRange }} <span class="pull-right">X</span>
+                                <input type="checkbox" :id="salarie.id" :name="'salarie'" :value="salarie.id" v-on:change="selectedFilter">
+                                <label :for="salarie.id"></label>
+                            </span> {{ salarie.name }} <span class="pull-right"></span>
                         </li>
 
                     </ul>
@@ -37,7 +36,7 @@ get_header();
             <div class="widget-boxed-body">
                 <div class="search_widget_job">
                     <div class="field_w_search">
-                        <input type="text" class="form-control" placeholder="Search Keywords">
+                        <input type="text" class="form-control"  placeholder="Search Keywords">
                     </div>
                     <div class="field_w_search">
                         <input type="text" class="form-control" placeholder="All Locations">
@@ -52,8 +51,8 @@ get_header();
         <div class="container">
             <div class="row">
                 <div class="col-md-3 col-sm-5">
-                    <filter-search></filter-search>
-                    <filter-salary v-bind:salaries="taxonomies.Salaries"></filter-salary>
+                    <filter-search v-on:changed="applyFilter"></filter-search>
+                    <filter-salary v-bind:salaries="taxonomies.Salaries" v-on:changed="applyFilter"></filter-salary>
                 </div>
 
                 <!-- Start Job List -->

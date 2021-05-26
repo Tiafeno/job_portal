@@ -246,6 +246,27 @@ add_action('helper_register_jp_post_types', function () {
         'show_in_rest'      => true,
         'rewrite'           => array( 'slug' => 'country' ),
     ] );
+
+    // Pays
+    register_taxonomy( 'region', [ 'jp-jobs' ], [
+        'hierarchical'      => true,
+        'labels'            => array(
+            'name'              => 'Regions',
+            'singular_name'     => 'Region',
+            'search_items'      => 'Trouver',
+            'all_items'         => 'Trouver des regions',
+            'edit_item'         => 'Modifier',
+            'update_item'       => 'Mettre à jour',
+            'add_new_item'      => 'Ajouter',
+            'menu_name'         => 'Regions',
+        ),
+        'show_ui'           => true,
+        'show_admin_column' => false,
+        'query_var'         => true,
+        'public'            => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'region' ),
+    ] );
 });
 
 /**
@@ -321,3 +342,43 @@ add_action('init', function() {
 add_action('new_job', function() {
 
 });
+
+// @source: https://github.com/WP-API/rest-filte
+add_action( 'rest_api_init', function() {
+    foreach ( get_post_types( array( 'show_in_rest' => true ), 'objects' ) as $post_type ) {
+        add_filter( 'rest_' . $post_type->name . '_query', 'rest_api_filter_add_filter_param', 10, 2 );
+    }
+} );
+
+/**
+ * Add the filter parameter
+ *
+ * @param  array           $args    The query arguments.
+ * @param  WP_REST_Request $request Full details about the request.
+ * @return array $args.
+ **/
+function rest_api_filter_add_filter_param( $args, $request ) {
+    // Bail out if no filter parameter is set.
+    if ( empty( $request['filter'] ) || ! is_array( $request['filter'] ) ) {
+        return $args;
+    }
+
+    $filter = $request['filter'];
+
+    if ( isset( $filter['posts_per_page'] ) && ( (int) $filter['posts_per_page'] >= 1 && (int) $filter['posts_per_page'] <= 100 ) ) {
+        $args['posts_per_page'] = $filter['posts_per_page'];
+    }
+
+    global $wp;
+    $vars = apply_filters( 'rest_query_vars', $wp->public_query_vars );
+
+    // Allow valid meta query vars.
+    $vars = array_unique( array_merge( $vars, array( 'meta_query', 'meta_key', 'meta_value', 'meta_compare' ) ) );
+
+    foreach ( $vars as $var ) {
+        if ( isset( $filter[ $var ] ) ) {
+            $args[ $var ] = $filter[ $var ];
+        }
+    }
+    return $args;
+}

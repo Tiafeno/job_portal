@@ -86,7 +86,9 @@ class JobGrid_Widget extends Widget_Base
     protected function render()
     {
         global $Liquid_engine;
-        echo $Liquid_engine->parseFile('job-grid')->render([]);
+        echo $Liquid_engine->parseFile('job-grid')->render([
+            'job_archive_url' => get_post_type_archive_link('jp-jobs')
+        ]);
     }
 }
 

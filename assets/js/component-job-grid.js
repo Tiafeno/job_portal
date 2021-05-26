@@ -56,7 +56,6 @@
             },
             methods: {
                 init: async function () {
-                    console.log('JOB-GRID Component: Running...');
                     const self = this;
                     this.WPAPI = new WPAPI({
                         endpoint: apiSettings.root,
@@ -68,21 +67,26 @@
                             'X-WP-Nonce': apiSettings.nonce
                         }
                     });
-                    const categories = await this.axiosInstance.get('categories?per_page=50');
-                    const types = await this.axiosInstance.get('job_type?per_page=50');
-                    this.Taxonomies.Categories = lodash.clone(categories.data);
-                    this.Taxonomies.Types = lodash.clone(types.data);
+                    const categoriesRequest = this.axiosInstance.get('categories?per_page=50');
+                    const typesRequest = this.axiosInstance.get('job_type?per_page=50');
+                    await axios.all([typesRequest, categoriesRequest]).then(axios.spread(
+                        (...responses) => {
+                            self.Taxonomies.Categories = lodash.clone(responses[1].data);
+                            self.Taxonomies.Types = lodash.clone(responses[0].data);
+                        }
+                    )).catch(errors => { })
 
                     this.WPAPI.jobs = this.WPAPI.registerRoute('wp/v2', '/emploi/(?P<id>\\d+)', {
                         params: ['before', 'after', 'author', 'per_page', 'offset', 'context', 'search']
                     });
                     this.loading = true;
-                    this.WPAPI.jobs().per_page(this.itemsCount).context('edit').then(function (jobsResponse) {
+                    this.WPAPI.jobs().per_page(this.itemsCount).then(function (jobsResponse) {
                         self.loading = false;
                         self.jobs = lodash.clone(jobsResponse);
                         console.log(jobsResponse);
                     });
-                }
+                },
+
 
             },
             delimiters: ['${', '}']

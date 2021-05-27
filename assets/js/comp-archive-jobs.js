@@ -43,6 +43,16 @@
             template: '#filter-search-template',
             data: function () {
                 return {}
+            },
+            methods: {
+                searchKey: function(ev) {
+                    ev.preventDefault();
+                    const el = ev.target;
+                    if (ev.keyCode === 13) { // Enter press...
+                        const elValue = $(el).val()
+                        this.$emit('changed', elValue, 'search');
+                    }
+                }
             }
         };
 

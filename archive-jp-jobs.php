@@ -36,7 +36,7 @@ get_header();
             <div class="widget-boxed-body">
                 <div class="search_widget_job">
                     <div class="field_w_search">
-                        <input type="text" class="form-control"  placeholder="Search Keywords">
+                        <input type="text" class="form-control" @keyup="searchKey($event)"  placeholder="Search Keywords">
                     </div>
                     <div class="field_w_search">
                         <input type="text" class="form-control" placeholder="All Locations">

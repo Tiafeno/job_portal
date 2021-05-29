@@ -46,6 +46,37 @@ get_header();
         </div>
     </script>
 
+<script type="text/x-template" id="job-vertical-lists">
+    <div class="job-verticle-list">
+        <div class="vertical-job-card">
+            <div class="vertical-job-header">
+                <div class="vrt-job-cmp-logo"> </div>
+                <h4><a href="job-detail.html"></a></h4>
+                <span class="com-tagline">Software Development</span> <span class="pull-right vacancy-no">No. <span class="v-count">2</span></span>
+            </div>
+            <div class="vertical-job-body">
+                <div class="row">
+                    <div class="col-md-9 col-sm-12 col-xs-12">
+                        <ul class="can-skils">
+                            <li><strong>Job Id: </strong>G58726</li>
+                            <li><strong>Job Type: </strong>{{ item.job_type | jobTypeName}}</li>
+                            <li><strong>Experience: </strong>3 Year</li>
+                            <li><strong>Description: </strong>2844 Counts Lane, KY 45241</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3 col-sm-12 col-xs-12">
+                        <div class="vrt-job-act">
+                            <a href="#" data-toggle="modal" data-target="#apply-job" class="btn-job theme-btn job-apply">Apply Now</a>
+                            <a href="#viewjob" @click="viewContent" title="" class="btn-job light-gray-btn">View Job</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+
 <script  id="job-archive-template" type="text/x-template">
     <section class="padd-top-80 padd-bot-80">
         <div class="container">
@@ -86,30 +117,7 @@ get_header();
                     </div>
 
                     <!-- Single Verticle job -->
-                    <div class="job-verticle-list">
-                        <div class="vertical-job-card">
-                            <div class="vertical-job-header">
-                                <div class="vrt-job-cmp-logo"> </div>
-                                <h4><a href="job-detail.html">Apple LTD</a></h4>
-                                <span class="com-tagline">Software Development</span> <span class="pull-right vacancy-no">No. <span class="v-count">2</span></span>
-                            </div>
-                            <div class="vertical-job-body">
-                                <div class="row">
-                                    <div class="col-md-9 col-sm-12 col-xs-12">
-                                        <ul class="can-skils">
-                                            <li><strong>Job Id: </strong>G58726</li>
-                                            <li><strong>Job Type: </strong>Full Time</li>
-                                            <li><strong>Experience: </strong>3 Year</li>
-                                            <li><strong>Description: </strong>2844 Counts Lane, KY 45241</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-md-3 col-sm-12 col-xs-12">
-                                        <div class="vrt-job-act"> <a href="#" data-toggle="modal" data-target="#apply-job" class="btn-job theme-btn job-apply">Apply Now</a> <a href="job-detail.html" title="" class="btn-job light-gray-btn">View Job</a> </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <job-vertical-lists v-for="(item, index) in archives" :item="item" :key="item.id" v-bind:types="taxonomies.Types"></job-vertical-lists>
 
 
                     <div class="clearfix"></div>

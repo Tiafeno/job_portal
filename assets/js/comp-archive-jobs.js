@@ -56,12 +56,39 @@
             }
         };
 
+        const jobVerticalLists = {
+            props: ['types', 'item'],
+            template: "#job-vertical-lists",
+            data: function () {
+                return {
+
+                }
+            },
+            created: function() {
+                console.log(this.types);
+            },
+            mounted: function() {
+
+            },
+            methods: {
+                viewContent: function($event) {
+                    console.log(this.types);
+                }
+            },
+            filters: {
+                jobType: function (val) {
+                    return this.$parent.$options.filters.jobTypeName(val);
+                }
+            }
+        }
+
         const archiveJobs = {
             template: "#job-archive-template",
             props: ['taxonomies'],
             components: {
                 'filter-salary': salaryFilter,
-                'filter-search': searchFilter
+                'filter-search': searchFilter,
+                'job-vertical-lists': jobVerticalLists
             },
             data: function () {
                 return {
@@ -174,11 +201,10 @@
                 }
             },
             filters: {
-                jobTypeName: function (value, taxonomies) {
-                    if (!lodash.isArray(value)) return '';
-                    var firstValue = value[0];
-                    console.log(taxonomies);
-                    var result = lodash.find(taxonomies.Types, {id: parseInt(firstValue)});
+                jobTypeName: function (value) {
+                    if (!lodash.isArray(value) || lodash.isEmpty(value)) return '';
+                    const firstValue = lodash.head(value);
+                    const result = lodash.find(taxonomies.Types, {id: parseInt(firstValue)});
                     return result.name;
                 }
             }

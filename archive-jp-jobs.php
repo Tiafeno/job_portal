@@ -22,7 +22,7 @@ get_header();
                             <span class="custom-checkbox">
                                 <input type="checkbox" :id="item.id" :name="'salarie'" :value="item.id" v-on:change="selectedFilter">
                                 <label :for="item.id"></label>
-                            </span> {{ item.name }} <span class="pull-right"></span>
+                            </span> {{ item.filter_name }} <span class="pull-right"> {{ item.count }}</span>
                         </li>
 
                     </ul>

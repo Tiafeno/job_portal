@@ -10,8 +10,9 @@
             },
             created: function () {
                 if (lodash.isArray(this.salaries)) {
-                    this.items = lodash.map(this.salaries, salarie => {
-                        return {name: 'Under ' + salarie.name, value: salarie.name, id: salarie.id};
+                    this.items = lodash.map(this.salaries, salary => {
+                        salary.filter_name = 'Under ' + salary.name;
+                        return salary;
                     });
                 }
 

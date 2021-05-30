@@ -10,7 +10,7 @@ wp_localize_script('comp-archive-jobs', 'archiveApiSettings',[
 get_header();
 ?>
 <!-- Template-->
-    <script  id="filter-salary-template" type="text/x-template">
+<script  id="filter-salary-template" type="text/x-template">
         <div class="widget-boxed padd-bot-0">
             <div class="widget-boxed-header">
                 <h4>Offerd Salary</h4>
@@ -30,8 +30,7 @@ get_header();
             </div>
         </div>
     </script>
-
-    <script  id="filter-search-template" type="text/x-template">
+<script  id="filter-search-template" type="text/x-template">
         <div class="widget-boxed padd-bot-0">
             <div class="widget-boxed-body">
                 <div class="search_widget_job">
@@ -45,7 +44,6 @@ get_header();
             </div>
         </div>
     </script>
-
 <script type="text/x-template" id="job-vertical-lists">
     <div class="job-verticle-list">
         <div class="vertical-job-card">
@@ -75,12 +73,9 @@ get_header();
         </div>
     </div>
 </script>
-
 <script type="text/x-template" id="pagination-jobs-template">
     <div class="utf_flexbox_area padd-0" id="pagination-archive"></div>
 </script>
-
-
 <script  id="job-archive-template" type="text/x-template">
     <section class="padd-top-80 padd-bot-80">
         <div class="container">

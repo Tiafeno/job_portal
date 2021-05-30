@@ -133,10 +133,9 @@ get_header();
     </div>
     <div id="archive-jobs">
 <?php
-if (have_posts()) :
-    ?>
-        <comp-archive-jobs v-if="loading" v-bind:taxonomies="Taxonomies"></comp-archive-jobs>
-    <?php
+if (have_posts()) :?>
+    <comp-archive-jobs v-if="loading" v-bind:taxonomies="Taxonomies"></comp-archive-jobs>
+<?php
 endif;
 ?>
     </div>

@@ -147,7 +147,6 @@
             },
             methods: {
                 init: function () {
-                    const self = this;
                     this.WPAPI.jobs = this.WPAPI.registerRoute('wp/v2', '/emploi/(?P<id>\\d+)', {
                         params: ['page', 'per_page', 'offset', 'context', 'param', 'search', 'filter']
                     });
@@ -243,6 +242,11 @@
                         .get();
                     self.loadArchive = false;
                     archivesPromise.then(function (response) {
+                        if (lodash.isEmpty(response)) {
+                            self.archives = [];
+                            self.paging = null
+                            return;
+                        }
                         const archivesResponse = lodash.cloneDeep(response);
                         self.paging = lodash.clone(response._paging); // Update paging value
                         self.archives = lodash.map(archivesResponse, function (archive) {

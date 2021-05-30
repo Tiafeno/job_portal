@@ -269,51 +269,6 @@ add_action('helper_register_jp_post_types', function () {
     ] );
 });
 
-/**
- * Permet d'enregistrer un utilisateur (Employer ou Candidat)
- */
-add_action('action_jobportal_register', function() {
-    if ( ! isset($_POST['_wpnonce']) ) return;
-    if (wp_verify_nonce($_POST['_wpnonce'], 'portaljob-register')) {
-        $email = is_email($_POST['email']) ? $_POST['email'] : null;
-        if (is_null($email) || empty($_POST['role'])) {
-            return false;
-        }
-        $role = esc_attr($_POST['role']); //candidate or employer
-        $args = [
-            'user_pass' => $_POST['password'],
-            'nickname' => $email,
-            'first_name' => trim($_POST['first_name']),
-            'last_name' => '',
-            'user_login' => $email,
-            'user_email' => $email,
-            'role' => $role
-        ];
-
-        // Check if user exist
-        if (email_exists($email) || username_exists($email)) {
-            // User exist in bdd
-            $response = email_exists($email);
-        } else {
-            $response = wp_insert_user($args);
-            if (is_wp_error($response)) {
-                return false;
-            }
-        }
-
-        if (!is_numeric($response)) {
-            echo "Value isn't numeric";
-            return false;
-        }
-
-        $user_id = $response;
-        $candidate = new \JP\Framwork\Elements\jpCandidate($user_id);
-        $phone_number = $_POST['phone'];
-        $candidate->phones = [ $phone_number ];
-
-        do_action('send_email_new_user', $user_id); // Envoyer le mail
-    }
-});
 
 add_action('init', function() {
     // Permet de se connecter avec AJAX

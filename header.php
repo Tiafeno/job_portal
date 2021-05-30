@@ -93,9 +93,14 @@
                 );
                 ?>
 
-                <?php if (is_user_logged_in()): ?>
+                <?php if (!is_user_logged_in()): ?>
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="br-right"><a class="btn-signup red-btn" onclick="renderLoginModel()" data-toggle="modal" data-target="#signin"><i class="login-icon ti-user"></i>Login</a></li>
+                    <li class="br-right">
+                        <a class="btn-signup red-btn" onclick="renderLoginModel()" data-toggle="modal" data-target="#signin">
+                            <i class="login-icon ti-user"></i>
+                            Login
+                        </a>
+                    </li>
                     <li class="sign-up"><a class="btn-signup red-btn" href="<?= home_url('/register') ?>"><span class="ti-briefcase"></span>Register</a></li>
                 </ul>
                 <?php endif; ?>
@@ -103,7 +108,7 @@
         </div>
     </nav>
 
-    <?php if (is_user_logged_in()): ?>
+    <?php if (!is_user_logged_in()): ?>
     <!-- Signup Code -->
     <div class="modal fade" id="signin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
         <div class="modal-dialog">

@@ -1,7 +1,7 @@
 <?php
 
 wp_enqueue_script('comp-archive-jobs', get_stylesheet_directory_uri() . '/assets/js/comp-archive-jobs.js',
-    ['axios', 'wpapi', 'jquery', 'bluebird', 'lodash'], null, true);
+    ['axios', 'wpapi', 'jquery', 'bluebird', 'lodash', 'paginationjs'], null, true);
 wp_localize_script('comp-archive-jobs', 'archiveApiSettings',[
     'root' => esc_url_raw( rest_url() ),
     'nonce' => wp_create_nonce( 'wp_rest' )
@@ -18,11 +18,11 @@ get_header();
             <div class="widget-boxed-body">
                 <div class="side-list no-border">
                     <ul>
-                        <li v-for="salarie in items">
+                        <li v-for="item in items">
                             <span class="custom-checkbox">
-                                <input type="checkbox" :id="salarie.id" :name="'salarie'" :value="salarie.id" v-on:change="selectedFilter">
-                                <label :for="salarie.id"></label>
-                            </span> {{ salarie.name }} <span class="pull-right"></span>
+                                <input type="checkbox" :id="item.id" :name="'salarie'" :value="item.id" v-on:change="selectedFilter">
+                                <label :for="item.id"></label>
+                            </span> {{ item.name }} <span class="pull-right"></span>
                         </li>
 
                     </ul>
@@ -51,17 +51,17 @@ get_header();
         <div class="vertical-job-card">
             <div class="vertical-job-header">
                 <div class="vrt-job-cmp-logo"> </div>
-                <h4><a href="job-detail.html"></a></h4>
-                <span class="com-tagline">Software Development</span> <span class="pull-right vacancy-no">No. <span class="v-count">2</span></span>
+                <h4><a href="job-detail.html"></a>{{ item.title.rendered }}</h4>
+                <span class="com-tagline">{{item.get_cat_name}}</span> <span class="pull-right vacancy-no">No. <span class="v-count">2</span></span>
             </div>
             <div class="vertical-job-body">
                 <div class="row">
                     <div class="col-md-9 col-sm-12 col-xs-12">
                         <ul class="can-skils">
-                            <li><strong>Job Id: </strong>G58726</li>
-                            <li><strong>Job Type: </strong>{{ item.job_type | jobTypeName}}</li>
-                            <li><strong>Experience: </strong>3 Year</li>
-                            <li><strong>Description: </strong>2844 Counts Lane, KY 45241</li>
+                            <li><strong>Job Id: </strong>{{item.id}}</li>
+                            <li><strong>Job Type: </strong>{{ item.get_type_name}}</li>
+                            <li><strong>Experience: </strong>{{item.meta.experience}} Year</li>
+                            <li><span v-html="item.excerpt.rendered"></span></li>
                         </ul>
                     </div>
                     <div class="col-md-3 col-sm-12 col-xs-12">
@@ -76,6 +76,10 @@ get_header();
     </div>
 </script>
 
+<script type="text/x-template" id="pagination-jobs-template">
+    <div class="utf_flexbox_area padd-0" id="pagination-archive"></div>
+</script>
+
 
 <script  id="job-archive-template" type="text/x-template">
     <section class="padd-top-80 padd-bot-80">
@@ -83,7 +87,11 @@ get_header();
             <div class="row">
                 <div class="col-md-3 col-sm-5">
                     <filter-search v-on:changed="applyFilter"></filter-search>
-                    <filter-salary v-bind:salaries="taxonomies.Salaries" v-on:changed="applyFilter"></filter-salary>
+                    <filter-salary
+                            v-bind:salaries="taxonomies.Salaries"
+                            v-if="typeof taxonomies.Salaries === 'object'"
+                            v-on:changed="applyFilter">
+                    </filter-salary>
                 </div>
 
                 <!-- Start Job List -->
@@ -98,18 +106,8 @@ get_header();
                                     <h5>Short By</h5>
                                 </div>
                                 <div class="search-wide full">
-                                    <select class="wide form-control">
-                                        <option value="1">Most Recent</option>
-                                        <option value="2">Most Viewed</option>
-                                        <option value="4">Most Search</option>
-                                    </select>
-                                </div>
-                                <div class="search-wide full">
-                                    <select class="wide form-control">
-                                        <option>10 Per Page</option>
-                                        <option value="1">20 Per Page</option>
-                                        <option value="2">30 Per Page</option>
-                                        <option value="4">50 Per Page</option>
+                                    <select name="per_page" @change="Route($event.currentTarget.value, 'per_page')" class="wide form-control">
+                                        <option :value="n" v-for="n in inputPerPages">{{ n }} Per Page</option>
                                     </select>
                                 </div>
                             </div>
@@ -117,19 +115,12 @@ get_header();
                     </div>
 
                     <!-- Single Verticle job -->
-                    <job-vertical-lists v-for="(item, index) in archives" :item="item" :key="item.id" v-bind:types="taxonomies.Types"></job-vertical-lists>
-
+                    <job-vertical-lists v-if="loadArchive" v-for="(item, index) in archives" :item="item" :key="item.id" ></job-vertical-lists>
 
                     <div class="clearfix"></div>
-                    <div class="utf_flexbox_area padd-0">
-                        <ul class="pagination">
-                            <li class="page-item"> <a class="page-link" href="#" aria-label="Previous"> <span aria-hidden="true">«</span> <span class="sr-only">Previous</span> </a> </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"> <a class="page-link" href="#" aria-label="Next"> <span aria-hidden="true">»</span> <span class="sr-only">Next</span> </a> </li>
-                        </ul>
-                    </div>
+
+                    <com-pagination v-if="paging !== null" v-bind:paging="paging" @change-route-page="Route" v-bind:pagesize="per_page"></com-pagination>
+
                 </div>
             </div>
             <!-- End Row -->
@@ -149,7 +140,7 @@ get_header();
 <?php
 if (have_posts()) :
     ?>
-        <comp-archive-jobs v-bind:taxonomies="Taxonomies"></comp-archive-jobs>
+        <comp-archive-jobs v-if="loading" v-bind:taxonomies="Taxonomies"></comp-archive-jobs>
     <?php
 endif;
 ?>

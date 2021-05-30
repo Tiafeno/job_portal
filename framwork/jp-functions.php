@@ -42,6 +42,7 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_script('bluebird', get_stylesheet_directory_uri() . '/assets/js/bluebird/bluebird.min.js', [], null, true); // dev
     wp_register_script('semantic-dropdown', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/dropdown.min.js', ['jquery'], null, true);
     wp_register_script('semantic-transition', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/transition.min.js', ['jquery'], null, true);
+    wp_register_script('paginationjs', get_stylesheet_directory_uri() . '/assets/js/pagination.js', ['jquery'], null, true);
     wp_register_script('jp-custom', get_stylesheet_directory_uri() . '/assets/js/custom.js', [
         'jquery',
         'jp-bootstrap',

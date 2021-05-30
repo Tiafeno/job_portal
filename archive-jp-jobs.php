@@ -67,7 +67,7 @@ get_header();
                     <div class="col-md-3 col-sm-12 col-xs-12">
                         <div class="vrt-job-act">
                             <a href="#" data-toggle="modal" data-target="#apply-job" class="btn-job theme-btn job-apply">Apply Now</a>
-                            <a href="#viewjob" @click="viewContent" title="" class="btn-job light-gray-btn">View Job</a>
+                            <a :href="item.link" title="" class="btn-job light-gray-btn">View Job</a>
                         </div>
                     </div>
                 </div>

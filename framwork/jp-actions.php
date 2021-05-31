@@ -275,7 +275,7 @@ add_action('init', function() {
     add_action('wp_ajax_nopriv_ajax_login', 'ajax_login');
     function ajax_login() {
         // First check the nonce, if it fails the function will break
-        //check_ajax_referer( 'ajax-login-nonce', 'security' );
+        check_ajax_referer( 'ajax-login-nonce', 'security' );
 
         // Nonce is checked, get the POST data and sign user on
         $info = array();
@@ -292,10 +292,6 @@ add_action('init', function() {
             wp_send_json_error('Error login information');
         }
     }
-});
-
-add_action('new_job', function() {
-
 });
 
 // @source: https://github.com/WP-API/rest-filte
@@ -317,19 +313,14 @@ function rest_api_filter_add_filter_param( $args, $request ) {
     if ( empty( $request['filter'] ) || ! is_array( $request['filter'] ) ) {
         return $args;
     }
-
     $filter = $request['filter'];
-
     if ( isset( $filter['posts_per_page'] ) && ( (int) $filter['posts_per_page'] >= 1 && (int) $filter['posts_per_page'] <= 100 ) ) {
         $args['posts_per_page'] = $filter['posts_per_page'];
     }
-
     global $wp;
     $vars = apply_filters( 'rest_query_vars', $wp->public_query_vars );
-
     // Allow valid meta query vars.
     $vars = array_unique( array_merge( $vars, array( 'meta_query', 'meta_key', 'meta_value', 'meta_compare' ) ) );
-
     foreach ( $vars as $var ) {
         if ( isset( $filter[ $var ] ) ) {
             $args[ $var ] = $filter[ $var ];

@@ -38,12 +38,12 @@ const CompLogin = {
             data.append('action', 'ajax_login');
             axios.post(com_login_params.ajax_url, data).then(function(response) {
                 self.loading = false;
-                var _data = response.data;
-                if (!_data.success){
-                    alertify.alert('Notification', _data.data, function () {});
+                var responseData = response.data;
+                if (!responseData.success){
+                    alertify.alert('Notification', responseData.data, function () {});
                     return;
                 }
-                self.$emit('login-success', _data);
+                self.$emit('login-success', responseData);
                 console.warn('Emit event: login-success');
             }).catch(function(err) {
                 self.loading = false;

@@ -14,6 +14,7 @@
                 }
             },
             created: function () {
+                if (typeof clientApiSettings === 'undefined') return;
                 this.Wordpress = new WPAPI({
                     endpoint: clientApiSettings.root,
                     nonce: clientApiSettings.nonce
@@ -23,7 +24,7 @@
             methods: {
                 init: async function () {
                     const self = this;
-                    if (clientApiSettings.current_user_id == 0 || !clientApiSettings.current_user_id) {
+                    if (parseInt(clientApiSettings.current_user_id) == 0 || !clientApiSettings.current_user_id) {
                         this.isLogged = false
                         return false;
                     }
@@ -64,6 +65,10 @@
                     },
                 ]
             },
+            {
+                path: '/login',
+                component: CompLogin
+            }
         ];
         const router = new VueRouter({
             routes // short for `routes: routes`

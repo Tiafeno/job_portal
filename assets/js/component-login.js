@@ -43,8 +43,10 @@ const CompLogin = {
                     alertify.alert('Notification', responseData.data, function () {});
                     return;
                 }
-                self.$emit('login-success', responseData);
                 console.warn('Emit event: login-success');
+                setTimeout(()=> {
+                    window.location.reload();
+                }, 1500);
             }).catch(function(err) {
                 self.loading = false;
             });

@@ -205,7 +205,7 @@
     </section>
 </script>
 <div id="add-annonce">
-    <comp-login v-if="!isClient" v-on:login-success="loggedIn"></comp-login>
+    <comp-login v-if="!isClient"></comp-login>
     <create-company v-if="isClient && !hasCompany" v-bind:me="Me" v-on:has-company-account="hasCompanyAccountfn"></create-company>
     <create-annonce v-if="isClient && hasCompany" v-bind:me="Me"  v-bind:wpapinode="WPAPI"></create-annonce>
 </div>

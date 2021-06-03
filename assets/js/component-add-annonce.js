@@ -271,9 +271,6 @@
                     console.log($event);
                     this.hasCompany = $event;
                 },
-                loggedIn: function (data) {
-                    window.location.reload();
-                }
 
             },
             delimiters: ['${', '}']

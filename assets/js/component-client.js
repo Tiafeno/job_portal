@@ -36,9 +36,6 @@
                             self.Client = lodash.clone(response);
                             self.Loading = true;
                         });
-                },
-                loggedIn: function (data) {
-                    window.location.reload();
                 }
             }
         };
@@ -57,22 +54,31 @@
                 children: [
                     {
                         path: 'home',
+                        name: 'Home',
                         component: Home
                     },
                     {
                         path: 'cv',
+                        name: 'CV',
                         component: CV
                     },
-                ]
+                ],
+                beforeEnter: (to, from, next) => {
+                    if (to.name != 'Login' && parseInt(clientApiSettings.current_user_id) == 0 ) next({ name: 'Login' })
+                    else next();
+                },
             },
             {
                 path: '/login',
+                name: 'Login',
                 component: CompLogin
             }
         ];
         const router = new VueRouter({
             routes // short for `routes: routes`
         });
+
+       
         // Application
         new Vue({el: '#client', router});
 

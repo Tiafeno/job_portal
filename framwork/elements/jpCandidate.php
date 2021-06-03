@@ -43,7 +43,7 @@ class jpCandidate extends \WP_User
     public $languages = [];
     public $phones = [];
     public $mastered_technology = [];
-    public $trainings = [];
+    public $educations = [];
     public $experiences = [];
     public $center_interest;
     public $newsletter;

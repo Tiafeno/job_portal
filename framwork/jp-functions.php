@@ -44,6 +44,7 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_script('semantic-dropdown', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/dropdown.min.js', ['jquery'], null, true);
     wp_register_script('semantic-transition', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/transition.min.js', ['jquery'], null, true);
     wp_register_script('paginationjs', get_stylesheet_directory_uri() . '/assets/js/pagination.js', ['jquery'], null, true);
+    wp_register_script('sortable', get_stylesheet_directory_uri() . '/assets/js/Sortable.js', [], null, true);
     wp_register_script('jp-custom', get_stylesheet_directory_uri() . '/assets/js/custom.js', [
         'jquery',
         'jp-bootstrap',
@@ -92,6 +93,84 @@ add_action('rest_api_init', function() {
             }
         ]);
     }
+
+    // Annonce API
+    $user_meta = ['experience', 'employer_id'];
+    register_post_meta('jp-jobs', $meta, [
+        'type' =>  'integer',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            //return current_user_can( 'edit_posts' );
+            return true;
+        }
+    ]);
+
+    // Candidate
+    register_meta('user', 'reference', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'region', [
+        'type' =>  'integer',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'status', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'has_cv', [
+        'type' =>  'boolean',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'drive_licences', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'languages', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'educations', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'experiences', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
 });
 
 

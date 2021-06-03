@@ -46,9 +46,22 @@ class JobRegistration_Widget extends Widget_Base {
     protected function render() {
         global $Liquid_engine;
 
+        if (is_user_logged_in()) {
+            // is logged user
+            echo "<p class='text-center'>Vers la page d'accueil</p>";
+            return;
+        }
+
         do_action('action_jobportal_register');
+
+        if (isset($_GET['register']) && boolval($_GET['register'])) {
+            // Register successfully
+            echo "<p class='text-center'>Se connecter</p>";
+            return;
+        }
         $nonce = wp_nonce_field('portaljob-register', '_wpnonce', true, false);
-        echo $Liquid_engine->parseFile('job-registration')->render(['nonce' => $nonce]);
+        $current_page_url = get_the_permalink();
+        echo $Liquid_engine->parseFile('job-registration')->render(['nonce' => $nonce, 'action' =>  $current_page_url . '?register=true']);
     }
 }
 

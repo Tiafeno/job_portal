@@ -44,6 +44,9 @@ get_header();
                         </div>
                     </div>
                 </div>
+                <div class="padd-l-15 padd-bot-15">
+                    <button type="button" data-toggle="modal" data-target="#edu" class="btn-job theme-btn job-apply">+ Ajouter</button>
+                </div>
             </div>
         </div>
         <div class="col-md-12 col-sm-12" id="experiences">

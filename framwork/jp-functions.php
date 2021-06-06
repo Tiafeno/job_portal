@@ -58,6 +58,7 @@ add_action('wp_enqueue_scripts', function() {
         'semantic-transition',
         'jquery-validate',
         'wpapi',
+        'wp-api',
         'lodash',
         'axios',
         'bluebird'

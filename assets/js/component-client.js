@@ -57,14 +57,33 @@
                     hasCV: false,
                     currentUser: null,
                     Loading: false,
+                    // Si la valeur est different de null, c'est qu'il a selectioner une liste a modifier
+                    // Ne pas oublier de reinisialiser la valeur apres mise a jour
+                    // Default value: null
+                    formEduSelected: null,
+                    formEduEdit: {
+                        establishment: '',
+                        diploma: '',
+                        city: '',
+                        country: '',
+                        begin_year: '',
+                        end_year: ''
+                    },
+                    WPApiModel: null,
+                    Emploi: null
 
                 }
             },
             created: function () {
-                const parent = this.$parent;
-                this.currentUser = lodash.cloneDeep(parent.Client);
+
             },
             mounted: function() {
+                const self = this;
+                this.WPApiModel = new wp.api.models.User({id: clientApiSettings.current_user_id});
+                this.WPApiModel.fetch().done(function(response) {
+                    self.Emploi = lodash.clone(response);
+                });
+                //this.currentUser = lodash.cloneDeep(client);
                 // Education sortable list
                 new Sortable(document.getElementById('education-list'), {
                     handle: '.edu-history', // handle's class

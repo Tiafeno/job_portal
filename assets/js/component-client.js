@@ -1,5 +1,16 @@
 (function ($) {
     $().ready(function () {
+        // Return random password
+        const getRandomId = () => {
+            const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            const string_length = 8;
+            let randomstring = '';
+            for (var i = 0; i < string_length; i++) {
+                var rnum = Math.floor(Math.random() * chars.length);
+                randomstring += chars.substring(rnum, rnum + 1);
+            }
+            return randomstring;
+        };
 
         const Layout = {
             template: '#client-layout',
@@ -47,27 +58,58 @@
             }
         };
         const Home = {
-            template: '<p>rdsjgfkdhsfjghdsjkf hlg dsflgl djg</p>'
+            template: '<p>Home page</p>'
+        };
+
+        const CVComponents = {
+            experience: {
+                props: ['year_range', 'item'],
+                template: '#experience-template',
+            },
+            education: {
+                props: ['year_range', 'item'],
+                template: '#education-template',
+            }
         };
 
         const CV = {
             template: '#client-cv',
+            components: {
+                'comp-education': CVComponents.education,
+                'comp-experience': CVComponents.experience
+            },
             data: function () {
                 return {
                     hasCV: false,
                     currentUser: null,
-                    Loading: false,
+                    Loading: true,
+                    yearRange: [],
                     // Si la valeur est different de null, c'est qu'il a selectioner une liste a modifier
                     // Ne pas oublier de reinisialiser la valeur apres mise a jour
                     // Default value: null
                     formEduSelected: null,
                     formEduEdit: {
+                        _id: getRandomId(),
                         establishment: '',
                         diploma: '',
                         city: '',
                         country: '',
-                        begin_year: '',
-                        end_year: ''
+                        desc: '',
+                        b: '', /** begin year */
+                        e: '' /** end year */
+                    },
+                    formExpSelected: null,
+                    formExpEdit: {
+                        _id: getRandomId(),
+                        office: '',
+                        enterprise: '',
+                        city: '',
+                        country: '',
+                        b: '',
+                        /** begin year */
+                        e: '',
+                        /** end year */
+                        desc: '',
                     },
                     WPApiModel: null,
                     Emploi: null
@@ -75,59 +117,212 @@
                 }
             },
             created: function () {
-
+                let currentDate = new Date();
+                this.yearRange = lodash.range(1950, currentDate.getFullYear());
             },
-            mounted: function() {
+            mounted: function () {
                 const self = this;
-                this.WPApiModel = new wp.api.models.User({id: clientApiSettings.current_user_id});
-                this.WPApiModel.fetch().done(function(response) {
-                    self.Emploi = lodash.clone(response);
+                this.Loading = true;
+                this.WPApiModel = new wp.api.models.User({
+                    id: clientApiSettings.current_user_id
                 });
-                //this.currentUser = lodash.cloneDeep(client);
+                this.WPApiModel.fetch().done(function (response) {
+                    self.currentUser = lodash.cloneDeep(response);
+                    self.Loading = false;
+                });
+
                 // Education sortable list
                 new Sortable(document.getElementById('education-list'), {
                     handle: '.edu-history', // handle's class
                     animation: 150,
                     // Element dragging ended
-                    onEnd: function (/**Event*/evt) {
-                        var itemEl = evt.item;  // dragged HTMLElement
-                        evt.to;    // target list
-                        evt.from;  // previous list
-                        evt.oldIndex;  // element's old index within old parent
-                        evt.newIndex;  // element's new index within new parent
+                    onEnd: function ( /**Event*/ evt) {
+                        var itemEl = evt.item; // dragged HTMLElement
+                        evt.to; // target list
+                        evt.from; // previous list
+                        evt.oldIndex; // element's old index within old parent
+                        evt.newIndex; // element's new index within new parent
                         evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
                         evt.newDraggableIndex; // element's new index within new parent, only counting draggable elements
                         evt.clone // the clone element
-                        evt.pullMode;  // when item is in another sortable: `"clone"` if cloning, `true` if moving
+                        evt.pullMode; // when item is in another sortable: `"clone"` if cloning, `true` if moving
                         console.log(evt);
                     },
                 });
             },
             methods: {
-                getMeta: function (id) {
-                    return this.currentUser.meta[id];
-                },
-                updateExperiences: function (data) {
-                    let experiences = [{_:1, pos:1, title:'Creation site web', desc:'Lorem upsum dolor sit amet', s: '10/02/2010', e: ''}];
-                    this.$parent.Wordpress.users().me().update({
-                        meta: {
-                            experiences: JSON.stringify(experiences)
-                        }
-                    })
+                getMeta: function (value) {
+                    return lodash.isNull(this.currentUser) ? JSON.stringify([]) : this.currentUser.meta[value];
                 },
                 getExperiences: function () {
-                    return JSON.parse(this.getMeta('experiences'));
+                    let experiences = this.getMeta('experiences');
+                    let response = lodash.isEmpty(experiences) ? [] : JSON.parse(experiences);
+                    return response;
+                },
+                getEducations: function () {
+                    let educations = this.getMeta('educations');
+                    let response = lodash.isEmpty(educations) ? [] : JSON.parse(educations);
+                    return response;
+                },
+                updateExperiences: function (data) {
+                    const self = this;
+                    this.Loading = true;
+                    this.$parent.Wordpress.users().me().update({
+                        meta: {
+                            experiences: JSON.stringify(data)
+                        }
+                    }).then(function (response) {
+                        self.currentUser = lodash.clone(response);
+                        /** reset experience form value to default */
+                        self.resetExperience();
+                        self.Loading = false;
+                        $('.modal').modal('hide');
+                    }).catch(function (err) {
+                        self.Loading = false;
+                    });
+                    /** */
+                },
+                updateEducations: function(data) {
+                    const self = this;
+                    this.Loading = true;
+                    this.$parent.Wordpress.users().me().update({
+                        meta: {
+                            educations: JSON.stringify(data)
+                        }
+                    }).then(function (response) {
+                        self.currentUser = lodash.clone(response);
+                        /** reset experience form value to default */
+                        self.resetEducation();
+                        self.Loading = false;
+                        $('.modal').modal('hide');
+                    }).catch(function (err) {
+                        self.Loading = false;
+                    });
+                },
+                resetExperience: function () {
+                    this.formExpEdit = {
+                        _id: getRandomId(),
+                        office: '',
+                        enterprise: '',
+                        city: '',
+                        country: '',
+                        b: '',
+                        /** begin year */
+                        e: '',
+                        /** end year */
+                        desc: '',
+                    };
+                    this.formExpSelected = null;
+                },
+                resetEducation: function() {
+                    this.formEduEdit = {
+                        _id: getRandomId(),
+                        establishment: '',
+                        diploma: '',
+                        city: '',
+                        country: '',
+                        b: '', /** begin year */
+                        e: '' /** end year */
+                    };
+                    this.formEduSelected = null;
+                },
+                /** Envt click button modal */
+                addExperience: function () {
+                    this.resetExperience();
+                    $('#experience').modal('show');
+                },
+                addEducation: function() {
+                    this.resetEducation();
+                    $('#education').modal('show');
+                },
+                editExperience: function (evt, id) {
+                    evt.preventDefault();
+                    const self = this;
+                    const experiences = this.getExperiences();
+                    let expSelected = lodash.find(experiences, exp => exp._id === id);
+                    Object.keys(expSelected).forEach((item, index) => {
+                        self.formExpEdit[item] = expSelected[item];
+                    });
+                    this.formExpSelected = id;
+                    $('#experience').modal('show');
+                },
+                deleteExperience: function(evt, id) {
+                    const experiences = this.getExperiences();
+                    let currentExperiences = lodash.remove(experiences, exp => {
+                        return exp._id === id;
+                    });
+                    this.updateExperiences(currentExperiences);
+                },
+                deleteEducation: function(evt, id) {
+                    const educations = this.getEducations();
+                    let currentEducations = lodash.remove(educations, edu => {
+                        return edu._id === id;
+                    });
+                    this.updateEducations(currentEducations);
+                },
+                editEducation: function (evt, id) {
+                    evt.preventDefault();
+                    const self = this;
+                    const educations = this.getEducations();
+                    let eduSelected = lodash.find(educations, {_id: id});
+                    Object.keys(eduSelected).forEach((item, index) => {
+                        self.formEduEdit[item] = eduSelected[item];
+                    });
+                    this.formEduSelected = id;
+                    $('#education').modal('show');
+                },
+                validateExpForm: function (ev) {
+                    ev.preventDefault();
+                    this.submitExpForm();
+                },
+                validateEduForm: function(ev) {
+                    ev.preventDefault();
+                    this.submitEduForm();
+                },
+                submitExpForm: function () {
+                    const self = this;
+                    let experiences = this.getExperiences();
+                    if (this.formExpSelected === null) {
+                        experiences.push(this.formExpEdit);
+                    } else {
+                        /** update exist experience */
+                        experiences = lodash.map(experiences, exp => {
+                            if (exp._id === self.formExpSelected) {
+                                Object.keys(exp).forEach((expKey) => {
+                                    exp[expKey] = self.formExpEdit[expKey];
+                                });
+                            }
+                            return exp;
+                        });
+                    }
+                    this.updateExperiences(experiences);
+                },
+                submitEduForm: function() {
+                    const self = this;
+                    let educations = this.getEducations();
+                    if (this.formEduSelected === null) {
+                        educations.push(this.formEduEdit);
+                    } else {
+                        /** update exist experience */
+                        educations = lodash.map(educations, edu => {
+                            if (edu._id === self.formEduSelected) {
+                                Object.keys(edu).forEach((key) => {
+                                    edu[key] = self.formEduEdit[key];
+                                });
+                            }
+                            return edu;
+                        });
+                    }
+                    this.updateEducations(educations);
                 }
             }
         };
 
-        const routes = [
-            {
+        const routes = [{
                 path: '/',
                 component: Layout,
                 redirect: '/home',
-                children: [
-                    {
+                children: [{
                         path: 'home',
                         name: 'Home',
                         component: Home
@@ -139,7 +334,9 @@
                     },
                 ],
                 beforeEnter: (to, from, next) => {
-                    if (to.name != 'Login' && parseInt(clientApiSettings.current_user_id) == 0) next({name: 'Login'})
+                    if (to.name != 'Login' && parseInt(clientApiSettings.current_user_id) == 0) next({
+                        name: 'Login'
+                    })
                     else next();
                 },
             },
@@ -148,7 +345,9 @@
                 name: 'Login',
                 component: CompLogin,
                 beforeEnter: (to, from, next) => {
-                    if (parseInt(clientApiSettings.current_user_id) !== 0) next({name: 'Home'})
+                    if (parseInt(clientApiSettings.current_user_id) !== 0) next({
+                        name: 'Home'
+                    })
                     else next();
                 },
             }
@@ -157,9 +356,12 @@
             routes // short for `routes: routes`
         });
 
-
+        Vue.component('v-select', VueSelect.VueSelect);
         // Application
-        new Vue({el: '#client', router});
+        new Vue({
+            el: '#client',
+            router
+        });
 
     });
 })(jQuery);

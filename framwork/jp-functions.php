@@ -12,6 +12,7 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_style('jp-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css');
     wp_register_style('semantic-dropdown', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/dropdown.min.css');
     wp_register_style('semantic-transition', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/transition.min.css');
+    wp_enqueue_style('v-select', get_stylesheet_directory_uri() . '/assets/js/vuejs/vue-select.css');
     wp_enqueue_style('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/css/alertify.css');
     wp_enqueue_style('style-name', get_stylesheet_uri(), [
         'elementor-frontend',
@@ -38,6 +39,7 @@ add_action('wp_enqueue_scripts', function() {
     //wp_register_script('jp-jquery-nice', get_stylesheet_directory_uri() . '/assets/plugins/nice-select/js/jquery.nice-select.min.js', ['jquery'], '1.0.0', true);
     wp_register_script('vuejs', get_stylesheet_directory_uri() . '/assets/js/vuejs/vue.js', [], '2.5.16', true); // dev
     wp_register_script('vue-router', get_stylesheet_directory_uri() . '/assets/js/vuejs/vue-router.js', ['vuejs'], '3.5.1', true); // dev
+    wp_register_script('vue-select', get_stylesheet_directory_uri() . '/assets/js/vuejs/vue-select.js', ['vuejs'], '3.11', true); // dev
     wp_register_script('wpapi', get_stylesheet_directory_uri() . '/assets/js/wpapi/wpapi.js', [], null, true); // dev
     wp_register_script('axios', get_stylesheet_directory_uri() . '/assets/js/axios.min.js', [], null, true); // dev
     wp_register_script('bluebird', get_stylesheet_directory_uri() . '/assets/js/bluebird/bluebird.min.js', [], null, true); // dev

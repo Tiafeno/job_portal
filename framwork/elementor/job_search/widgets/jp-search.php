@@ -47,22 +47,12 @@ class JobSearch_Widget extends Widget_Base
         );
 
         $this->add_control(
-            'widget_value',
+            'ad_number',
             [
-                'label' => __('value', self::$slug),
+                'label' => __('Nombre d\'annonce', self::$slug),
                 'type' => \Elementor\Controls_Manager::TEXT,
-                'default' => __('value', self::$slug),
+                'default' => 100, // Nombre d'annonce afficher par default
                 'placeholder' => __('Value Attribute', self::$slug),
-            ]
-        );
-
-        $this->add_control(
-            'widget_contents',
-            [
-                'label' => __('contents', self::$slug),
-                'type' => \Elementor\Controls_Manager::TEXT,
-                'default' => __('contents', self::$slug),
-                'placeholder' => __('Option Contents', self::$slug),
             ]
         );
 
@@ -79,7 +69,10 @@ class JobSearch_Widget extends Widget_Base
     protected function render()
     {
         global $Liquid_engine;
-        echo $Liquid_engine->parseFile('job-search')->render([]);
+        $settings = $this->get_settings_for_display(); // return array
+        $regions = get_terms(['taxonomy' => 'region', 'hide_empty' => false, 'number' => 50]);
+        $categories = get_terms(['taxonomy' => 'category', 'hide_empty' => false, 'number' => 50]);
+        echo $Liquid_engine->parseFile('job-search')->render(['regions' => $regions, 'categories' => $categories]);
     }
 
 

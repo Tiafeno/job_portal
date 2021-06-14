@@ -354,7 +354,7 @@
         ];
         const router = new VueRouter({
             routes // short for `routes: routes`
-        });
+        });3
 
         Vue.component('v-select', VueSelect.VueSelect);
         // Application

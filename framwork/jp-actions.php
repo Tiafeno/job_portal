@@ -203,6 +203,27 @@ add_action('helper_register_jp_post_types', function () {
         'rewrite'           => array( 'slug' => 'qualification' ),
     ]);
 
+    //  Qualification
+    register_taxonomy( 'language', [ 'post' ], [
+        'hierarchical'      => true,
+        'labels'            => array(
+            'name'              => 'Langages',
+            'singular_name'     => 'Langage',
+            'search_items'      => 'Trouver',
+            'all_items'         => 'Trouver des langues',
+            'edit_item'         => 'Modifier la langue',
+            'update_item'       => 'Mettre à jour',
+            'add_new_item'      => 'Ajouter',
+            'menu_name'         => 'Languages',
+        ),
+        'show_ui'           => true,
+        'show_admin_column' => false,
+        'query_var'         => true,
+        'public'            => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'language' ),
+    ]);
+
     //  Type de travail
     register_taxonomy( 'job_type', [ 'jp-jobs' ], [
         'hierarchical'      => true,

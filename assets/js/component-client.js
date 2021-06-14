@@ -81,6 +81,18 @@
             data: function () {
                 return {
                     hasCV: false,
+
+                    first_name: '',
+                    last_name: '',
+                    phone: '',
+                    address: "",
+                    gender: "",
+                    languages: [],
+                    categories: [],
+
+                    optLanguages: [],
+                    optCategories: [],
+
                     currentUser: null,
                     Loading: true,
                     yearRange: [],
@@ -120,13 +132,17 @@
                 let currentDate = new Date();
                 this.yearRange = lodash.range(1950, currentDate.getFullYear());
             },
-            mounted: function () {
+            mounted: async function () {
                 const self = this;
                 this.Loading = true;
-                this.WPApiModel = new wp.api.models.User({
-                    id: clientApiSettings.current_user_id
-                });
-                this.WPApiModel.fetch().done(function (response) {
+                // this.WPApiModel = new wp.api.models.User({
+                //     id: clientApiSettings.current_user_id
+                // });
+                // this.WPApiModel.fetch().done(function (response) {
+                //     self.currentUser = lodash.cloneDeep(response);
+                //     self.Loading = false;
+                // });
+                await this.$parent.Wordpress.users().me().context('edit').then(function(response) {
                     self.currentUser = lodash.cloneDeep(response);
                     self.Loading = false;
                 });
@@ -149,20 +165,36 @@
                         console.log(evt);
                     },
                 });
+
+                // Recuperer les langues
+                fetch(clientApiSettings.root + 'wp/v2/language').then(res => {
+                    res.json().then(json => (self.optLanguages = json));
+                });
+
+                // Recuperer les langues
+                fetch(clientApiSettings.root + 'wp/v2/categories').then(res => {
+                    res.json().then(json => (self.optCategories = json));
+                });
+
+
             },
-            methods: {
-                getMeta: function (value) {
-                    return lodash.isNull(this.currentUser) ? JSON.stringify([]) : this.currentUser.meta[value];
-                },
-                getExperiences: function () {
+            computed: {
+                getExperiences() {
                     let experiences = this.getMeta('experiences');
                     let response = lodash.isEmpty(experiences) ? [] : JSON.parse(experiences);
                     return response;
                 },
-                getEducations: function () {
+                getEducations() {
                     let educations = this.getMeta('educations');
                     let response = lodash.isEmpty(educations) ? [] : JSON.parse(educations);
                     return response;
+                },
+            },
+            methods: {
+                getMeta: function (value) {
+                    let metaValue = lodash.isNull(this.currentUser) ? JSON.stringify([]) :
+                        (typeof this.currentUser.meta == 'undefined' ? JSON.stringify([]) : this.currentUser.meta[value]);
+                    return metaValue;
                 },
                 updateExperiences: function (data) {
                     const self = this;
@@ -238,7 +270,7 @@
                 editExperience: function (evt, id) {
                     evt.preventDefault();
                     const self = this;
-                    const experiences = this.getExperiences();
+                    const experiences = this.getExperiences;
                     let expSelected = lodash.find(experiences, exp => exp._id === id);
                     Object.keys(expSelected).forEach((item, index) => {
                         self.formExpEdit[item] = expSelected[item];
@@ -247,14 +279,14 @@
                     $('#experience').modal('show');
                 },
                 deleteExperience: function(evt, id) {
-                    const experiences = this.getExperiences();
+                    const experiences = this.getExperiences;
                     let currentExperiences = lodash.remove(experiences, exp => {
                         return exp._id === id;
                     });
                     this.updateExperiences(currentExperiences);
                 },
                 deleteEducation: function(evt, id) {
-                    const educations = this.getEducations();
+                    const educations = this.getEducations;
                     let currentEducations = lodash.remove(educations, edu => {
                         return edu._id === id;
                     });
@@ -263,13 +295,16 @@
                 editEducation: function (evt, id) {
                     evt.preventDefault();
                     const self = this;
-                    const educations = this.getEducations();
+                    const educations = this.getEducations;
                     let eduSelected = lodash.find(educations, {_id: id});
                     Object.keys(eduSelected).forEach((item, index) => {
                         self.formEduEdit[item] = eduSelected[item];
                     });
                     this.formEduSelected = id;
                     $('#education').modal('show');
+                },
+                updateStatusCandidate: function() {
+
                 },
                 validateExpForm: function (ev) {
                     ev.preventDefault();
@@ -281,7 +316,7 @@
                 },
                 submitExpForm: function () {
                     const self = this;
-                    let experiences = this.getExperiences();
+                    let experiences = this.getExperiences;
                     if (this.formExpSelected === null) {
                         experiences.push(this.formExpEdit);
                     } else {
@@ -299,7 +334,7 @@
                 },
                 submitEduForm: function() {
                     const self = this;
-                    let educations = this.getEducations();
+                    let educations = this.getEducations;
                     if (this.formEduSelected === null) {
                         educations.push(this.formEduEdit);
                     } else {
@@ -314,6 +349,11 @@
                         });
                     }
                     this.updateEducations(educations);
+                },
+                submitCV: function(ev) {
+                    ev.preventDefault();
+                    const self = this;
+
                 }
             }
         };

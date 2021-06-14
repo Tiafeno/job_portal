@@ -75,7 +75,7 @@
     });
     $().ready(function () {
         "use strict";
-        //$('select').niceSelect();
+        //$('select.select-nice').niceSelect();
         $('.utf_main_banner_area select').dropdown({
             clearable: true,
             placeholder: 'any'

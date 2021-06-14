@@ -43,255 +43,317 @@ get_header();
 
 <script type="text/x-template" id="client-cv">
     <div id="cv">
-        <div>
-            <h2 class="font-bold">REFERENCE
-                <a target="_blank" title="Voir le CV" class="text-muted" href="https://www.itjobmada.com/candidate/cv563/">#CV563</a>
-            </h2>
-        </div>
-        <div>
-        <v-select :options="[{label: 'Canada', code: 'ca'}]"></v-select>
-        </div>
-        <div class="col-md-12 col-sm-12" id="educations">
-            <div class="detail-wrapper">
-                <div class="detail-wrapper-header">
-                    <h4>Educations</h4>
+        <form class="cv-form" method="post" @submit="submitCV" novalidate>
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 class="font-bold">REFERENCE
+                        <a target="_blank" title="Voir le CV" class="text-muted" href="https://www.itjobmada.com/candidate/cv563/">#CV563</a>
+                    </h2>
                 </div>
-                <div class="detail-wrapper-body" id="education-list">
-                    <comp-education v-for="education in getEducations()" v-if="!Loading" 
-                    @edit="editEducation"
-                    :key="education._id" 
-                    :item="education"
-                    :year_range="yearRange">
-                    </comp-education>
+                <div class="col-md-8">
+                    Emploi recherché ou métier *
+                    <v-select v-model="categories" multiple :options="optCategories" :reduce="cat => cat.id" label="name"></v-select>
                 </div>
-                <div class="padd-l-15 padd-bot-15">
-                    <button type="button" @click="addEducation()" class="btn-job theme-btn">+ Ajouter</button>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-12 col-sm-12" id="experiences">
-            <div class="detail-wrapper">
-                <div class="detail-wrapper-header">
-                    <h4>Work Experience</h4>
-                </div>
-                <div class="detail-wrapper-body" id="experience-list">
-                    <comp-experience v-for="experience in getExperiences()" v-if="!Loading" 
-                    @edit="editExperience"
-                    :key="experience._id" 
-                    :item="experience" 
-                    :year_range="yearRange">
-                    </comp-experience>
-                </div>
-                <div class="padd-l-15 padd-bot-15">
-                    <button type="button" @click="addExperience()" class="btn-job theme-btn">+ Ajouter</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- exxperience modal Code -->
-        <div class="modal fade" id="experience" style="background-color:  rgba(0, 0, 0, 0.85)" tabindex="-1" role="dialog"
-        aria-labelledby="expModal" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content" id="expModal">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Experience</h5>
+                <div class="col-md-12">
+                    <div class="profile_detail_block">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" v-model="first_name" class="form-control" placeholder="" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" v-model="last_name" class="form-control" placeholder="" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="text" v-model="phone" class="form-control" placeholder="+261 32 XX XXX XX" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>Address</label>
+                                <input type="text" v-model="address" class="form-control" placeholder="Votre adresse" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select class=" wide form-control" v-model="gender" required>
+                                    <option data-display="Gender">Gender</option>
+                                    <option value="1">Male</option>
+                                    <option value="2">Female</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>Language</label>
+                                <v-select v-model="languages" multiple :options="optLanguages" :reduce="language => language.id" label="name" ></v-select>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>Date Of Birth</label>
+                                <input type="date" class="form-control" readonly="">
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
                     </div>
-                    <div class="modal-body">
-                        <form @submit="validateExpForm" method="post" action="" novalidate>
-                            <div class="row">
+                </div>
 
-                                <div class="col-md-12">
-                                    <label class="col-form-label">Office <span style="color: red">*</span></label>
-                                    <div class="form-group">
-                                        <input placeholder="" autocomplete="off" name="office" v-model="formExpEdit.office"
-                                            class="form-control" required="">
-                                    </div>
-                                </div>
+                <div class="col-md-12 col-sm-12" id="educations">
+                    <div class="detail-wrapper">
+                        <div class="detail-wrapper-header">
+                            <h4>Educations</h4>
+                        </div>
+                        <div class="detail-wrapper-body" id="education-list">
+                            <comp-education v-for="education in getEducations" v-if="!Loading"
+                                            @edit="editEducation"
+                                            :key="education._id"
+                                            :item="education"
+                                            :year_range="yearRange">
+                            </comp-education>
+                        </div>
+                        <div class="padd-l-15 padd-bot-15">
+                            <button type="button" @click="addEducation()" class="btn-job theme-btn">+ Ajouter</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-sm-12" id="experiences">
+                    <div class="detail-wrapper">
+                        <div class="detail-wrapper-header">
+                            <h4>Work Experience</h4>
+                        </div>
+                        <div class="detail-wrapper-body" id="experience-list">
+                            <comp-experience v-for="experience in getExperiences" v-if="!Loading"
+                                             @edit="editExperience"
+                                             :key="experience._id"
+                                             :item="experience"
+                                             :year_range="yearRange">
+                            </comp-experience>
+                        </div>
+                        <div class="padd-l-15 padd-bot-15">
+                            <button type="button" @click="addExperience()" class="btn-job theme-btn">+ Ajouter</button>
+                        </div>
+                    </div>
+                </div>
 
-                                <div class="col-md-12">
-                                    <label class="col-form-label">Enterprise <span style="color: red">*</span></label>
-                                    <div class="form-group">
-                                        <input placeholder="" autocomplete="on" v-model="formExpEdit.enterprise" name="enterprise" class="form-control "
-                                            required="">
-                                    </div>
-                                </div>
+                <div class="col-md-8">
+                    <button type="submit"  class="btn btn-outlined">Enregistrer</button>
+                </div>
 
-                                <div class="col-md-12">
-                                    <label class="col-form-label">Ville <span style="color: red">*</span></label>
-                                    <div class="form-group">
-                                        <input placeholder="Ex: Majunga" autocomplete="off" v-model="formExpEdit.city" name="city"
-                                            class="form-control"
-                                            required="">
-                                    </div>
-                                </div>
+                <!-- exxperience modal Code -->
+                <div class="modal fade" id="experience" style="background-color:  rgba(0, 0, 0, 0.85)" tabindex="-1" role="dialog"
+                     aria-labelledby="expModal" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content" id="expModal">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Experience</h5>
+                            </div>
+                            <div class="modal-body">
+                                <form @submit="validateExpForm" method="post" action="" novalidate>
+                                    <div class="row">
 
-                                <div class="col-sm-12">
-                                    <label class="col-form-label">Pays <span style="color: red">*</span></label>
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <input placeholder="Ex: Madagascar" v-model="formExpEdit.country" autocomplete="off" name="country"
-                                                class="form-control"
-                                                required="">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                
-                                    <div class="form-group col-md-6">
-                                        <div class="col-sm-12">
-                                            <p class="">De <span style="color: red">*</span></p>
-                                        </div>
-                                        <div class="col-sm-12">
+                                        <div class="col-md-12">
+                                            <label class="col-form-label">Office <span style="color: red">*</span></label>
                                             <div class="form-group">
-                                                <select name="b" v-model="formExpEdit.b" class="form-control" required="">
-                                                    <option v-for="year in yearRange" :value="year">{{year}}</option>
-                                                </select>
+                                                <input placeholder="" autocomplete="off" name="office" v-model="formExpEdit.office"
+                                                       class="form-control" required="">
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div class="form-group col-md-6">
-                                        <div class="col-sm-12">
-                                            <p class="text-uppercase">à </p>
-                                        </div>
-                                        <div class="col-sm-12">
+                                        <div class="col-md-12">
+                                            <label class="col-form-label">Enterprise <span style="color: red">*</span></label>
                                             <div class="form-group">
-                                                <select class="form-control" v-model="formExpEdit.e" name="e">
-                                                    <option :value="''">Poste actuel</option>
-                                                    <option v-for="year in yearRange" :value="year">{{year}}</option>
-                                                </select>
+                                                <input placeholder="" autocomplete="on" v-model="formExpEdit.enterprise" name="enterprise" class="form-control "
+                                                       required="">
                                             </div>
                                         </div>
-                                    </div>
 
-                                </div>
-
-                                <div class="col-sm-12">
-                                    <label class="col-form-label ">Description <span style="color: red">*</span></label>
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <textarea placeholder="" autocomplete="off" v-model="formExpEdit.desc" name="desc"
-                                                class="form-control"
-                                                required=""></textarea>
+                                        <div class="col-md-12">
+                                            <label class="col-form-label">Ville <span style="color: red">*</span></label>
+                                            <div class="form-group">
+                                                <input placeholder="Ex: Majunga" autocomplete="off" v-model="formExpEdit.city" name="city"
+                                                       class="form-control"
+                                                       required="">
+                                            </div>
                                         </div>
+
+                                        <div class="col-sm-12">
+                                            <label class="col-form-label">Pays <span style="color: red">*</span></label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input placeholder="Ex: Madagascar" v-model="formExpEdit.country" autocomplete="off" name="country"
+                                                           class="form-control"
+                                                           required="">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+
+                                            <div class="form-group col-md-6">
+                                                <div class="col-sm-12">
+                                                    <p class="">De <span style="color: red">*</span></p>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select name="b" v-model="formExpEdit.b" class="form-control" required="">
+                                                            <option v-for="year in yearRange" :value="year">{{year}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-md-6">
+                                                <div class="col-sm-12">
+                                                    <p class="text-uppercase">à </p>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="formExpEdit.e" name="e">
+                                                            <option :value="''">Poste actuel</option>
+                                                            <option v-for="year in yearRange" :value="year">{{year}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-sm-12">
+                                            <label class="col-form-label ">Description <span style="color: red">*</span></label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                <textarea placeholder="" autocomplete="off" v-model="formExpEdit.desc" name="desc"
+                                                          class="form-control"
+                                                          required=""></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12">
+                                            <div class="text-center">
+                                                <button type="button" @click="deleteExperience($event, formExpEdit._id)"
+                                                        v-if="formExpSelected != null" class="btn btn-m ">Supprimer</button>
+
+                                                <button type="submit" class="btn btn-m theme-btn ">Enregistrer</button>
+                                            </div>
+                                        </div>
+
                                     </div>
-                                </div>
-
-                                <div class="col-sm-12">
-                                    <div class="text-center">
-                                        <button type="button" @click="deleteExperience($event, formExpEdit._id)" 
-                                        v-if="formExpSelected != null" class="btn btn-m ">Supprimer</button>
-
-                                        <button type="submit" class="btn btn-m theme-btn ">Enregistrer</button>
-                                    </div>
-                                </div>
-
+                                </form>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    <!-- End experience modal -->
+                <!-- End experience modal -->
 
-    <!-- education modal Code -->
-<div class="modal fade" id="education" style="background-color:  rgba(0, 0, 0, 0.85)" tabindex="-1" role="dialog"
-     aria-labelledby="eduModal" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content" id="eduModal">
-            <div class="modal-header">
-                <h5 class="modal-title">Education</h5>
-            </div>
-            <div class="modal-body">
-                <form @submit="validateEduForm" method="post" action="" novalidate>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <label class="col-form-label ">Establishment <span style="color: red">*</span></label>
-                            <div class="form-group">
-                                <input placeholder="Ex: Université de Majunga" autocomplete="off" name="establishment" 
-                                v-model="formEduEdit.establishment"
-                                    class="form-control" required="">
-
+                <!-- education modal Code -->
+                <div class="modal fade" id="education" style="background-color:  rgba(0, 0, 0, 0.85)" tabindex="-1" role="dialog"
+                     aria-labelledby="eduModal" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content" id="eduModal">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Education</h5>
                             </div>
-                        </div>
+                            <div class="modal-body">
+                                <form @submit="validateEduForm" method="post" action="" novalidate>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label class="col-form-label ">Establishment <span style="color: red">*</span></label>
+                                            <div class="form-group">
+                                                <input placeholder="Ex: Université de Majunga" autocomplete="off" name="establishment"
+                                                       v-model="formEduEdit.establishment"
+                                                       class="form-control" required="">
 
-                        <div class="col-md-12">
-                            <label class="col-form-label ">Diplôme <span style="color: red">*</span></label>
-                            <div class="form-group">
-                                <input placeholder="Ex: Master II" autocomplete="on" name="diploma" v-model="formEduEdit.diploma" class="form-control "
-                                    required="">
-                            </div>
-                        </div>
+                                            </div>
+                                        </div>
 
-                        <div class="col-md-12">
-                            <label class="col-form-label ">Ville <span style="color: red">*</span></label>
-                            <div class="form-group">
-                                <input placeholder="Ex: Majunga" autocomplete="off" name="city" v-model="formEduEdit.city"
-                                    class="form-control"
-                                    required="">
-                            </div>
-                        </div>
+                                        <div class="col-md-12">
+                                            <label class="col-form-label ">Diplôme <span style="color: red">*</span></label>
+                                            <div class="form-group">
+                                                <input placeholder="Ex: Master II" autocomplete="on" name="diploma" v-model="formEduEdit.diploma" class="form-control "
+                                                       required="">
+                                            </div>
+                                        </div>
 
-                        <div class="col-sm-12">
-                            <label class="col-form-label ">Pays <span style="color: red">*</span></label>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <input placeholder="Ex: Madagascar" autocomplete="off" v-model="formEduEdit.country" name="country"
-                                        class="form-control"
-                                        required="">
-                                </div>
-                            </div>
-                        </div>
+                                        <div class="col-md-12">
+                                            <label class="col-form-label ">Ville <span style="color: red">*</span></label>
+                                            <div class="form-group">
+                                                <input placeholder="Ex: Majunga" autocomplete="off" name="city" v-model="formEduEdit.city"
+                                                       class="form-control"
+                                                       required="">
+                                            </div>
+                                        </div>
 
-                        <div class="row">
-                            <div class="form-group col-md-6">
-                                <div class="col-sm-12">
-                                    <p class="">Année de début <span style="color: red">*</span></p>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="form-group">
-                                        <select name="b" class="form-control" v-model="formEduEdit.b" required="">
-                                            <option :value="''">Année</option>
-                                            <option v-for="year in yearRange" :value="year">{{year}}</option>
+                                        <div class="col-sm-12">
+                                            <label class="col-form-label ">Pays <span style="color: red">*</span></label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input placeholder="Ex: Madagascar" autocomplete="off" v-model="formEduEdit.country" name="country"
+                                                           class="form-control"
+                                                           required="">
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                        </select>
+                                        <div class="row">
+                                            <div class="form-group col-md-6">
+                                                <div class="col-sm-12">
+                                                    <p class="">Année de début <span style="color: red">*</span></p>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select name="b" class="form-control" v-model="formEduEdit.b" required="">
+                                                            <option :value="''">Année</option>
+                                                            <option v-for="year in yearRange" :value="year">{{year}}</option>
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-md-6">
+                                                <div class="col-sm-12">
+                                                    <p >Année de fin (ou prévision)</p>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="formEduEdit.e"
+                                                                name="e">
+                                                            <option :value="''">Année</option>
+                                                            <option v-for="year in yearRange" :value="year">{{year}}</option>
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-12">
+                                            <div class="text-center">
+                                                <button type="button" @click="deleteEducation($event, formEduEdit._id)"
+                                                        v-if="formEduSelected != null" class="btn btn-m ">Supprimer</button>
+                                                <button type="submit" class="btn btn-m theme-btn full-width">Enregistrer</button>
+                                            </div>
+                                        </div>
+
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-6">
-                                <div class="col-sm-12">
-                                    <p >Année de fin (ou prévision)</p>
-                                </div>
-                                <div class="col-sm-12">
-                                    <div class="form-group">
-                                        <select class="form-control" v-model="formEduEdit.e"
-                                                name="e">
-                                            <option :value="''">Année</option>
-                                            <option v-for="year in yearRange" :value="year">{{year}}</option>
-
-                                        </select>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
-
-                        <div class="col-sm-12">
-                            <div class="text-center">
-                            <button type="button" @click="deleteEducation($event, formEduEdit._id)" 
-                                        v-if="formEduSelected != null" class="btn btn-m ">Supprimer</button>
-                                <button type="submit" class="btn btn-m theme-btn full-width">Enregistrer</button>
-                            </div>
-                        </div>
-
                     </div>
-                </form>
+                </div>
+                <!-- End education modal -->
             </div>
-        </div>
-    </div>
-</div>
-<!-- End education modal -->
+        </form>
 </div>
 
 

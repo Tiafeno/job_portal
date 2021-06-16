@@ -45,17 +45,39 @@ get_header();
     <div id="cv">
         <form class="cv-form" method="post" @submit="submitCV" novalidate>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-12 col-sm-12">
                     <h2 class="font-bold">REFERENCE
                         <a target="_blank" title="Voir le CV" class="text-muted" href="https://www.itjobmada.com/candidate/cv563/">#CV563</a>
                     </h2>
                 </div>
-                <div class="col-md-8">
-                    Emploi recherché ou métier *
-                    <v-select v-model="categories" multiple :options="optCategories" :reduce="cat => cat.id" label="name"></v-select>
-                </div>
-                <div class="col-md-12">
-                    <div class="profile_detail_block">
+
+                <div class="col-md-12 col-sm-12">
+                    <div class="detail-wrapper">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Emploi recherché ou métier *</label>
+                                <v-select v-model="categories"
+                                          multiple
+                                          :selectable="() => categories.length < 2"
+                                          :options="optCategories"
+                                          :reduce="cat => cat.id"
+                                          label="name">
+
+                                </v-select>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select class=" wide form-control" v-model="gender" required>
+                                    <option value="">Genre</option>
+                                    <option value="M.">M.</option>
+                                    <option value="Mr">Mr</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-group">
                                 <label>First Name</label>
@@ -68,12 +90,15 @@ get_header();
                                 <input type="text" v-model="last_name" class="form-control" placeholder="" required>
                             </div>
                         </div>
+
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-group">
-                                <label>Phone</label>
-                                <input type="text" v-model="phone" class="form-control" placeholder="+261 32 XX XXX XX" required>
+                                <label>Date Of Birth</label>
+                                <input type="date" class="form-control" placeholder="jj/mm/aaaa" v-model="birthday" name="birthday" >
                             </div>
                         </div>
+                        <div class="clearfix"></div>
+
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-group">
                                 <label>Address</label>
@@ -82,25 +107,15 @@ get_header();
                         </div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-group">
-                                <label>Gender</label>
-                                <select class=" wide form-control" v-model="gender" required>
-                                    <option data-display="Gender">Gender</option>
-                                    <option value="1">Male</option>
-                                    <option value="2">Female</option>
-                                </select>
+                                <label>Phone</label>
+                                <input type="text" v-model="phone" class="form-control" placeholder="+261 32 XX XXX XX" required>
                             </div>
                         </div>
+
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-group">
                                 <label>Language</label>
                                 <v-select v-model="languages" multiple :options="optLanguages" :reduce="language => language.id" label="name" ></v-select>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label>Date Of Birth</label>
-                                <input type="date" class="form-control" readonly="">
                             </div>
                         </div>
                         <div class="clearfix"></div>
@@ -365,11 +380,6 @@ get_header();
         <div class="container">
             <div class="row">
                 <div class="col-md-3">
-                    <div id="leftcol_item">
-                        <div class="user_dashboard_pic">
-                            <span class="user-photo-action">Alden Smith</span>
-                        </div>
-                    </div>
                     <div class="dashboard_nav_item">
                         <ul>
                             <li class="active">

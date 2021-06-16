@@ -309,13 +309,14 @@
                     const categoriesRequest = this.axiosInstance.get('categories?per_page=50');
                     const typesRequest = this.axiosInstance.get('job_type?per_page=50');
                     const salaryRequest = this.axiosInstance.get('salaries?per_page=50');
+                    this.loading = false;
                     await axios.all([typesRequest, categoriesRequest, salaryRequest]).then(axios.spread(
                         (...responses) => {
                             self.Taxonomies.Categories = lodash.clone(responses[1].data);
                             self.Taxonomies.Types = lodash.clone(responses[0].data);
                             self.Taxonomies.Salaries = lodash.clone(responses[2].data);
 
-                            self.loading = true;
+                            self.loading = false;
                         }
                     )).catch(errors => {
                     })

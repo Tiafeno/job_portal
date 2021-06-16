@@ -131,7 +131,7 @@
                             </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Category</label>
+                                <label>Secteur d'activité</label>
                                 <select name="category" v-model="inputs.category" class="ui dropdown form-control" required>
                                     {% for categorie in categories %}
                                         <option :value="{{ categorie.term_id }}">{{ categorie.name }}</option>
@@ -148,7 +148,7 @@
                             </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
-                                <label>Job Type</label>
+                                <label>Type de contrat</label>
                                 <select name="type" v-model="inputs.type" class="wide form-control" required>
                                     {% assign job_type = 'job_type'|taxonomy %}
                                     {% for type in job_type %}
@@ -179,14 +179,19 @@
                 <!-- Company Summery -->
                 <div class="box">
                     <div class="box-header">
-                        <h4>Description</h4>
+                        <h4>Mission et Profil recherché </h4>
+
                     </div>
+
                     <div class="box-body">
                         <div class="row">
                             <div class="col-sm-12">
                                 <textarea name="description" v-model="inputs.description" class="form-control height-120 textarea"
                                           placeholder="About job"></textarea>
                             </div>
+                        </div>
+                        <div class="text-muted">
+                            Aucune coordonnée, ni nom d'entreprise ne peuvent être indiqués dans votre offre
                         </div>
                     </div>
                 </div>

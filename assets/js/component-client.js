@@ -81,12 +81,13 @@
             data: function () {
                 return {
                     hasCV: false,
-
+                    errors: [],
                     first_name: '',
                     last_name: '',
                     phone: '',
                     address: "",
                     gender: "",
+                    birthday: "",
                     languages: [],
                     categories: [],
 
@@ -144,6 +145,24 @@
                 // });
                 await this.$parent.Wordpress.users().me().context('edit').then(function(response) {
                     self.currentUser = lodash.cloneDeep(response);
+                    //Populate data value
+                    self.first_name = self.currentUser.first_name;
+                    self.last_name = self.currentUser.last_name;
+                    self.phone = self.currentUser.meta.phone;
+                    self.address = self.currentUser.meta.address;
+                    self.gender = self.currentUser.meta.gender;
+                    self.birthday = self.currentUser.meta.birthday;
+
+                    let languages = self.currentUser.meta.languages;
+                    languages = lodash.isEmpty(languages) ? [] : JSON.parse(languages);
+                    self.languages = lodash.clone(languages);
+
+                    let categories = self.currentUser.meta.categories;
+                    categories = lodash.isEmpty(categories) ? [] : JSON.parse(categories);
+                    self.categories = lodash.clone(categories);
+
+                    self.hasCV = !!self.currentUser.meta.has_cv;
+
                     self.Loading = false;
                 });
 
@@ -353,7 +372,34 @@
                 submitCV: function(ev) {
                     ev.preventDefault();
                     const self = this;
+                    this.errors = [];
 
+                    // TODO: Verify error input form
+                    this.Loading = true;
+                    let _languages = JSON.stringify(this.languages);
+                    let _categories = JSON.stringify(this.categories);
+                    this.$parent.Wordpress.users().me()
+                        .update({
+                            last_name: this.last_name,
+                            first_name: this.first_name,
+                            meta: {
+                                phone: this.phone,
+                                address: this.address,
+                                gender: this.gender,
+                                languages: _languages,
+                                categories: _categories,
+                                birthday: this.birthday,
+                                // Render visible this CV
+                                has_cv: true,
+                            }
+                        })
+                        .then(function(resp) {
+                            self.Loading = false;
+                            self.hasCV = true;
+                        })
+                        .catch(function(er) {
+                            self.Loading = false;
+                        });
                 }
             }
         };
@@ -362,7 +408,8 @@
                 path: '/',
                 component: Layout,
                 redirect: '/home',
-                children: [{
+                children: [
+                    {
                         path: 'home',
                         name: 'Home',
                         component: Home

@@ -11,7 +11,7 @@ get_header();
 ?>
 <!-- Template-->
 <script  id="filter-salary-template" type="text/x-template">
-        <div class="widget-boxed padd-bot-0">
+        <div class="widget-boxed padd-bot-0" v-if="items.length > 0">
             <div class="widget-boxed-header">
                 <h4>Offerd Salary</h4>
             </div>
@@ -93,7 +93,7 @@ get_header();
                 <div class="col-md-9 col-sm-7">
                     <div class="row mrg-bot-20">
                         <div class="col-md-4 col-sm-12 col-xs-12 browse_job_tlt">
-                            <h4 class="job_vacancie">98 Jobs &amp; Vacancies</h4>
+                            <h4 class="job_vacancie">{{ archives.length }} Jobs &amp; Vacancies</h4>
                         </div>
                         <div class="col-md-8 col-sm-12 col-xs-12">
                             <div class="fl-right short_by_filter_list">
@@ -132,12 +132,7 @@ get_header();
         </div>
     </div>
     <div id="archive-jobs">
-<?php
-if (have_posts()) :?>
-    <comp-archive-jobs v-if="loading" v-bind:taxonomies="Taxonomies"></comp-archive-jobs>
-<?php
-endif;
-?>
+        <comp-archive-jobs v-if="!loading" v-bind:taxonomies="Taxonomies"></comp-archive-jobs>
     </div>
 <?php
 get_footer();

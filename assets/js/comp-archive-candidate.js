@@ -37,8 +37,6 @@
                 }
             }
         };
-
-
         const Layout = {
             template: '#layout-archive',
             data: function () {
@@ -55,7 +53,6 @@
             }
 
         };
-
         const CompArchives = {
             template: '#candidate-archive-item',
             components: {
@@ -80,13 +77,14 @@
                     this.loading = true;
                     this.request = this.$parent.Wordpress.users()
                         .param('roles', 'candidate')
-                        .param('has_cv', 0)// boolean value
+                        .param('has_cv', 1)// boolean value
                         .perPage(this.per_page)
                         .page(this.page);
 
                     this.request.then(resp => {
                             self.Annonces = lodash.clone(resp);
                             self.paging = lodash.isUndefined(resp._paging) ? null : resp._paging;
+                            self.loading = false;
                         })
                 },
                 Route: function (page) {
@@ -113,20 +111,22 @@
                 },
             }
         };
-
         const UserDetails = {
             template: '#candidate-details',
             data: function() {
                 return {
+                    loading: false,
                     userId: 0,
+                    candidate: null,
                 }
             },
             mounted: function() {
+                const self = this;
                 this.userId = parseInt(this.$route.params.id);
                 this.$parent.Wordpress.users().id(this.userId)
                     .then(resp => {
-                        console.log(resp);
-                    })
+                        self.candidate = lodash.clone(resp);
+                    });
             }
         };
 

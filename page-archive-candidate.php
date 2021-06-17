@@ -23,7 +23,7 @@ get_header();
 <script type="text/x-template" id="candidate-archive-item">
     <div class="tab-content">
         <!-- Single candidate List -->
-        <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="col-md-3 col-sm-6 col-xs-12" v-if="!loading" v-for="annonce in annonces" :key="annonce.id">
             <div class="contact-box">
                 <div class="utf_flexbox_area mrg-l-10">
                     <label class="toggler toggler-danger">
@@ -33,7 +33,7 @@ get_header();
                 </div>
                 <div class="contact-img"> <img src="assets/img/client-2.jpg" class="img-responsive" alt=""> </div>
                 <div class="contact-caption">
-                    <router-link :to="{ name: 'User', params: { id: 1 }}">John Williams</router-link>
+                    <router-link :to="{ name: 'UserDetails', params: { id: annonce.id }}">{{annonce.meta.reference}}</router-link>
                     <span>Web Developer(2 Year Exp.)</span>
                 </div>
             </div>

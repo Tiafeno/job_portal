@@ -237,7 +237,6 @@
                     }).catch(function (err) {
                         self.Loading = false;
                     });
-                    /** */
                 },
                 updateEducations: function(data) {
                     const self = this;
@@ -439,7 +438,8 @@
             }
         };
 
-        const routes = [{
+        const routes = [
+            {
                 path: '/',
                 component: Layout,
                 redirect: '/home',

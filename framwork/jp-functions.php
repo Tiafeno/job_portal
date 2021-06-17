@@ -82,6 +82,13 @@ add_filter('body_class', function ($classes) {
     return $classes;
 });
 
+add_filter('rest_jp-jobs_query', function($args, $request) {
+    $args['meta_key']   = $request['meta_key'];
+    $args['meta_value'] = $request['meta_value'];
+
+    return $args;
+}, 10, 2);
+
 add_action('rest_api_init', function() {
     // Annonce API
     $job_meta_int = ['experience', 'employer_id'];

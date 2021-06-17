@@ -257,7 +257,7 @@
                         // Listing any of these parameters will assign the built-in
                         // chaining method that handles the parameter:
                         params: ['context']
-                    })
+                    });
                     // Si le client est connecter, On verifie s'il existe deja une entreprise
                     if (this.isClient) {
                         this.WPAPI.users().me().context('edit')

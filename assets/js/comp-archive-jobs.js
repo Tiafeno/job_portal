@@ -33,7 +33,6 @@
                 }
             }
         };
-
         const searchFilter = {
             template: '#filter-search-template',
             data: function () {
@@ -118,7 +117,7 @@
             },
             data: function () {
                 return {
-                    loadArchive: false,
+                    loadArchive: true,
                     archives: [], // content
                     WPAPI: null,
                     Request: {}, // object request
@@ -133,7 +132,7 @@
                     _status: 'publish',
                 }
             },
-            created: function () {
+            mounted: function() {
                 if (typeof archiveApiSettings === 'undefined') {
                     return;
                 }
@@ -142,9 +141,6 @@
                     nonce: archiveApiSettings.nonce
                 });
                 this.init();
-            },
-            mounted: function () {
-
             },
             methods: {
                 init: function () {
@@ -241,33 +237,36 @@
                         .per_page(self.per_page)
                         .page(self.page)
                         .get();
-                    self.loadArchive = false;
+                    self.loadArchive = true;
                     archivesPromise.then(function (response) {
                         if (lodash.isEmpty(response)) {
                             self.archives = [];
                             self.paging = null
                             return;
                         }
+
                         const archivesResponse = lodash.cloneDeep(response);
                         self.paging = lodash.clone(response._paging); // Update paging value
+
                         self.archives = lodash.map(archivesResponse, function (archive) {
                             archive.get_type_name = ''; // add type of annonce
                             archive.get_cat_name = '';
                             const type = archive.job_type;
-                            if (lodash.isArray(type) || !lodash.isEmpty(type)) {
+                            if (lodash.isArray(type) && !lodash.isEmpty(type)) {
                                 let i = lodash.head(type);
-                                let j = lodash.find(self.taxonomies.Types, {id: parseInt(i)});
+                                let j = lodash.find(self.taxonomies.Types, {'id': parseInt(i)});
                                 archive.get_type_name = j.name;
                             }
+
                             const categories = archive.categories;
-                            if (lodash.isArray(categories) || !lodash.isEmpty(categories)) {
+                            if (lodash.isArray(categories) && !lodash.isEmpty(categories)) {
                                 let k = lodash.head(categories);
-                                let l = lodash.find(self.taxonomies.Categories, {id: parseInt(k)});
+                                let l = lodash.find(self.taxonomies.Categories, {'id': parseInt(k)});
                                 archive.get_cat_name = l.name;
                             }
                             return archive;
                         });
-                        self.loadArchive = true;
+                        self.loadArchive = false;
                     });
 
                 }
@@ -309,7 +308,7 @@
                     const categoriesRequest = this.axiosInstance.get('categories?per_page=50');
                     const typesRequest = this.axiosInstance.get('job_type?per_page=50');
                     const salaryRequest = this.axiosInstance.get('salaries?per_page=50');
-                    this.loading = false;
+                    this.loading = true;
                     await axios.all([typesRequest, categoriesRequest, salaryRequest]).then(axios.spread(
                         (...responses) => {
                             self.Taxonomies.Categories = lodash.clone(responses[1].data);

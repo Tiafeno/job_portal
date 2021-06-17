@@ -30,6 +30,11 @@
                     endpoint: clientApiSettings.root,
                     nonce: clientApiSettings.nonce
                 });
+                this.Wordpress.jobs = this.Wordpress.registerRoute('wp/v2', '/emploi/(?P<id>\\d+)', {
+                    // Listing any of these parameters will assign the built-in
+                    // chaining method that handles the parameter:
+                    params: ['context', 'per_page', 'offset', 'param']
+                });
                 this.init();
             },
             methods: {
@@ -72,7 +77,7 @@
             }
         };
 
-        const CV = {
+        const CVComp = {
             template: '#client-cv',
             components: {
                 'comp-education': CVComponents.education,
@@ -404,6 +409,32 @@
             }
         };
 
+        const AnnonceComp = {
+            template: "#client-annonce",
+            data: function () {
+                return {
+                    loading : false,
+                    annonces: []
+                }
+            },
+            mounted: function(){
+                const self = this;
+                this.loading = true;
+                this.$parent.Wordpress.jobs()
+                    .param('meta_key', 'employer_id')
+                    .param('meta_value', clientApiSettings.current_user_id)
+                    .per_page(10)
+                    .then(function(response) {
+                        console.log(response);
+                        self.annonces = lodash.clone(response);
+                        self.loading = false;
+                });
+            },
+            methods: {
+
+            }
+        };
+
         const routes = [{
                 path: '/',
                 component: Layout,
@@ -417,7 +448,12 @@
                     {
                         path: 'cv',
                         name: 'CV',
-                        component: CV
+                        component: CVComp
+                    },
+                    {
+                        path: 'annonce',
+                        name: 'Annonce',
+                        component: AnnonceComp,
                     },
                 ],
                 beforeEnter: (to, from, next) => {

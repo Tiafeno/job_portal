@@ -93,7 +93,7 @@ get_header();
                 <div class="col-md-9 col-sm-7">
                     <div class="row mrg-bot-20">
                         <div class="col-md-4 col-sm-12 col-xs-12 browse_job_tlt">
-                            <h4 class="job_vacancie">{{ archives.length }} Jobs &amp; Vacancies</h4>
+                            <h4 class="job_vacancie" v-if="paging !== null">{{ paging.total }} Jobs &amp; Vacancies</h4>
                         </div>
                         <div class="col-md-8 col-sm-12 col-xs-12">
                             <div class="fl-right short_by_filter_list">
@@ -110,7 +110,7 @@ get_header();
                     </div>
 
                     <!-- Single Verticle job -->
-                    <job-vertical-lists v-if="loadArchive" v-for="(item, index) in archives" :item="item" :key="item.id" ></job-vertical-lists>
+                    <job-vertical-lists v-if="!loadArchive" v-for="(item, index) in archives" :item="item" :key="item.id" ></job-vertical-lists>
 
                     <div class="clearfix"></div>
 

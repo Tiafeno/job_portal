@@ -374,6 +374,41 @@ get_header();
 
 </script>
 
+<script type="text/x-template" id="client-annonce">
+    <!-- ======================== Manage Job ========================= -->
+    <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
+        <div class="table-responsive">
+                <table class="table table-lg table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Posted</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="annonce in annonces">
+                            <td><a :href="annonce.link"> {{ annonce.title.rendered }} <span class="mng-jb">Apple Inc</span> </a></td>
+                            <td><i class="ti-credit-card"></i> {{ annonce.date }}</td>
+                            <td><a href="#" class="cl-success mrg-5" data-toggle="tooltip" data-original-title="Edit"><i class="fa fa-edit"></i></a>
+                                <a href="#" class="cl-danger mrg-5" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash-o"></i></a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="utf_flexbox_area padd-10">
+                    <ul class="pagination">
+                        <li class="page-item"> <a class="page-link" href="#" aria-label="Previous"> <span aria-hidden="true">«</span> <span class="sr-only">Previous</span> </a> </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"> <a class="page-link" href="#" aria-label="Next"> <span aria-hidden="true">»</span> <span class="sr-only">Next</span> </a> </li>
+                    </ul>
+                </div>
+            </div>
+    </section>
+    <!-- ====================== End Manage Company ================ -->
+</script>
+
 <script type="text/x-template" id="client-layout">
     <!-- ================ Profile Settings ======================= -->
     <section class="padd-top-80 padd-bot-80">
@@ -385,6 +420,7 @@ get_header();
                             <li class="active">
                                 <router-link to="/"><i class="login-icon ti-dashboard"></i> Dashboard</router-link>
                                 <router-link :to="{ path: '/cv' }"><i class="login-icon ti-dashboard"></i> Mon CV</router-link>
+                                <router-link :to="{ path: '/annonce' }"><i class="login-icon ti-dashboard"></i> Mes Annonces</router-link>
                             </li>
 
                         </ul>

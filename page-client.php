@@ -125,6 +125,17 @@ get_header();
                 <div class="col-md-12 col-sm-12" id="educations">
                     <div class="detail-wrapper">
                         <div class="detail-wrapper-header">
+                            <h4>Profil</h4>
+                        </div>
+                        <div class="detail-wrapper-body" id="education-list">
+                            <textarea v-model="profil" class="form-control textarea" name="profil" ></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-sm-12" id="educations">
+                    <div class="detail-wrapper">
+                        <div class="detail-wrapper-header">
                             <h4>Educations</h4>
                         </div>
                         <div class="detail-wrapper-body" id="education-list">
@@ -163,7 +174,7 @@ get_header();
                     <button type="submit"  class="btn btn-outlined">Enregistrer</button>
                 </div>
 
-                <!-- exxperience modal Code -->
+                <!-- experience modal Code -->
                 <div class="modal fade" id="experience" style="background-color:  rgba(0, 0, 0, 0.85)" tabindex="-1" role="dialog"
                      aria-labelledby="expModal" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -257,7 +268,6 @@ get_header();
                                             <div class="text-center">
                                                 <button type="button" @click="deleteExperience($event, formExpEdit._id)"
                                                         v-if="formExpSelected != null" class="btn btn-m ">Supprimer</button>
-
                                                 <button type="submit" class="btn btn-m theme-btn ">Enregistrer</button>
                                             </div>
                                         </div>
@@ -334,7 +344,6 @@ get_header();
                                                     </div>
                                                 </div>
                                             </div>
-
                                             <div class="form-group col-md-6">
                                                 <div class="col-sm-12">
                                                     <p >Année de fin (ou prévision)</p>
@@ -390,8 +399,10 @@ get_header();
                         <tr v-for="annonce in annonces">
                             <td><a :href="annonce.link"> {{ annonce.title.rendered }} <span class="mng-jb">Apple Inc</span> </a></td>
                             <td><i class="ti-credit-card"></i> {{ annonce.date }}</td>
-                            <td><a href="#" class="cl-success mrg-5" data-toggle="tooltip" data-original-title="Edit"><i class="fa fa-edit"></i></a>
-                                <a href="#" class="cl-danger mrg-5" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash-o"></i></a></td>
+                            <td>
+                                <a href="#" class="cl-success mrg-5" data-toggle="tooltip" data-original-title="Edit"><i class="fa fa-edit"></i></a>
+                                <a href="#" class="cl-danger mrg-5" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -419,7 +430,11 @@ get_header();
                         <ul>
                             <li class="active">
                                 <router-link to="/"><i class="login-icon ti-dashboard"></i> Dashboard</router-link>
+                            </li>
+                            <li>
                                 <router-link :to="{ path: '/cv' }"><i class="login-icon ti-dashboard"></i> Mon CV</router-link>
+                            </li>
+                            <li>
                                 <router-link :to="{ path: '/annonce' }"><i class="login-icon ti-dashboard"></i> Mes Annonces</router-link>
                             </li>
 

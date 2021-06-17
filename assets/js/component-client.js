@@ -93,6 +93,7 @@
                     address: "",
                     gender: "",
                     birthday: "",
+                    profil: "",
                     languages: [],
                     categories: [],
 
@@ -383,6 +384,7 @@
                     this.Loading = true;
                     let _languages = JSON.stringify(this.languages);
                     let _categories = JSON.stringify(this.categories);
+                    let userId = parseInt(clientApiSettings.current_user_id);
                     this.$parent.Wordpress.users().me()
                         .update({
                             last_name: this.last_name,
@@ -394,6 +396,8 @@
                                 languages: _languages,
                                 categories: _categories,
                                 birthday: this.birthday,
+                                reference: `CV${userId}`,
+                                profil: this.profil,
                                 // Render visible this CV
                                 has_cv: true,
                             }
@@ -477,7 +481,7 @@
         ];
         const router = new VueRouter({
             routes // short for `routes: routes`
-        });3
+        });
 
         Vue.component('v-select', VueSelect.VueSelect);
         // Application

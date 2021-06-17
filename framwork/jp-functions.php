@@ -88,6 +88,12 @@ add_filter('rest_jp-jobs_query', function($args, $request) {
 
     return $args;
 }, 10, 2);
+//add_filter('rest_user_query', function($args, $request) {
+//    $args['meta_key']   = $request['meta_key'];
+//    $args['meta_value'] = $request['meta_value'];
+//
+//    return $args;
+//}, 10, 2);
 
 add_action('rest_api_init', function() {
     // Annonce API
@@ -173,6 +179,7 @@ add_action('rest_api_init', function() {
             return true;
         }
     ]);
+
     register_meta('user', 'has_cv', [
         'type' =>  'boolean',
         'single' => true,
@@ -181,6 +188,30 @@ add_action('rest_api_init', function() {
             return true;
         }
     ]);
+    add_filter('rest_user_query', function ($args, $request) {
+        if (isset($request['has_cv']) && !empty($request['has_cv'])) {
+            $args['meta_query'][] = [
+                'relation' => 'AND',
+                [
+                    'key' => 'has_cv',
+                    'value' => (bool)$request['has_cv'],
+                    'compare' => '='
+                ]
+            ];
+
+        }
+        return $args;
+    }, 10, 2);
+
+    register_meta('user', 'profil', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+
     register_meta('user', 'drive_licences', [
         'type' =>  'string',
         'single' => true,
@@ -189,6 +220,7 @@ add_action('rest_api_init', function() {
             return true;
         }
     ]);
+
     register_meta('user', 'languages', [
         'type' =>  'string',
         'single' => true,
@@ -213,6 +245,14 @@ add_action('rest_api_init', function() {
             return true;
         }
     ]);
+
+    // https://github.com/WP-API/rest-filter/blob/master/plugin.php
+    /**
+     * adds a "filter" query parameter to API post collections to filter returned results
+     * based on public WP_Query parameters, adding back the "filter" parameter
+     * that was removed from the API when it was merged into WordPress core.
+     */
+
 });
 
 

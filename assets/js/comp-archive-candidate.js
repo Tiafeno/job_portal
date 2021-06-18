@@ -62,27 +62,51 @@
                 return {
                     loading: false,
                     request: '',
-                    per_page: 2, // default
+                    per_page: 10, // default
                     page: 1, //default
                     paging: null,
-                    Annonces: [],
+                    annonces: [],
+                    categories: [],
+                    axiosInstance: null,
                 }
             },
             mounted: function() {
+                this.axiosInstance = axios.create({
+                    baseURL: apiSettings.root + 'wp/v2',
+                    headers: {
+                        'X-WP-Nonce': apiSettings.nonce
+                    }
+                });
                 this.init();
             },
             methods: {
-                init: function () {
+                init: async function () {
                     const self = this;
                     this.loading = true;
                     this.request = this.$parent.Wordpress.users()
-                        .param('roles', 'candidate')
+                        //.param('roles', 'candidate') // Not allow for client not logged in
                         .param('has_cv', 1)// boolean value
                         .perPage(this.per_page)
                         .page(this.page);
 
+                    const categoriesRequest = this.axiosInstance.get('categories?per_page=50');
+                    await axios.all([categoriesRequest]).then(axios.spread(
+                        (...responses) => {
+                            self.categories = lodash.clone(responses[0].data);
+                        }
+                    )).catch(errors => { })
+
                     this.request.then(resp => {
-                            self.Annonces = lodash.clone(resp);
+                            let annonces = lodash.clone(resp);
+                            self.annonces = lodash.map(annonces, annonce => {
+                                annonce.job = '';
+                                let currentCategories = JSON.parse(annonce.meta.categories);
+                                if (!lodash.isArray(currentCategories)) return annonce;
+                                let job = lodash.find(self.categories, {'id': lodash.head(currentCategories)});
+                                if (lodash.isUndefined(job) || !job) return annonce;
+                                annonce.job = job.name;
+                                return annonce;
+                            });
                             self.paging = lodash.isUndefined(resp._paging) ? null : resp._paging;
                             self.loading = false;
                         })
@@ -118,14 +142,43 @@
                     loading: false,
                     userId: 0,
                     candidate: null,
+
+                    categories: [],
+                    regions: [],
+                    languages: [],
+                    experiences: [],
+                    educations: []
                 }
             },
-            mounted: function() {
+            mounted: async function() {
                 const self = this;
+                this.loading = true;
                 this.userId = parseInt(this.$route.params.id);
+                let axiosInstance = axios.create({
+                    baseURL: apiSettings.root + 'wp/v2',
+                    headers: {
+                        'X-WP-Nonce': apiSettings.nonce
+                    }
+                });
+                const categoriesRequest = axiosInstance.get('categories?per_page=50');
+                const languagesRequest = axiosInstance.get('language?per_page=50');
+                const regionsRequest = axiosInstance.get('region?per_page=50');
+                await axios.all([categoriesRequest, languagesRequest, regionsRequest]).then(axios.spread(
+                    (...responses) => {
+                        self.categories = lodash.clone(responses[0].data);
+                        self.languages = lodash.clone(responses[1].data);
+                        self.regions = lodash.clone(responses[2].data);
+                    }
+                )).catch(errors => { })
                 this.$parent.Wordpress.users().id(this.userId)
                     .then(resp => {
+                        console.log(resp);
+                        const meta = resp.meta;
+                        self.experiences = JSON.parse(meta.experiences);
+                        self.educations = JSON.parse(meta.educations);
+
                         self.candidate = lodash.clone(resp);
+                        self.loading = false;
                     });
             }
         };
@@ -135,10 +188,10 @@
             {
                 path: '/',
                 component: Layout,
-                redirect: '/archives',
+                redirect: '/candidates',
                 children: [
                     {
-                        path: 'archives',
+                        path: 'candidates',
                         name: 'Archives',
                         component: CompArchives
                     },

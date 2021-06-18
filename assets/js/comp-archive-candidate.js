@@ -112,26 +112,17 @@
                         })
                 },
                 Route: function (page) {
-                    /**
-                     * Changer les routes pour l'affichage des annonces
-                     * TODO: Ajouter les variables dans local storage pour avoir des valeur par default
-                     * @type {boolean}
-                     */
-                    let edited = false;
                     if (page === this.page) return;
                     this.page = page;
-
-                    if (edited) {
-                        // Promise response
-                        const archivesPromise = this.request
-                            .per_page(self.per_page)
-                            .page(self.page)
-                            .get();
-                        self.loading = true;
-                        archivesPromise.then(response => {
-                            self.loading = false;
-                        })
-                    }
+                    // Promise response
+                    const archivesPromise = this.request
+                        .per_page(self.per_page)
+                        .page(self.page)
+                        .get();
+                    self.loading = true;
+                    archivesPromise.then(response => {
+                        self.loading = false;
+                    });
                 },
             }
         };

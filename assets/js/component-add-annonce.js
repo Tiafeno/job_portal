@@ -152,6 +152,7 @@
                         title: '',
                         salary_range: '',
                         category: '',
+                        region: 0, // Taxonomy
                         experience: 0,
                         type: '', //CDI, CDD etc..
                         qualification: '',
@@ -187,6 +188,7 @@
                     const self = this;
                     this.loading = true;
                     let _category = [],
+                        _region = [],
                         _salaries = new Array(),
                         _jobtype = new Array(),
                         _qualification = new Array();
@@ -195,11 +197,13 @@
                     if (this.inputs.salary_range) _salaries.push(parseInt(this.inputs.salary_range));
                     if (this.inputs.type) _jobtype.push(parseInt(this.inputs.type));
                     if (this.inputs.qualification) _qualification.push(parseInt(this.inputs.qualification));
+                    if (this.inputs.region) _region.push(parseInt(this.inputs.region));
 
                     this.wpapinode.jobs().create({
                         title: this.inputs.title,
                         content: this.inputs.description,
                         categories: _category,
+                        region: _region,
                         salaries: _salaries,
                         job_type: _jobtype,
                         qualification: _qualification,

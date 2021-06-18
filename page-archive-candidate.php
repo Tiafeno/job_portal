@@ -34,11 +34,10 @@ get_header();
                 <div class="contact-img"> <img src="assets/img/client-2.jpg" class="img-responsive" alt=""> </div>
                 <div class="contact-caption">
                     <router-link :to="{ name: 'UserDetails', params: { id: annonce.id }}">{{annonce.meta.reference}}</router-link>
-                    <span>Web Developer(2 Year Exp.)</span>
+                    <span>{{annonce.job}}</span>
                 </div>
             </div>
         </div>
-
         <div class="clearfix"></div>
         <com-pagination v-if="paging !== null" v-bind:paging="paging" @change-route-page="Route" v-bind:pagesize="per_page"></com-pagination>
     </div>
@@ -46,7 +45,7 @@ get_header();
 <script type="text/x-template" id="candidate-details">
     <!-- ====================== Resume Detail ================ -->
     <section class="padd-top-80 padd-bot-80">
-        <div class="container">
+        <div class="container" v-if="!loading && candidate != null">
             <div class="row">
                 <div class="col-md-8 col-sm-7">
                     <div class="detail-wrapper">
@@ -54,13 +53,14 @@ get_header();
                             <div class="row">
                                 <div class="col-md-4 text-center user_profile_img mrg-bot-30">
                                     <img src="assets/img/client-1.jpg" class="img-circle width-100" alt=""/>
-                                    <h4 class="meg-0">Alden Smith</h4>
+                                    <h4 class="meg-0">{{candidate.meta.reference}}</h4>
                                     <span>Front End Designer</span>
                                 </div>
                                 <div class="col-md-8 user_job_detail">
-                                    <div class="col-md-12 mrg-bot-10"> <i class="ti-credit-card padd-r-10"></i>Femme </div>
-                                    <div class="col-md-12 mrg-bot-10"> <i class="ti-shield padd-r-10"></i> Analamanga </div>
-                                    <div class="col-md-12 mrg-bot-10"> <i class="ti-shield padd-r-10"></i> Déposée le 23 mars, 2021 </div>
+                                    <div class="col-md-12 mrg-bot-10"> <i class="ti-credit-card padd-r-10"></i>
+                                        {{ candidate.meta.gender === 'Mr' ? 'Monsieur' : 'Femme' }}
+                                    </div>
+<!--                                    <div class="col-md-12 mrg-bot-10"> <i class="ti-shield padd-r-10"></i> Déposée le 23 mars, 2021 </div>-->
                                     <div class="col-md-12 mrg-bot-10">
                                         <span class="skill-tag">css</span>
                                         <span class="skill-tag">HTML</span>
@@ -75,8 +75,7 @@ get_header();
                             <h4>Profil</h4>
                         </div>
                         <div class="detail-wrapper-body">
-                            <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur.</p>
-                            <p>The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English.</p>
+                            <div v-html="candidate.meta.profil"></div>
                         </div>
                     </div>
                     <div class="detail-wrapper">
@@ -84,25 +83,12 @@ get_header();
                             <h4>Education</h4>
                         </div>
                         <div class="detail-wrapper-body">
-                            <div class="edu-history info"> <i></i>
+                            <div class="edu-history success" v-for="edu in educations" :key="edu._id">
+                                <i></i>
                                 <div class="detail-info">
-                                    <h3>University</h3>
-                                    <i>2020 - 2020</i> <span> denouncing pleasure and praising pain <i>It Computer</i></span>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin a ipsum tellus. Interdum et malesuada fames ac ante ipsum primis in faucibus.</p>
-                                </div>
-                            </div>
-                            <div class="edu-history danger"> <i></i>
-                                <div class="detail-info">
-                                    <h3>Intermediate School</h3>
-                                    <i>2015 - 2020</i> <span>denouncing pleasure and praising pain <i>It Computer</i></span>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin a ipsum tellus. Interdum et malesuada fames ac ante ipsum primis in faucibus.</p>
-                                </div>
-                            </div>
-                            <div class="edu-history success"> <i></i>
-                                <div class="detail-info">
-                                    <h3>High School</h3>
-                                    <i>2012 - 2015</i> <span>denouncing pleasure and praising pain <i>It Computer</i></span>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin a ipsum tellus. Interdum et malesuada fames ac ante ipsum primis in faucibus.</p>
+                                    <h3>{{edu.establishment}}</h3>
+                                    <i>{{edu.b}} - {{edu.e}}</i>
+                                    <span>{{edu.diploma}}</span>
                                 </div>
                             </div>
                         </div>
@@ -112,25 +98,13 @@ get_header();
                             <h4>Work & Experience</h4>
                         </div>
                         <div class="detail-wrapper-body">
-                            <div class="edu-history info"> <i></i>
+                            <div class="edu-history success" v-for="exp in experiences" :key="exp._id">
+                                <i></i>
                                 <div class="detail-info">
-                                    <h3>Php Developer</h3>
-                                    <i>2008 - 2012</i>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin a ipsum tellus. Interdum et malesuada fames ac ante ipsum primis in faucibus.</p>
-                                </div>
-                            </div>
-                            <div class="edu-history danger"> <i></i>
-                                <div class="detail-info">
-                                    <h3>Java Developer</h3>
-                                    <i>2012 - 2014</i>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin a ipsum tellus. Interdum et malesuada fames ac ante ipsum primis in faucibus.</p>
-                                </div>
-                            </div>
-                            <div class="edu-history success"> <i></i>
-                                <div class="detail-info">
-                                    <h3>CMS Developer</h3>
-                                    <i>2014 - 2018</i>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin a ipsum tellus. Interdum et malesuada fames ac ante ipsum primis in faucibus.</p>
+                                    <h3>{{exp.office}}</h3>
+                                    <i>{{exp.b}} - {{exp.e}}</i>
+                                    <span>{{exp.enterprise}}</span>
+                                    <p>{{exp.desc}}</p>
                                 </div>
                             </div>
                         </div>
@@ -189,10 +163,6 @@ get_header();
 
 <script type="text/x-template" id="pagination-candidate-template">
     <div class="utf_flexbox_area padd-0" id="pagination-archive"></div>
-</script>
-
-<script type="text/x-template" id="user-template">
-    <p>sfdsfsfdsfdsfds {{$route.params.id}}</p>
 </script>
 
 <script type="text/x-template" id="layout-archive">

@@ -1,4 +1,5 @@
 <?php
+require_once 'api_rest.php';
 require_once 'jp-actions.php';
 require_once 'jp-mailing.php';
 add_action('init', function() {

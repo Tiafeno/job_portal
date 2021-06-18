@@ -1,4 +1,4 @@
 <?php
-add_action('init', 'Init');
-function Init() {
+if (!defined('ABSPATH')) {
+    exit;
 }

@@ -146,7 +146,7 @@
                                 <label>Experience</label>
                                 <select name="experience" v-model="inputs.experience" class="ui dropdown form-control" required>
                                     <option :value="0" data-display="Experience">0 - 3 Mois</option>
-                                    <option :value="year" v-for="year in [1, 2, 3, 4, 5]">${year} ans</option>
+                                    <option :value="year" v-for="year in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]">${year} ans</option>
                                 </select>
                             </div>
 
@@ -178,6 +178,10 @@
                                     {% endfor %}
                                 </select>
                             </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
+                                <label>Address</label>
+                                <input type="text" name="address" v-model="inputs.address" class="form-control" placeholder="Adresse" required>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -186,7 +190,6 @@
                 <div class="box">
                     <div class="box-header">
                         <h4>Mission et Profil recherché </h4>
-
                     </div>
 
                     <div class="box-body">

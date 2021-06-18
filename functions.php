@@ -70,3 +70,24 @@ add_action('init', function() {
     do_action('helper_register_jp_user_role');
     do_action('helper_register_jp_post_types');
 });
+
+//Fires on the first WP load after a theme switch if the old theme still exists.
+/**
+ * This action fires multiple times and the parameters differs according to the context,
+ * if the old theme exists or not. If the old theme is missing, the parameter
+ * will be the slug of the old theme.
+ */
+add_action('after_switch_theme', function() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'job_apply';
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		ID bigint(20) NOT NULL AUTO_INCREMENT,
+		job_id bigint(20) NOT NULL,
+		user_id bigint(20) NOT NULL,
+		date_add DATETIME NOT NULL,
+		PRIMARY KEY  `apply_id` (`ID`)
+	) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
+
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
+});

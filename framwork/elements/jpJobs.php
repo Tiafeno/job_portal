@@ -11,13 +11,14 @@ if (!defined('ABSPATH')) {
 class jpJobs
 {
 
-//    $job_experience
-//    $job_skills
-//    $job_employer_id
 
     private $post;
-    public function __construct(\WP_Post $post) {
+    public $ID = 0;
+
+    public function __construct(\WP_Post $post)
+    {
         $this->post = $post;
+        $this->ID = $this->post->ID;
     }
 
     /**
@@ -39,14 +40,29 @@ class jpJobs
         $this->{$name} = $value;
     }
 
+    public function get_reset_term($taxonomy_slug)
+    {
+        $empty_class = new \stdClass();
+        $terms = wp_get_post_terms($this->ID, $taxonomy_slug);
+        if (empty($terms)) {
+            $empty_class->name = "Undefined";
+            $empty_class->slug = "undefined";
+            $empty_class->term_id = 0;
+            return $empty_class;
+        }
+        return reset($terms);
+    }
+
     /**
      * @return \WP_Post
      */
-    public function get_post() {
+    public function get_post()
+    {
         return $this->post;
     }
 
-    public function get_employer() {
+    public function get_employer()
+    {
         $employer = get_user_by('ID', $this->employer_id);
         if (!$employer) return false;
         return $employer;
@@ -56,13 +72,15 @@ class jpJobs
 }
 
 // Gestionnaire
-final class JobHandler {
+final class JobHandler
+{
     public function __construct()
     {
     }
 }
 
 
-final class JobModel {
+final class JobModel
+{
 
 }

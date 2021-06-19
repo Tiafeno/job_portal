@@ -136,4 +136,42 @@ add_action('rest_api_init', function () {
             ]
         ),
     ]);
+    register_rest_route('job/v2', '/details/(?P<id>\d+)', [
+        array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => function (WP_REST_Request $request) {
+                global $wpdb;
+                //$current_user_id = get_current_user_id();
+                $job_id = intval($request['id']);
+                $table = $wpdb->prefix . 'job_apply';
+                $results = [];
+                // Verify if user has apply this job
+                $job_sql = $wpdb->prepare("SELECT * FROM $table WHERE job_id = %d ", intval($job_id));
+                $job_rows = $wpdb->get_results($job_sql, OBJECT);
+                if ($job_rows) {
+                    // Request params
+                    $request = new WP_REST_Request();
+                    $request->set_param('context', 'edit');
+                    // Get candidate apply for this job
+                    foreach ($job_rows as $job_row) {
+                        $usr_controller = new WP_REST_Users_Controller();
+                        $usr = new WP_User((int)$job_row->user_id);
+                        $results[] = $usr_controller->prepare_item_for_response($usr, $request)->data;
+                    }
+                    wp_send_json_success($results);
+                }
+            },
+            'permission_callback' => function ($data) {
+                return current_user_can('edit_posts');
+            },
+            'args' => [
+                'id' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
+            ]
+        ),
+    ]);
+
 });

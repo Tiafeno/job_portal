@@ -14,7 +14,8 @@ wp_enqueue_script(
 wp_localize_script('comp-client', 'clientApiSettings', [
     'root' => esc_url_raw(rest_url()),
     'nonce' => wp_create_nonce('wp_rest'),
-    'current_user_id' => get_current_user_id()
+    'current_user_id' => get_current_user_id(),
+    'page_candidate' => home_url('/candidate/')
 ]);
 
 get_header();
@@ -66,52 +67,6 @@ get_header();
                                 </v-select>
                             </div>
                         </div>
-                        <div class="clearfix"></div>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label>Gender</label>
-                                <select class=" wide form-control" v-model="gender" required>
-                                    <option value="">Genre</option>
-                                    <option value="M.">M.</option>
-                                    <option value="Mr">Mr</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label>First Name</label>
-                                <input type="text" v-model="first_name" class="form-control" placeholder="" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label>Last Name</label>
-                                <input type="text" v-model="last_name" class="form-control" placeholder="" required>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label>Date Of Birth</label>
-                                <input type="date" class="form-control" placeholder="jj/mm/aaaa" v-model="birthday" name="birthday" >
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label>Address</label>
-                                <input type="text" v-model="address" class="form-control" placeholder="Votre adresse" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-group">
-                                <label>Phone</label>
-                                <input type="text" v-model="phone" class="form-control" placeholder="+261 32 XX XXX XX" required>
-                            </div>
-                        </div>
-
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-group">
                                 <label>Language</label>
@@ -119,6 +74,73 @@ get_header();
                             </div>
                         </div>
                         <div class="clearfix"></div>
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-sm-12" >
+                    <div class="detail-wrapper">
+                        <div class="detail-wrapper-header">
+                            <h4>Informations</h4>
+                        </div>
+                        <div class="detail-wrapper-body" >
+                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                <div class="form-group">
+                                    <label>Gender</label>
+                                    <select class=" wide form-control" v-model="gender" required>
+                                        <option value="M.">M.</option>
+                                        <option value="Mr">Mr</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label>First Name</label>
+                                    <input type="text" v-model="first_name" class="form-control" placeholder="" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label>Last Name</label>
+                                    <input type="text" v-model="last_name" class="form-control" placeholder="" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label>Date Of Birth</label>
+                                    <input type="date" class="form-control" placeholder="jj/mm/aaaa" v-model="birthday" name="birthday" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-12 col-sm-12" >
+                    <div class="detail-wrapper">
+                        <div class="detail-wrapper-header">
+                            <h4>Localisation</h4>
+                        </div>
+                        <div class="detail-wrapper-body" >
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label>Ville</label>
+                                    <input type="text" v-model="city" class="form-control" placeholder="Ville" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <input type="text" v-model="address" class="form-control" placeholder="Votre adresse" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="text" v-model="phone" class="form-control" placeholder="+261 32 XX XXX XX" required>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -390,17 +412,17 @@ get_header();
                 <table class="table table-lg table-hover">
                     <thead>
                         <tr>
-                            <th>Title</th>
+                            <th>Annonce</th>
                             <th>Posted</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="annonce in annonces">
-                            <td><a :href="annonce.link"> {{ annonce.title.rendered }} <span class="mng-jb">Apple Inc</span> </a></td>
+                            <td><a :href="annonce.link"> {{ annonce.title.rendered }} </a></td>
                             <td><i class="ti-credit-card"></i> {{ annonce.date }}</td>
                             <td>
-                                <a href="#" class="cl-success mrg-5" data-toggle="tooltip" data-original-title="Edit"><i class="fa fa-edit"></i></a>
+                                <router-link class="mrg-5" :to="{ name: 'AnnonceDetails', params: {id: annonce.id} }"><i class="ti-view-list"></i></router-link>
                                 <a href="#" class="cl-danger mrg-5" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>
                             </td>
                         </tr>
@@ -435,7 +457,7 @@ get_header();
                                 <router-link :to="{ path: '/cv' }"><i class="login-icon ti-dashboard"></i> Mon CV</router-link>
                             </li>
                             <li>
-                                <router-link :to="{ path: '/annonce' }"><i class="login-icon ti-dashboard"></i> Mes Annonces</router-link>
+                                <router-link :to="{ path: '/job' }"><i class="login-icon ti-dashboard"></i> Mes Annonces</router-link>
                             </li>
 
                         </ul>
@@ -450,6 +472,28 @@ get_header();
     <!-- ================ End Profile Settings ======================= -->
 </script>
 
+<script type="text/x-template" id="annonce-apply">
+    <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
+        <div class="table-responsive">
+            <table class="table table-lg table-hover">
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Adresse</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="candidate in candidateApply" v-if="candidateApply != null && !loading">
+                        <td> {{ candidate.meta.reference }}</td>
+                        <td><i class="ti-credit-card"></i> {{ candidate.meta.address }}</td>
+                        <td><a class="cl-info mrg-5" :href="candidate.link" target="_blank"><i class="ti-info-alt"></i> Voir le candidat </a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</script>
 
 <div class="page-title">
     <div class="container">

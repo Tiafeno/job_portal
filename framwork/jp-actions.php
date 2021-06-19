@@ -157,6 +157,27 @@ add_action('helper_register_jp_post_types', function () {
         'rewrite'           => array( 'slug' => 'mastered_technology' ),
     ]);
 
+    //  Drive licence
+    register_taxonomy( 'drive_licence', [ 'jp-jobs' ], [
+        'hierarchical'      => true,
+        'labels'            => array(
+            'name'              => 'Permis de conduire',
+            'singular_name'     => 'Permis de conduire',
+            'search_items'      => 'Trouver',
+            'all_items'         => 'Trouver des permis',
+            'edit_item'         => 'Modifier le permis',
+            'update_item'       => 'Mettre à jour',
+            'add_new_item'      => 'Ajouter',
+            'menu_name'         => 'Permis de conduire',
+        ),
+        'show_ui'           => true,
+        'show_admin_column' => false,
+        'query_var'         => true,
+        'public'            => true,
+        'show_in_rest'      => true,
+        'rewrite'           => array( 'slug' => 'drive_licence' ),
+    ]);
+
     //  Salaires
     register_taxonomy( 'salaries', [ 'jp-jobs' ], [
         'hierarchical'      => true,
@@ -201,7 +222,7 @@ add_action('helper_register_jp_post_types', function () {
         'rewrite'           => array( 'slug' => 'qualification' ),
     ]);
 
-    //  Qualification
+    //  Language
     register_taxonomy( 'language', [ 'post' ], [
         'hierarchical'      => true,
         'labels'            => array(
@@ -266,7 +287,7 @@ add_action('helper_register_jp_post_types', function () {
         'rewrite'           => array( 'slug' => 'country' ),
     ] );
 
-    // Pays
+    // Region
     register_taxonomy( 'region', [ 'jp-jobs' ], [
         'hierarchical'      => true,
         'labels'            => array(

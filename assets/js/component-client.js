@@ -65,7 +65,6 @@
         const Home = {
             template: '<p>Home page</p>'
         };
-
         const CVComponents = {
             experience: {
                 props: ['year_range', 'item'],
@@ -76,7 +75,6 @@
                 template: '#education-template',
             }
         };
-
         const CVComp = {
             template: '#client-cv',
             components: {
@@ -411,7 +409,6 @@
                 }
             }
         };
-
         const AnnonceComp = {
             template: "#client-annonce",
             data: function () {
@@ -432,12 +429,40 @@
                         self.annonces = lodash.clone(response);
                         self.loading = false;
                 });
-            },
-            methods: {
-
             }
         };
-
+        const AnnonceDetails = {
+            template: "#annonce-apply",
+            data: function() {
+                return {
+                    loading : false,
+                    candidateApply : [],
+                    jobAxiosInstance: null
+                }
+            },
+            mounted: function() {
+                const self = this;
+                this.jobAxiosInstance = axios.create({
+                    baseURL: clientApiSettings.root + 'job/v2',
+                    headers: {'X-WP-Nonce': clientApiSettings.nonce}
+                });
+                const job_id = this.$route.params.id
+                self.jobAxiosInstance.get(`details/${job_id}`).then(function(response) {
+                    const data = response.data
+                    if (data.success) {
+                        self.candidateApply =lodash.map(data.data, candidate => {
+                            candidate.link = clientApiSettings.page_candidate + '#/candidate/' + candidate.id;
+                            return candidate;
+                        });
+                    }
+                    self.loading = false;
+                }).catch(function() {
+                    self.loading = false;
+                })
+            },
+            computed: {
+            }
+        }
         const routes = [
             {
                 path: '/',
@@ -455,10 +480,15 @@
                         component: CVComp
                     },
                     {
-                        path: 'annonce',
+                        path: 'job',
                         name: 'Annonce',
                         component: AnnonceComp,
                     },
+                    {
+                        path: 'job/:id/details',
+                        name: 'AnnonceDetails',
+                        component: AnnonceDetails
+                    }
                 ],
                 beforeEnter: (to, from, next) => {
                     if (to.name != 'Login' && parseInt(clientApiSettings.current_user_id) == 0) next({

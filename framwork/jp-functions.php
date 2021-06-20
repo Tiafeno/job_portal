@@ -51,6 +51,14 @@ add_action('rest_api_init', function() {
             return true;
         }
     ]);
+    register_meta('user', 'city', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
     register_meta('user', 'categories', [
         'type' =>  'string',
         'single' => true,

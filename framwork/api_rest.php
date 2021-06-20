@@ -144,19 +144,26 @@ add_action('rest_api_init', function () {
                 //$current_user_id = get_current_user_id();
                 $job_id = intval($request['id']);
                 $table = $wpdb->prefix . 'job_apply';
-                $results = [];
                 // Verify if user has apply this job
-                $job_sql = $wpdb->prepare("SELECT * FROM $table WHERE job_id = %d ", intval($job_id));
+                $job_sql = $wpdb->prepare("SELECT * FROM $table WHERE job_id = %d ", $job_id);
                 $job_rows = $wpdb->get_results($job_sql, OBJECT);
                 if ($job_rows) {
+                    $results = new stdClass();
                     // Request params
                     $request = new WP_REST_Request();
                     $request->set_param('context', 'edit');
+
+                    $job = get_post((int)$job_id);
+                    $results->job = new stdClass();
+                    $results->job->title = $job->post_title;
+                    $results->job->id = $job->ID;
                     // Get candidate apply for this job
                     foreach ($job_rows as $job_row) {
                         $usr_controller = new WP_REST_Users_Controller();
+
                         $usr = new WP_User((int)$job_row->user_id);
-                        $results[] = $usr_controller->prepare_item_for_response($usr, $request)->data;
+                        $candidate = $usr_controller->prepare_item_for_response($usr, $request)->data;
+                        $results->candidate[] = $candidate;
                     }
                     wp_send_json_success($results);
                 }

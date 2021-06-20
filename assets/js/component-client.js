@@ -81,9 +81,18 @@
                 'comp-education': CVComponents.education,
                 'comp-experience': CVComponents.experience
             },
+            beforeRouteLeave (to, from, next) {
+                const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
+                if (answer) {
+                    next()
+                } else {
+                    next(false)
+                }
+            },
             data: function () {
                 return {
                     hasCV: false,
+                    city: '',
                     errors: [],
                     first_name: '',
                     last_name: '',
@@ -156,6 +165,7 @@
                     self.address = self.currentUser.meta.address;
                     self.gender = self.currentUser.meta.gender;
                     self.birthday = self.currentUser.meta.birthday;
+                    self.profil = self.currentUser.meta.profil;
 
                     let languages = self.currentUser.meta.languages;
                     languages = lodash.isEmpty(languages) ? [] : JSON.parse(languages);
@@ -390,6 +400,7 @@
                                 phone: this.phone,
                                 address: this.address,
                                 gender: this.gender,
+                                city: this.city,
                                 languages: _languages,
                                 categories: _categories,
                                 birthday: this.birthday,
@@ -436,6 +447,7 @@
             data: function() {
                 return {
                     loading : false,
+                    job: null,
                     candidateApply : [],
                     jobAxiosInstance: null
                 }
@@ -446,14 +458,16 @@
                     baseURL: clientApiSettings.root + 'job/v2',
                     headers: {'X-WP-Nonce': clientApiSettings.nonce}
                 });
-                const job_id = this.$route.params.id
+                this.loading = true;
+                const job_id = this.$route.params.id;
                 self.jobAxiosInstance.get(`details/${job_id}`).then(function(response) {
-                    const data = response.data
-                    if (data.success) {
-                        self.candidateApply =lodash.map(data.data, candidate => {
+                    const details = response.data;
+                    if (details.success) {
+                        self.candidateApply = lodash.map(details.data.candidate, candidate => {
                             candidate.link = clientApiSettings.page_candidate + '#/candidate/' + candidate.id;
                             return candidate;
                         });
+                        self.job = lodash.clone(details.data.job);
                     }
                     self.loading = false;
                 }).catch(function() {
@@ -469,18 +483,14 @@
                 component: Layout,
                 redirect: '/home',
                 children: [
-                    {
-                        path: 'home',
-                        name: 'Home',
-                        component: Home
-                    },
+                    { path: 'home', name: 'Home', component: Home },
                     {
                         path: 'cv',
                         name: 'CV',
-                        component: CVComp
+                        component: CVComp,
                     },
                     {
-                        path: 'job',
+                        path: 'jobs',
                         name: 'Annonce',
                         component: AnnonceComp,
                     },
@@ -491,10 +501,7 @@
                     }
                 ],
                 beforeEnter: (to, from, next) => {
-                    if (to.name != 'Login' && parseInt(clientApiSettings.current_user_id) == 0) next({
-                        name: 'Login'
-                    })
-                    else next();
+
                 },
             },
             {

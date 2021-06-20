@@ -178,7 +178,6 @@
                         self.crtCandidateLanguages = lodash.compact(crtCandidateLanguages);
                     }
                 ));
-                console.log(Candidate);
                 const meta = Candidate.meta;
                 self.experiences = JSON.parse(meta.experiences);
                 self.educations = JSON.parse(meta.educations);

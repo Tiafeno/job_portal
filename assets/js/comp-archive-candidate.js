@@ -133,6 +133,7 @@
                     loading: false,
                     userId: 0,
                     candidate: null,
+                    crtCandidateLanguages: [],
 
                     categories: [],
                     regions: [],
@@ -141,10 +142,16 @@
                     educations: []
                 }
             },
+            computed: {
+                hasCandidateLanguage: function() {
+                    return !lodash.isEmpty(this.crtCandidateLanguages);
+                }
+            },
             mounted: async function() {
                 const self = this;
                 this.loading = true;
                 this.userId = parseInt(this.$route.params.id);
+                let Candidate = await this.$parent.Wordpress.users().id(this.userId).get();
                 let axiosInstance = axios.create({
                     baseURL: apiSettings.root + 'wp/v2',
                     headers: {
@@ -159,21 +166,27 @@
                         self.categories = lodash.clone(responses[0].data);
                         self.languages = lodash.clone(responses[1].data);
                         self.regions = lodash.clone(responses[2].data);
+                        // Populate
+                        let metaLanguages = Candidate.meta.languages;
+                        let useLg = lodash.isEmpty(metaLanguages) ? [] : JSON.parse(metaLanguages);
+                        useLg = lodash.map(useLg, lodash.parseInt);
+                        let crtCandidateLanguages = lodash.map(useLg, idLg => {
+                            let item = lodash.find(self.languages, {'id': idLg});
+                            if (lodash.isUndefined(item)) return null;
+                            return item;
+                        });
+                        self.crtCandidateLanguages = lodash.compact(crtCandidateLanguages);
                     }
-                )).catch(errors => { })
-                this.$parent.Wordpress.users().id(this.userId)
-                    .then(resp => {
-                        console.log(resp);
-                        const meta = resp.meta;
-                        self.experiences = JSON.parse(meta.experiences);
-                        self.educations = JSON.parse(meta.educations);
+                ));
+                console.log(Candidate);
+                const meta = Candidate.meta;
+                self.experiences = JSON.parse(meta.experiences);
+                self.educations = JSON.parse(meta.educations);
 
-                        self.candidate = lodash.clone(resp);
-                        self.loading = false;
-                    });
+                self.candidate = lodash.clone(Candidate);
+                self.loading = false;
             }
         };
-
 
         const routes = [
             {

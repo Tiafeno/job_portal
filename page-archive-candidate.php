@@ -51,21 +51,16 @@ get_header();
                     <div class="detail-wrapper">
                         <div class="detail-wrapper-body">
                             <div class="row">
-                                <div class="col-md-4 text-center user_profile_img mrg-bot-30">
-                                    <img src="assets/img/client-1.jpg" class="img-circle width-100" alt=""/>
-                                    <h4 class="meg-0">{{candidate.meta.reference}}</h4>
-                                    <span>Front End Designer</span>
+                                <div class="col-md-7 user_profile_img mrg-bot-30">
+                                    <h2 class="meg-0 text-info">{{candidate.meta.reference}}</h2>
+                                    <h5>Front End Designer</h5>
                                 </div>
-                                <div class="col-md-8 user_job_detail">
+                                <div class="col-md-5 user_job_detail">
                                     <div class="col-md-12 mrg-bot-10"> <i class="ti-credit-card padd-r-10"></i>
-                                        {{ candidate.meta.gender === 'Mr' ? 'Monsieur' : 'Femme' }}
+                                        {{ candidate.meta.gender === 'Mr' ? 'Homme' : 'Femme' }}
                                     </div>
 <!--                                    <div class="col-md-12 mrg-bot-10"> <i class="ti-shield padd-r-10"></i> Déposée le 23 mars, 2021 </div>-->
-                                    <div class="col-md-12 mrg-bot-10">
-                                        <span class="skill-tag">css</span>
-                                        <span class="skill-tag">HTML</span>
-                                        <span class="skill-tag">Photoshop</span>
-                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -109,34 +104,32 @@ get_header();
                             </div>
                         </div>
                     </div>
+
+                    <div class="detail-wrapper">
+                        <div class="detail-wrapper-header">
+                            <h4>Competences</h4>
+                        </div>
+                        <div class="detail-wrapper-body">
+                            <div class="row">
+                                <div class="col-md-6" v-if="hasCandidateLanguage">
+                                    <h5>Language</h5>
+                                    <div class="mrg-bot-10">
+                                        <span class="skill-tag" v-for="language in crtCandidateLanguages">{{language.name}}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6"></div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Sidebar -->
                 <div class="col-md-4 col-sm-5">
                     <div class="sidebar">
-                        <div class="widget-boxed">
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-m btn-success">Download Resume</button>
-                            </div>
-                        </div>
-                        <div class="widget-boxed">
-                            <div class="widget-boxed-header">
-                                <h4><i class="ti-location-pin padd-r-10"></i>Location</h4>
-                            </div>
-                            <div class="widget-boxed-body">
-                                <div class="side-list no-border">
-                                    <ul>
-                                        <li><i class="ti-credit-card padd-r-10"></i>Femme</li>
-                                        <li><i class="ti-world padd-r-10"></i>Analamanga</li>
-                                        <li><i class="ti-mobile padd-r-10"></i>Déposée le 23 mars, 2021</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End: Job Overview -->
 
                         <!-- Start: Opening hour -->
-                        <div class="widget-boxed">
+                        <div class="widget-boxed" v-if="false">
                             <div class="widget-boxed-header">
                                 <h4><i class="ti-headphone padd-r-10"></i>Contact Now</h4>
                             </div>

@@ -1,5 +1,0 @@
-(function($) {
-    $().ready(function() {
-        
-    });
-})(jQuery);

@@ -1,5 +1,11 @@
 (function ($) {
     $().ready(function () {
+        const jobapiAxiosInstance = axios.create({
+            baseURL: archiveApiSettings.root + 'job/v2',
+            headers: {
+                'X-WP-Nonce': archiveApiSettings.nonce
+            }
+        });
         const salaryFilter = {
             props: ['salaries'],
             template: '#filter-salary-template',
@@ -49,25 +55,56 @@
                 }
             }
         };
-
-        const jobVerticalLists = {
-            props: ['item'],
-            template: "#job-vertical-lists",
+        const CompApply = {
+            template: "#apply-job",
+            props: ['jobid'],
             data: function () {
-                return {}
+                return {
+                    loading: false,
+                    isLogged: false,
+                    buttonText: "Apply Now",
+                    message: {success: null, data: ''},
+                }
             },
-            created: function () {
-                console.log(this.item);
+            mounted: function() {
+                this.isLogged = !!archiveApiSettings.isLogged;
             },
-            mounted: function () {
-
+            watch: {
+                loading: function() {
+                    this.buttonText = this.loading ? "Chargement..." : "Apply Now";
+                }
             },
             methods: {
-                viewContent: function ($event) {
+                apply: function() {
+                    const self = this;
+                    const jobId = this.jobid;
+                    if (!this.isLogged) {
+                        // Call login modal
+                        renderLoginModel();
+                        $('#signin').modal('show');
+                    } else {
+                        this.loading = true;
+                        jobapiAxiosInstance.post(`apply/${jobId}`, {}).then(function(response) {
+                            const dataResponse = response.data;
+                            self.message = lodash.clone(dataResponse);
+                            self.loading = false;
+                        }).catch(function() {
+                            self.loading = false;
+                        })
+                    }
                 }
             }
         };
-
+        const jobVerticalLists = {
+            props: ['item'],
+            components: {
+                'comp-apply': CompApply
+            },
+            template: "#job-vertical-lists",
+            created: function () {
+                console.log(this.item);
+            }
+        };
         const Pagination = {
             template: '#pagination-jobs-template',
             props: ['paging', 'pagesize'],
@@ -105,7 +142,6 @@
                 }
             }
         };
-
         const archiveJobs = {
             template: "#job-archive-template",
             props: ['taxonomies'],

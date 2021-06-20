@@ -7,18 +7,14 @@
  * @package WordPress
  */
 global $post;
-wp_enqueue_script(
-    'comp-apply',
-    get_stylesheet_directory_uri() . '/assets/js/component-apply.js',
-    ['vue-router', 'axios', 'jquery', 'bluebird', 'lodash' ],
-    null,
-    true
+
+wp_enqueue_script('comp-apply',get_stylesheet_directory_uri() . '/assets/js/component-apply.js',
+    ['vue-router', 'jp-custom'],null,true
 );
 wp_localize_script('comp-apply', 'apiSettings', [
     'root' => esc_url_raw(rest_url()),
     'nonce' => wp_create_nonce('wp_rest'),
     'isLogged' => is_user_logged_in(),
-    'userId' => get_current_user_id(),
     'jobId' => $post->ID
 ]);
 
@@ -42,8 +38,12 @@ $category = $job->get_reset_term('category');
            data-target="#signin">
             Se connecter
         </a>
-        <div class="row" v-if="isLogged && Client != null">
-            <p>Reference: {{Client.meta.reference}}</p>
+        <p v-if="loading">Chargement en cours ...</p>
+        <div class="row" v-if="isLogged && message != null">
+            <p class="text-muted font-12 padd-l-5 padd-r-5 " v-if="message.success !== null"
+               v-bind:class="{'alert-info': message.success,  'alert-danger': !message.success}">
+                {{ message.data }}
+            </p>
         </div>
     </div>
 </script>

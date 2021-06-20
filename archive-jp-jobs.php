@@ -4,7 +4,9 @@ wp_enqueue_script('comp-archive-jobs', get_stylesheet_directory_uri() . '/assets
     ['axios', 'wpapi', 'jquery', 'bluebird', 'lodash', 'paginationjs'], null, true);
 wp_localize_script('comp-archive-jobs', 'archiveApiSettings',[
     'root' => esc_url_raw( rest_url() ),
-    'nonce' => wp_create_nonce( 'wp_rest' )
+    'nonce' => wp_create_nonce( 'wp_rest' ),
+    'isLogged' => is_user_logged_in(),
+    'userId' => get_current_user_id(),
 ]);
 
 get_header();
@@ -44,6 +46,16 @@ get_header();
             </div>
         </div>
     </script>
+
+<script type="text/x-template" id="apply-job">
+    <div>
+        <button @click="apply()" type="button" class="btn-job theme-btn job-apply">{{buttonText}}</button>
+        <p class="text-muted font-12 padd-l-5 padd-r-5 " v-if="message.success !== null"
+           v-bind:class="{'alert-info': message.success,  'alert-danger': !message.success}">
+            {{ message.data }}
+        </p>
+    </div>
+</script>
 <script type="text/x-template" id="job-vertical-lists">
     <div class="job-verticle-list">
         <div class="vertical-job-card">
@@ -64,7 +76,8 @@ get_header();
                     </div>
                     <div class="col-md-3 col-sm-12 col-xs-12">
                         <div class="vrt-job-act">
-                            <a href="#" data-toggle="modal" data-target="#apply-job" class="btn-job theme-btn job-apply">Apply Now</a>
+                            <comp-apply :jobid="item.id"></comp-apply>
+
                             <a :href="item.link" title="" class="btn-job light-gray-btn">View Job</a>
                         </div>
                     </div>

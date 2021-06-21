@@ -73,9 +73,9 @@
                 <a href="#" title="Forget" class="fl-right">Forgot Password?</a>
             </div>
             <div class="form-group text-center">
-                <button type="submit" class="btn theme-btn full-width btn-m">LogIn</button>
+                <button type="submit" class="btn theme-btn full-width btn-m">${buttonText}</button>
             </div>
-            <p v-if="errors.length" style="margin-top: 40px">
+            <p v-if="errors.length" style="margin-top: 40px; padding-left: 20px;">
                 <b>Please correct the following error(s):</b>
             <ul>
                 <li style="color:red" v-for="error in errors">${ error }</li>

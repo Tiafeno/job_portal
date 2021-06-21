@@ -51,12 +51,8 @@
                         .then(response => {
                             self.Client = lodash.clone(response);
                             // Check if is Candidate or Employer
-                            if (lodash.indexOf(self.Client.roles, 'candidate') >= 0) {
-                                this.isCandidate = true;
-                            }
-                            if (lodash.indexOf(self.Client.roles, 'employer') >= 0) {
-                                this.isEmployer = true;
-                            }
+                            this.isCandidate = lodash.indexOf(self.Client.roles, 'candidate') >= 0;
+                            this.isEmployer = lodash.indexOf(self.Client.roles, 'employer') >= 0;
                             self.Loading = true;
                         });
                 }
@@ -501,7 +497,9 @@
                     }
                 ],
                 beforeEnter: (to, from, next) => {
-
+                    let isAuth = parseInt(clientApiSettings.current_user_id) !== 0;
+                    if (to.name != 'Login' && !isAuth) next({name: 'Login'});
+                    else next();
                 },
             },
             {
@@ -509,9 +507,7 @@
                 name: 'Login',
                 component: CompLogin,
                 beforeEnter: (to, from, next) => {
-                    if (parseInt(clientApiSettings.current_user_id) !== 0) next({
-                        name: 'Home'
-                    })
+                    if (parseInt(clientApiSettings.current_user_id) !== 0) next({name: 'Home'})
                     else next();
                 },
             }

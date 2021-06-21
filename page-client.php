@@ -29,12 +29,12 @@ get_header();
                     <div class="dashboard_nav_item">
                         <ul>
                             <li class="active">
-                                <router-link to="/"><i class="login-icon ti-dashboard"></i> Dashboard</router-link>
+                                <router-link :to="{ path: '/' }"><i class="login-icon ti-dashboard"></i> Dashboard</router-link>
                             </li>
-                            <li>
-                                <router-link :to="{ path: '/cv' }"><i class="login-icon ti-dashboard"></i> Mon CV</router-link>
+                            <li v-if="isCandidate">
+                                <router-link :to="{ path: '/cv' }" ><i class="login-icon ti-dashboard"></i> Mon CV</router-link>
                             </li>
-                            <li>
+                            <li v-if="isEmployer">
                                 <router-link :to="{ path: '/jobs' }"><i class="login-icon ti-dashboard"></i> Mes Annonces</router-link>
                             </li>
 

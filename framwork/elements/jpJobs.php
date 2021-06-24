@@ -30,7 +30,7 @@ class jpJobs
         if (isset($this->post->{$name})):
             return $this->post->{$name};
         endif;
-        $meta_value = get_post_meta($this->post->ID, $name, false);
+        $meta_value = get_post_meta($this->post->ID, $name, true);
         return $meta_value;
     }
 

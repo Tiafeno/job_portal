@@ -178,7 +178,6 @@
                     if (lodash.isEmpty(this.inputs.description)) {
                         this.errors.push("Description requis");
                     }
-
                     if (!lodash.isEmpty(this.errors)) {
                         return;
                     }
@@ -243,9 +242,7 @@
                 // Check if is client
                 // var job_handler_api is global js variable in localize for add-annonce widget
                 this.isClient = parseInt(job_handler_api.current_user_id) !== 0;
-                if (typeof wpApiSettings === 'undefined') {
-                    return;
-                }
+                if (typeof wpApiSettings === 'undefined') return;
                 this.vfClient();
             },
             methods: {

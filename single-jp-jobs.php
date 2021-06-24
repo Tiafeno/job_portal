@@ -32,12 +32,15 @@ $category = $job->get_reset_term('category');
 ?>
 <script type="text/x-template" id="apply-job">
     <div>
-        <a class="btn btn-primary" v-if="!isLogged"
-           onclick="renderLoginModel()"
-           data-toggle="modal"
-           data-target="#signin">
-            Se connecter
-        </a>
+        <div v-if="!isLogged">
+            <a class="btn btn-primary"
+               onclick="renderLoginModel()"
+               data-toggle="modal"
+               data-target="#signin">
+                Se connecter
+            </a>
+        </div>
+
         <p v-if="loading">Chargement en cours ...</p>
         <div class="row" v-if="isLogged && message != null">
             <p class="text-muted font-12 padd-l-5 padd-r-5 " v-if="message.success !== null"
@@ -69,12 +72,18 @@ $category = $job->get_reset_term('category');
                                     </div>
                                     <?php endif; ?>
 
+                                    <?php if ($job->get_reset_term('job_type')->slug !== 'undefined'): ?>
                                     <div class="col-sm-12 mrg-bot-10"> <i class="ti-calendar padd-r-10"></i>
                                         <span class="full-type"><?= $job->get_reset_term('job_type')->name; ?></span>
                                     </div>
+                                    <?php endif; ?>
+
+                                    <?php if ($region->slug !== 'undefined'): ?>
                                     <div class="col-sm-12 mrg-bot-10"> <i class="ti-location-pin padd-r-10"></i>
                                         <?= $region->name; ?>
                                     </div>
+                                    <?php endif; ?>
+
                                     <div class="col-sm-12 mrg-bot-10"> <i class="ti-shield padd-r-10"></i>
                                         <?php
                                         echo (0 === intval($experience)) ? '0 - 3 mois Exp.' : $experience . ' ans Exp.';

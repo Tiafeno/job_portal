@@ -57,7 +57,7 @@ class JobRegistration_Widget extends Widget_Base {
         if (isset($_GET['register']) && boolval($_GET['register'])) {
             // Register successfully
             $msg = "<p><strong>Inscription réussie</strong>, cliquez sur le bouton ci-dessous pour vous connecter</p> <p>
-            <a class='' onClick='renderLoginModel()' href='#'>Connexion</a></p>";
+            <span class='' onClick='showLoginModal()'>Connexion</span></p>";
             echo $msg;
             return;
         }

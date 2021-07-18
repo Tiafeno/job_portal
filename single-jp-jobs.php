@@ -130,7 +130,7 @@ $category = $job->get_reset_term('category');
                 <div class="col-md-4 col-sm-5" id="apply-app">
                     <div class="sidebar">
                         <!-- Start: Job Overview -->
-                        <div class="widget-boxed">
+                        <div class="">
                             <div class="widget-boxed-body">
                                 <router-view></router-view>
                             </div>

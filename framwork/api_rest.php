@@ -39,7 +39,17 @@ add_action( 'rest_api_init', function() {
 
 // Add has_cv api rest parameter
 add_action('rest_api_init', function () {
+    // Cette valeur est pour identifier s'il a déja rempli son CV
     register_meta('user', 'has_cv', [
+        'type' => 'boolean',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function () {
+            return true;
+        }
+    ]);
+    // Cette valeur est pour savoir si le profil est public ou pas
+    register_meta('user', 'public_cv', [
         'type' => 'boolean',
         'single' => true,
         'show_in_rest' => true,
@@ -101,16 +111,27 @@ add_action('rest_api_init', function () {
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function (WP_REST_Request $request) {
                 global $wpdb;
+
+                // verifier si le client est connecter
+                if (!is_user_logged_in(  )) {
+                    wp_send_json_error( "Veuillez vous connecter" );
+                }
                 $current_user_id = get_current_user_id();
+                // Verifier si l'utilisateur est un candidate
+                $user = new WP_User($current_user_id);
+                if ( !in_array( 'candidate', (array) $user->roles ) ) {
+                    //The user has not the "candidate" role
+                    wp_send_json_error( "Seul un candidate peut postuler" );
+                }
+
                 $job_id = intval($request['id']);
                 $table = $wpdb->prefix . 'job_apply';
-
                 // Verify if user has apply this job
                 $key_check_sql = $wpdb->prepare("SELECT * FROM $table WHERE job_id = %d AND user_id = %d",
                     intval($job_id), intval($current_user_id));
                 $key_check_row = $wpdb->get_results($key_check_sql);
                 if ($key_check_row) {
-                    wp_send_json_success("Vous avez deja postuler pour cette annonce");
+                    wp_send_json_success("Vous avez déja postuler pour cette annonce");
                 } else {
                     $request = $wpdb->insert($table, [
                         'job_id' => $job_id,
@@ -120,7 +141,7 @@ add_action('rest_api_init', function () {
                     if ($request) {
                         wp_send_json_success("Envoyer avec succes");
                     } else {
-                        wp_send_json_error("Une erreur s'est produit pendant l'operation");
+                        wp_send_json_error("Une erreur s'est produit pendant l'opération");
                     }
                 }
             },

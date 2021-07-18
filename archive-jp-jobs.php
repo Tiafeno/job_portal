@@ -124,6 +124,9 @@ get_header();
 
                     <!-- Single Verticle job -->
                     <job-vertical-lists v-if="!loadArchive" v-for="(item, index) in archives" :item="item" :key="item.id" ></job-vertical-lists>
+                    <div class="no-jobs" v-if="archives.length === 0 && !loadArchive">
+                        Aucune annonce trouver
+                    </div>
 
                     <div class="clearfix"></div>
 

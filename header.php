@@ -44,7 +44,10 @@
     <script type="text/javascript">
         function renderLoginModel() {
             // Application
-            if (typeof CompLogin === 'undefined') return;
+            if (typeof CompLogin === 'undefined') {
+                console.warn('Commposant login non definie');
+                return;
+            };
             new Vue({
                 el: '#signin',
                 components: { 'comp-login': CompLogin },
@@ -56,6 +59,11 @@
                 },
                 delimiters: ['${', '}']
             });
+            return true;
+        }
+        function showLoginModal() {
+            var renderResult = renderLoginModel();
+            if (renderResult) jQuery('#signin').modal('show');
         }
     </script>
 </head>

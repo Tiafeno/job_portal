@@ -88,6 +88,7 @@
             data: function () {
                 return {
                     hasCV: false,
+                    publicCV: false,
                     city: '',
                     errors: [],
                     first_name: '',
@@ -172,6 +173,7 @@
                     self.categories = lodash.clone(categories);
 
                     self.hasCV = !!self.currentUser.meta.has_cv;
+                    self.publicCV = !!self.currentUser.meta.public_cv;
 
                     self.Loading = false;
                 });
@@ -382,8 +384,24 @@
                     ev.preventDefault();
                     const self = this;
                     this.errors = [];
-
-                    // TODO: Verify error input form
+                    if (lodash.isEmpty(this.languages)) {
+                        this.errors.push('Champ langue est obligatoire');
+                    }
+                    if (lodash.isEmpty(this.categories)) {
+                        this.errors.push('Emploi recherché ou métier est obligatoire')
+                    }
+                    if (lodash.isEmpty(this.gender)) {
+                        this.errors.push('Votre genre est obligatoire')
+                    }
+                    if (lodash.isEmpty(this.address)) {
+                        this.errors.push('Champ adresse est obligatoire')
+                    }
+                    if (lodash.isEmpty(this.city)) {
+                        this.errors.push('Champ ville est obligatoire')
+                    }
+                    if (!lodash.isEmpty(this.errors)) {
+                        return false;
+                    }
                     this.Loading = true;
                     let _languages = JSON.stringify(this.languages);
                     let _categories = JSON.stringify(this.categories);
@@ -404,6 +422,7 @@
                                 profil: this.profil,
                                 // Render visible this CV
                                 has_cv: true,
+                                public_cv: this.publicCV
                             }
                         })
                         .then(function(resp) {

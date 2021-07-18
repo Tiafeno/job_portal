@@ -153,7 +153,7 @@
             },
             data: function () {
                 return {
-                    loadArchive: true,
+                    loadArchive: false,
                     archives: [], // content
                     WPAPI: null,
                     Request: {}, // object request
@@ -278,6 +278,7 @@
                         if (lodash.isEmpty(response)) {
                             self.archives = [];
                             self.paging = null
+                            self.loadArchive = false;
                             return;
                         }
 

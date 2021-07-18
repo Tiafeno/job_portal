@@ -28,7 +28,7 @@ get_header();
                 <div class="col-md-3">
                     <div class="dashboard_nav_item">
                         <ul>
-                            <li class="active">
+                            <li>
                                 <router-link :to="{ path: '/' }"><i class="login-icon ti-dashboard"></i> Dashboard</router-link>
                             </li>
                             <li v-if="isCandidate">
@@ -251,6 +251,10 @@ get_header();
 
                 <div class="col-md-8">
                     <button type="submit"  class="btn btn-outlined">Enregistrer</button>
+                    <div v-if="errors.length" style="margin-top: 40px">
+                        <b>Please correct the following error(s):</b>
+                        <ul><li style="color:#ff0000" v-for="error in errors">{{ error }}</li></ul>
+                    </div>
                 </div>
 
                 <!-- experience modal Code -->

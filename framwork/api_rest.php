@@ -67,7 +67,6 @@ add_action('rest_api_init', function () {
                     'compare' => '='
                 ]
             ];
-
         }
         if (isset($request['public_cv']) && !empty($request['public_cv'])) {
             $args['meta_query'][] = [
@@ -78,7 +77,6 @@ add_action('rest_api_init', function () {
                     'compare' => '='
                 ]
             ];
-
         }
         return $args;
     }, 10, 2);

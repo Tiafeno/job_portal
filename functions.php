@@ -92,6 +92,14 @@ add_action('after_switch_theme', function() {
     dbDelta( $sql );
 });
 
+// or install this plugin: https://wordpress.org/plugins/admin-bar-dashboard-control/
+add_action('after_setup_theme', 'remove_admin_bar');
+function remove_admin_bar() {
+    if (!current_user_can('administrator') && !is_admin()) {
+        show_admin_bar(false);
+    }
+}
+
 
 add_action( 'show_user_profile', 'crf_show_extra_profile_fields' );
 add_action( 'edit_user_profile', 'crf_show_extra_profile_fields' );

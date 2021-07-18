@@ -91,3 +91,31 @@ add_action('after_switch_theme', function() {
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $sql );
 });
+
+
+add_action( 'show_user_profile', 'crf_show_extra_profile_fields' );
+add_action( 'edit_user_profile', 'crf_show_extra_profile_fields' );
+
+function crf_show_extra_profile_fields( $user ) { ?>
+    <h3>Extra profile information</h3>
+    <table class="form-table">
+    <tr>
+        <th><label for="address"><?php _e("Address"); ?></label></th>
+        <td>
+            <input type="text" name="address" id="address" value="<?php echo esc_attr( get_the_author_meta( 'address', $user->ID ) ); ?>" class="regular-text" /><br />
+        </td>
+    </tr>
+    <tr>
+        <th><label for="city"><?php _e("City"); ?></label></th>
+        <td>
+            <input type="text" name="city" id="city" value="<?php echo esc_attr( get_the_author_meta( 'city', $user->ID ) ); ?>" class="regular-text" /><br />
+        </td>
+    </tr>
+    <tr>
+    <th><label for="postalcode"><?php _e("Postal Code"); ?></label></th>
+        <td>
+            <input type="text" name="postalcode" id="postalcode" value="<?php echo esc_attr( get_the_author_meta( 'postalcode', $user->ID ) ); ?>" class="regular-text" /><br />
+        </td>
+    </tr>
+    </table>
+<?php }

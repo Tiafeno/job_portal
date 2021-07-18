@@ -64,3 +64,4 @@ class jpCandidate extends \WP_User
     }
 
 }
+

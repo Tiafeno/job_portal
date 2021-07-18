@@ -56,7 +56,9 @@ class JobRegistration_Widget extends Widget_Base {
 
         if (isset($_GET['register']) && boolval($_GET['register'])) {
             // Register successfully
-            echo "<p class='text-center'>Se connecter</p>";
+            $msg = "<p><strong>Inscription réussie</strong>, cliquez sur le bouton ci-dessous pour vous connecter</p> <p>
+            <a class='' onClick='renderLoginModel()' href='#'>Connexion</a></p>";
+            echo $msg;
             return;
         }
         $nonce = wp_nonce_field('portaljob-register', '_wpnonce', true, false);

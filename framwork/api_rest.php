@@ -69,6 +69,17 @@ add_action('rest_api_init', function () {
             ];
 
         }
+        if (isset($request['public_cv']) && !empty($request['public_cv'])) {
+            $args['meta_query'][] = [
+                'relation' => 'AND',
+                [
+                    'key' => 'public_cv',
+                    'value' => (bool)$request['public_cv'],
+                    'compare' => '='
+                ]
+            ];
+
+        }
         return $args;
     }, 10, 2);
 });

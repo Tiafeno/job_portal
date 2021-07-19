@@ -29,6 +29,8 @@
                         category: '',
                         email: '',
                         address: '',
+                        nif: '',
+                        stat: '',
                         phone: '',
                         country: '',
                         city: '',
@@ -44,17 +46,24 @@
                     e.preventDefault();
                     this.errors = [];
                     const data = this.formData;
+                    var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
                     if (lodash.isEmpty(data.name)) {
                         this.errors.push('Le titre est requis');
                     }
                     if (lodash.isEmpty(data.category)) {
                         this.errors.push('Champ categorie est requis');
                     }
-                    if (lodash.isEmpty(data.email)) {
-                        this.errors.push('Champ email est requis');
+                    if (lodash.isEmpty(data.email) || !data.email.match(validRegex)) {
+                        this.errors.push('Le champ email est requis ou verifier que c\'est une adresse email valide');
+                    }
+                    if (lodash.isEmpty(data.nif)) {
+                        this.errors.push('Champ "NIF" est requis');
+                    }
+                    if (lodash.isEmpty(data.stat)) {
+                        this.errors.push('Champ "Numéro statistique" est requis');
                     }
                     if (lodash.isEmpty(data.address)) {
-                        this.errors.push('Champ adresse est requis');
+                        this.errors.push('Votre adresse est requis');
                     }
                     if (lodash.isEmpty(data.country)) {
                         this.errors.push('Champ pays est requis');
@@ -63,36 +72,35 @@
                         this.errors.push('Champ ville est requis');
                     }
                     if (lodash.isEmpty(data.description)) {
-                        this.errors.push('Champ a propos est requis');
+                        this.errors.push('Champ à propos est requis');
                     }
 
                     if (lodash.isEmpty(this.errors)) {
-                        this.addCompany();
+                        this.addCompany(data);
                     }
                 },
-                addCompany: function () {
+                addCompany: function (item) {
                     const self = this;
                     this.loading = true;
-                    const _email = this.formData.email;
-                    const _name = this.formData.name;
+                    const _email = item.email;
+                    const _name = item.name;
                     this.wordpress_api.users().create({
                         name: _name,
-                        nickname: _name,
+                        nickname: _email,
                         username: _name,
                         password: getRandomPassword(),
                         email: _email,
                         first_name: "",
                         last_name: "",
                         roles: ['company'],
+                        description: item.description,
                         meta: {
-                            country: 0,
-                            city: 0,
-                            address: '',
-                            region: 0,
-                            nif: '',
-                            stat: '',
+                            country: item.country,
+                            city: item.city,
+                            address: item.address,
+                            nif: item.nif,
+                            stat: item.stat,
                             newsletter: 0, // bool value to subscribe or not
-
                         }
                     })
                         .then(function (response) {
@@ -105,9 +113,9 @@
                                 self.$emit('has-company-account', true);
                             });
                         }).catch(function (err) {
-                        self.loading = false;
-                        self.errorHandler(err);
-                    });
+                            self.loading = false;
+                            self.errorHandler(err);
+                        });
                 },
                 errorHandler: function (response) {
                     console.log(response);
@@ -132,7 +140,7 @@
                 $('select')
                     .dropdown({
                         clearable: true,
-                        placeholder: 'any'
+                        placeholder: ''
                     })
             },
             props: ['me'],
@@ -167,16 +175,53 @@
                     clearable: true,
                     placeholder: 'any'
                 });
+                this.inputs.description = new MediumEditor('#advert-description', {
+                    toolbar: {
+                        /* These are the default options for the toolbar,
+                           if nothing is passed this is what is used */
+                        allowMultiParagraphSelection: true,
+                        buttons: ['bold', 'italic', 'underline', 'strikethrough', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull', 'orderedlist', 'unorderedlist', 'outdent', 'indent', 'h2', 'h3'],
+                        
+                        firstButtonClass: 'medium-editor-button-first',
+                        lastButtonClass: 'medium-editor-button-last',
+                        standardizeSelectionStart: false,
+                        static: false,
+                        /* options which only apply when static is true */
+                        align: 'center',
+                        sticky: true,
+                        updateOnEmptySelection: false,
+                        paste: {
+                            cleanAttrs: ['class', 'style', 'dir'],
+                            cleanTags: ['meta'],
+                            cleanPastedHTML: true,
+                            forcePlainText: false
+                        }
+                    }
+                });
             },
             methods: {
+                errorHandler: function(inputName) {
+                    var err = `Le champ <b>"${inputName}"</b> est obligatoire`;
+                    this.errors.push(err);
+                },
                 checkAddForm: function (ev) {
                     ev.preventDefault();
                     this.errors = [];
+                    var description = this.inputs.description.getContent();
                     if (lodash.isEmpty(this.inputs.title)) {
-                        this.errors.push("Le titre est requis");
+                        this.errorHandler('Poste à pourvoir');
                     }
-                    if (lodash.isEmpty(this.inputs.description)) {
-                        this.errors.push("Description requis");
+                    if (lodash.isEmpty(description)) {
+                        this.errorHandler('Description');
+                    }
+                    if (this.inputs.region === 0) {
+                        this.errorHandler('Region');
+                    }
+                    if (this.inputs.experience === 0) {
+                        this.errorHandler('Experience');
+                    }
+                    if (lodash.isEmpty(this.inputs.address)) {
+                        this.errorHandler('Adresse');
                     }
                     if (!lodash.isEmpty(this.errors)) {
                         return;
@@ -198,7 +243,7 @@
 
                     this.wpapinode.jobs().create({
                         title: this.inputs.title,
-                        content: this.inputs.description,
+                        content: this.inputs.description.getContent(),
                         categories: _category, // taxonomy
                         region: _region, // taxonomy
                         salaries: _salaries, // taxonomy
@@ -206,14 +251,19 @@
                         meta: {
                             experience: parseInt(this.inputs.experience),
                             address: this.inputs.address,
-                            employer_id: self.me.id
+                            employer_id: self.me.id,
+                            company_id: parseInt(self.me.meta.company_id)
                         },
-                        'status': 'pending',
+                        status: 'pending',
                     }).then(function (resp) {
                         self.loading = false;
-                        window.location.href = job_handler_api.account_url;
+                        alertify.alert('Information', "Votre annonce a bien été publier avec succès", function () {
+                            window.location.href = job_handler_api.account_url;
+                        });
+                        
                     }).catch(function (err) {
-
+                        self.loading = false;
+                        alertify.alert('Erreur', err.message, function () {});
                     });
                 }
             },

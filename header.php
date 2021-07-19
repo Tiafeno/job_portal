@@ -101,17 +101,32 @@
                 );
                 ?>
 
-                <?php if (!is_user_logged_in()): ?>
                 <ul class="nav navbar-nav navbar-right">
+                    <?php if (!is_user_logged_in()): ?>
                     <li class="br-right">
                         <a class="btn-signup red-btn" onclick="renderLoginModel()" data-toggle="modal" data-target="#signin">
                             <i class="login-icon ti-user"></i>
-                            Login
+                            Se connecter
                         </a>
                     </li>
-                    <li class="sign-up"><a class="btn-signup red-btn" href="<?= home_url('/register') ?>"><span class="ti-briefcase"></span>Register</a></li>
+                    <li class="sign-up"><a class="btn-signup red-btn" href="<?= home_url('/register') ?>"><span class="ti-briefcase"></span>Register</a>
+                    </li>
+                    <?php else: ?>
+                        
+                        <li class="br-right">
+                            <a class=" red-btn" href="<?= home_url('/espace-client') ?>" >
+                                <i class="login-icon ti-warning"></i>
+                                Espace client
+                            </a>
+                        </li>
+                        <li class="br-right">
+                            <a class=" red-btn" href="<?= wp_logout_url( home_url('/') ) ?>" >
+                                <i class="login-icon ti-warning"></i>
+                                Deconnexion
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
-                <?php endif; ?>
             </div>
         </div>
     </nav>

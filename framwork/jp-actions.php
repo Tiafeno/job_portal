@@ -32,14 +32,10 @@ add_action('helper_register_jp_user_role', function () {
         'install_plugins' => false, // User cant add new plugins
         'update_plugin' => false, // User can’t update any plugins
         'update_core' => false, // user cant perform core updates
-        'create_users' => false,
+        'create_users' => true,
         'install_themes' => false,
     );
-    add_role(
-        'employer',
-        'Employer',
-        $employer_capabilities
-    );
+    add_role('employer', 'Employer', $employer_capabilities);
 
     // for candidate
     $candidate_capabilities = array(

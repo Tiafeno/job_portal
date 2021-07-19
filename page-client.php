@@ -29,7 +29,7 @@ get_header();
                     <div class="dashboard_nav_item">
                         <ul>
                             <li>
-                                <router-link :to="{ path: '/' }"><i class="login-icon ti-dashboard"></i> Dashboard</router-link>
+                                <router-link :to="{ path: '/' }"><i class="login-icon ti-dashboard"></i> Tableau de bord</router-link>
                             </li>
                             <li v-if="isCandidate">
                                 <router-link :to="{ path: '/cv' }" ><i class="login-icon ti-dashboard"></i> Mon CV</router-link>
@@ -50,29 +50,53 @@ get_header();
     <!-- ================ End Profile Settings ======================= -->
 </script>
 
+<script type="text/x-template" id="dashboard">
+    <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
+        <h2 class="bd-title">Tableau de bord</h2>
+        <p class="bd-lead">Profil</p>
+        <div class='row'>
+            
+        </div>
+    </section>
+</script>
+
 <script type="text/x-template" id="client-annonce">
     <!-- ======================== Manage Job ========================= -->
     <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
+        <h2 class="bd-title">Mes annonces</h2>
+        <p class="bd-lead">Tous vos annonces se trouvent ici</p>
         <div class="table-responsive">
-            <table class="table table-lg table-hover">
+            <div v-if="loading">Chargement en cours...</div>
+            <div class="alert alert-secondary" role="alert" v-if="annonces.length <= 0 && !loading">Vous n'avez pas d'annonce</div>
+            <table class="table table-lg table-hover" v-if="annonces.length > 0 && !loading">
                 <thead>
-                <tr>
-                    <th>Annonce</th>
-                    <th>Posted</th>
-                    <th>Action</th>
-                </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Designation</th>
+                        <th>Date de publication</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr v-for="annonce in annonces">
-                    <td><a :href="annonce.link"> {{ annonce.title.rendered }} </a></td>
-                    <td><i class="ti-credit-card"></i> {{ annonce.date }}</td>
-                    <td>
-                        <router-link class="mrg-5" :to="{ name: 'AnnonceDetails', params: {id: annonce.id} }"><i class="ti-view-list"></i></router-link>
-                        <a href="#" class="cl-danger mrg-5" data-toggle="tooltip" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>
-                    </td>
-                </tr>
+                    <tr v-for="annonce in annonces" v-if="annonces.length > 0">
+                        <td>{{ annonce.id }}</td>
+                        <td><a :href="annonce.link" target="_blank"> {{ annonce.title.rendered }} </a></td>
+                        <td><i class="ti-credit-card"></i> {{ annonce.date }}</td>
+                        <td> <span class="badge badge-info">{{ annonce.status | jobStatus }}</span> </td>
+                        <td>
+                            <router-link class="mrg-5" :to="{ name: 'AnnonceDetails', params: {id: annonce.id} }"><i class="ti-view-list"></i></router-link>
+                            <a v-if="annonce.status !== 'private'" class="cl-danger mrg-5" id="trash-annonce"  @click="trashAnnonce($event, annonce.id)">
+                                <i class="fa fa-trash-o"></i>
+                            </a>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div>
+            <a class="btn btn-success" href="<?= home_url('/add-annonce') ?>">Ajouter un annonce</a>
         </div>
     </section>
     <!-- ====================== End Manage Company ================ -->
@@ -462,8 +486,6 @@ get_header();
             </div>
         </form>
 </div>
-
-
 </script>
 
 <script type="text/x-template" id="annonce-apply">
@@ -482,10 +504,13 @@ get_header();
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="candidate in candidateApply" v-if="candidateApply != null && !loading">
+                    <tr v-for="candidate in candidateApply" v-if="candidateApply.length !== 0 && !loading">
                         <td> {{ candidate.meta.reference }}</td>
                         <td><i class="ti-credit-card"></i> {{ candidate.meta.address }}</td>
                         <td><a class="cl-info mrg-5" :href="candidate.link" target="_blank"><i class="ti-info-alt"></i> Voir le candidat </a></td>
+                    </tr>
+                    <tr v-if="candidateApply.length === 0 && !loading">
+                        <td>Aucune donnée disponible dans le tableau</td>
                     </tr>
                 </tbody>
             </table>
@@ -493,13 +518,7 @@ get_header();
     </section>
 </script>
 
-<div class="page-title">
-    <div class="container">
-        <div class="page-caption">
-            <h2><?= get_the_title() ?></h2>
-        </div>
-    </div>
-</div>
+
 <div class="padd-top-80 padd-bot-80">
     <div class="container">
         <div id="client">

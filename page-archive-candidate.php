@@ -38,6 +38,7 @@ get_header();
                 </div>
             </div>
         </div>
+        <div v-if="!loading && annonces.length <= 0">Aucun candidat</div>
         <div class="clearfix"></div>
         <com-pagination v-if="paging !== null" v-bind:paging="paging" @change-route-page="Route" v-bind:pagesize="per_page"></com-pagination>
     </div>

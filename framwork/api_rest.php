@@ -130,7 +130,7 @@ add_action('rest_api_init', function () {
                 $user = new WP_User($current_user_id);
                 if ( !in_array( 'candidate', (array) $user->roles ) ) {
                     //The user has not the "candidate" role
-                    wp_send_json_error( "Seul un candidate peut postuler" );
+                    wp_send_json_error( "Seul un candidate peut postuler pour cette annonce" );
                 }
 
                 $job_id = intval($request['id']);
@@ -177,26 +177,26 @@ add_action('rest_api_init', function () {
                 // Verify if user has apply this job
                 $job_sql = $wpdb->prepare("SELECT * FROM $table WHERE job_id = %d ", $job_id);
                 $job_rows = $wpdb->get_results($job_sql, OBJECT);
+                $results = new stdClass();
+                $job = get_post((int)$job_id);
+                $results->job = new stdClass();
+                $results->job->title = $job->post_title;
+                $results->job->id = $job->ID;
+                $results->candidates = [];
                 if ($job_rows) {
-                    $results = new stdClass();
+                    
                     // Request params
                     $request = new WP_REST_Request();
                     $request->set_param('context', 'edit');
-
-                    $job = get_post((int)$job_id);
-                    $results->job = new stdClass();
-                    $results->job->title = $job->post_title;
-                    $results->job->id = $job->ID;
                     // Get candidate apply for this job
                     foreach ($job_rows as $job_row) {
                         $usr_controller = new WP_REST_Users_Controller();
-
                         $usr = new WP_User((int)$job_row->user_id);
                         $candidate = $usr_controller->prepare_item_for_response($usr, $request)->data;
-                        $results->candidate[] = $candidate;
+                        $results->candidates[] = $candidate;
                     }
-                    wp_send_json_success($results);
                 }
+                wp_send_json_success($results);
             },
             'permission_callback' => function ($data) {
                 return current_user_can('edit_posts');

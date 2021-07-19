@@ -6,7 +6,7 @@ error_reporting(E_ERROR | E_PARSE);
 defined('DS') ? null : define('DS', DIRECTORY_SEPARATOR);
 defined('__SITENAME__') ? null: define('__SITENAME__', 'job_portal');
 // URL value
-defined('_ACCOUNT_URL_') ? null: define('_ACCOUNT_URL_', DS .'mon-compte');
+defined('_ACCOUNT_URL_') ? null: define('_ACCOUNT_URL_', DS .'espace-client');
 defined('_ADD_ANNONCE_URL_') ? null: define('_ADD_ANNONCE_URL_', DS . 'add-annonce');
 
 require_once __DIR__ . '/framwork/loader.php'; // Load all elements

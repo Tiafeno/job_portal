@@ -4,6 +4,22 @@
 {% assign salaires = 'salaries'|taxonomy %}
 {% assign job_type = 'job_type'|taxonomy %}
 
+<style>
+    span.sub-description {
+        font-size: 12.5px;
+        position: relative;
+        top: -15px;
+        font-weight: 400;
+        color: #b7b7b7;
+    }
+    #advert-description {
+        border: 2px solid black;
+        min-height: 120px;
+        padding: 10px;
+    }
+
+</style>
+
 <script id="create-company" type="text/x-template">
     <section v-bind:class="[sectionClass]">
         <div class="container">
@@ -15,76 +31,71 @@
                     <div class="box-body">
                         <div class="row">
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Company Name</label>
+                                <label>Nom de l'entreprise ou société <span style="color: red">*</span></label>
                                 <input type="text" v-model="formData.name" name="name" class="form-control"
-                                       placeholder="Company Name" required>
+                                       placeholder="Nom de l'entreprise ou société" required>
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Category</label>
-                                <select v-model="formData.category" name="category" class="form-control ui dropdown">
-                                    <option value="">Selectionner</option>
+                                <label>Categorie de l'entreprise ou société <span style="color: red">*</span></label>
+                                <select v-model="formData.category" name="category" class="form-control ui dropdown" required>
+                                    <option value="">Selectionner une catégorie</option>
                                     {% for categorie in categories %}<option value="{{ categorie.term_id }}">{{ categorie.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Company Address -->
-                <div class="box">
-                    <div class="box-header">
-                        <h4>Company Address</h4>
-                    </div>
-                    <div class="box-body">
-                        <div class="row">
+                            <div class="clearfix"></div>
+
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Email</label>
-                                <input type="email" v-model="formData.email" name="email" class="form-control" placeholder="Email" required>
+                                <label>NIF <span style="color: red">*</span></label>
+                                <input type="text" v-model="formData.nif" name="nif" class="form-control" placeholder="" required>
+                                <span class="sub-description">Cette donnée sera uniquement utilisée à des fins d’analyse.</span>
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Address</label>
+                                <label>Numéro statistique <span style="color: red">*</span></label>
+                                <input type="text" v-model="formData.stat" name="stat" class="form-control" placeholder="" required>
+                                <span class="sub-description">Cette donnée sera uniquement utilisée à des fins d’analyse.</span>
+                            </div>
+
+                            <div class="clearfix"></div>
+
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <label>Email du responsable de l'entreprise <span style="color: red">*</span></label>
+                                <input type="email" v-model="formData.email" name="email" class="form-control" placeholder="Adresse email" required>
+                                <span class="sub-description" style="color:red">Ne pas utilisée l'adresse email de votre compte actuel.</span>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <label>Adresse physique de l'entreprise <span style="color: red">*</span></label>
                                 <input type="text" v-model="formData.address" name="address" class="form-control"
-                                       placeholder="Address" required>
+                                       placeholder="Adresse physique de l'entreprise" required>
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Phone Number</label>
+                                <label class="col-sm-8">Numéro de téléphone</label>
                                 <input type="text" v-model="formData.phone" name="phone" class="form-control"
-                                       placeholder="Phone Number">
+                                       placeholder="+2613XX XXX XX">
                             </div>
+
+                             <div class="clearfix"></div>
+
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
-                                <label>Country</label>
-                                <select v-model="formData.country" name="country" class="form-control ui dropdown">
-                                    <option value="">Selectionner</option>
+                                <label>Pays <span style="color: red">*</span></label>
+                                <select v-model="formData.country" name="country" class="form-control ui dropdown" required>
+                                    <option value="">Selectionner un pays</option>
                                     {% for country in countries %}
                                         <option value="{{ country.term_id }}">{{ country.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>City</label>
-                                <input type="text" v-model="formData.city" name="city" class="form-control" placeholder="Ville" required>
+                                <label>Ville <span style="color: red">*</span></label>
+                                <input type="text" v-model="formData.city" name="city" class="form-control" placeholder="Ex: Antananarivo" required>
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
-                                <label>Zip Code</label>
+                                <label>Code postal <span style="color: red">*</span></label>
                                 <input type="text" v-model="formData.zipcode" name="zipcode" class="form-control" required
-                                       placeholder="Code postal">
+                                       placeholder="Ex: 101">
                             </div>
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Website Link</label>
-                                <input type="text" v-model="formData.website" name="website" class="form-control"
-                                       placeholder="Website Link">
-                            </div>
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Employees</label>
-                                <select v-model="formData.employees" name="employees" class="ui dropdown form-control">
-                                    <option value="1-5">1-5</option>
-                                    <option value="5-10">5-10</option>
-                                    <option value="10-50">10-50</option>
-                                    <option value="100-500">100-500</option>
-                                    <option value="500-1000">500-1000</option>
-                                </select>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -96,17 +107,38 @@
                     </div>
                     <div class="box-body">
                         <div class="row">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <label>Employées</label>
+                                <select v-model="formData.employees" name="employees" class="ui dropdown form-control">
+                                    <option value="1-5">1-5</option>
+                                    <option value="5-10">5-10</option>
+                                    <option value="10-50">10-50</option>
+                                    <option value="100-500">100-500</option>
+                                    <option value="500-1000">500-1000</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <label>Site web de l'entreprise ou société</label>
+                                <input type="text" v-model="formData.website" name="website" class="form-control"
+                                       placeholder="Ex: entreprise.com">
+                            </div>
                             <div class="col-sm-12">
-                                <label>About Company</label>
+                                <label>Description courte à propos de l'entreprise ou société <span style="color: red">*</span></label>
                                 <textarea v-model="formData.description" name="description" class="form-control height-120 textarea"
-                                          placeholder="About Company"></textarea>
+                                          placeholder="Votre description ici."></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="text-center">
-                    <button type="submit" class="btn btn-m theme-btn full-width">Ajouter</button>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <button type="submit" :disabled="loading" class="btn btn-m theme-btn full-width">Enregistrer mon entreprise</button>
+                        </div>
+                    </div>
+                    
                 </div>
+                
                 <div v-if="errors.length" style="margin-top: 40px">
                     <b>Please correct the following error(s):</b>
                     <ul><li style="color:#ff0000" v-for="error in errors">${ error }</li></ul>
@@ -129,12 +161,12 @@
                     <div class="box-body">
                         <div class="row">
                             <div class="col-md-8 col-sm-12 col-xs-12">
-                                <label>Titre</label>
-                                <input type="text" name="title" v-model="inputs.title" class="form-control" placeholder="Titre" required>
+                                <label>Poste à pourvoir <span style="color: red">*</span></label>
+                                <input type="text" name="title" v-model="inputs.title" class="form-control" placeholder="Poste à pourvoir" required>
                             </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Secteur d'activité</label>
+                                <label>Secteur d'activité <span style="color: red">*</span></label>
                                 <select name="category" v-model="inputs.category" class="ui dropdown form-control" required>
                                     {% for categorie in categories %}
                                         <option :value="{{ categorie.term_id }}">{{ categorie.name }}</option>
@@ -143,7 +175,7 @@
                             </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
-                                <label>Experience</label>
+                                <label>Experience <span style="color: red">*</span></label>
                                 <select name="experience" v-model="inputs.experience" class="ui dropdown form-control" required>
                                     <option :value="0" data-display="Experience">0 - 3 Mois</option>
                                     <option :value="year" v-for="year in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]">${year} ans</option>
@@ -151,9 +183,8 @@
                             </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
-                                <label>Type de contrat</label>
+                                <label>Type de contrat <span style="color: red">*</span></label>
                                 <select name="type" v-model="inputs.type" class="wide form-control" required>
-
                                     {% for type in job_type %}
                                         <option :value="{{ type.term_id }}">{{ type.name }}</option>
                                     {% endfor %}
@@ -161,9 +192,8 @@
                             </div>
 
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Salary Range (Maximum)</label>
+                                <label>Salaire proposé (Maximum)</label>
                                 <select name="salary_range" v-model="inputs.salary_range" class="ui dropdown form-control">
-
                                     {% for salaire in salaires %}
                                         <option :value="{{ salaire.term_id }}">{{ salaire.name }}</option>
                                     {% endfor %}
@@ -171,15 +201,15 @@
                             </div>
 
                             <div class="col-md-6 col-sm-6 col-xs-12 m-clear">
-                                <label>Region</label>
-                                <select name="salary_range" v-model="inputs.region" class="ui dropdown form-control">
+                                <label>Region <span style="color: red">*</span></label>
+                                <select name="region" v-model="inputs.region" class="ui dropdown form-control">
                                     {% for region in regions %}
                                         <option :value="{{ region.term_id }}">{{ region.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
-                                <label>Address</label>
+                                <label>Adresse de l'annonce ou lieu de travail <span style="color: red">*</span></label>
                                 <input type="text" name="address" v-model="inputs.address" class="form-control" placeholder="Adresse" required>
                             </div>
                         </div>
@@ -195,12 +225,11 @@
                     <div class="box-body">
                         <div class="row">
                             <div class="col-sm-12">
-                                <textarea name="description" v-model="inputs.description" class="form-control height-120 textarea"
-                                          placeholder="About job"></textarea>
+                                <div id="advert-description">Votre description ici</div>
                             </div>
                         </div>
                         <div class="text-muted">
-                            Aucune coordonnée, ni nom d'entreprise ne peuvent être indiqués dans votre offre
+                            Aucune coordonnée, ni nom d'entreprise ne peuvent être indiqués dans le description.
                         </div>
                     </div>
                 </div>
@@ -210,7 +239,7 @@
                 </div>
                 <div v-if="errors.length" style="margin-top: 40px">
                     <b>Please correct the following error(s):</b>
-                    <ul><li style="color:#ff0000" v-for="error in errors">${ error }</li></ul>
+                    <ul><li style="color:#ff0000" v-for="error in errors" v-html="error"></li></ul>
                 </div>
             </form>
         </div>

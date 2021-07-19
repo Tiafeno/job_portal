@@ -85,7 +85,8 @@
                     this.loading = true;
                     this.request = this.$parent.Wordpress.users()
                         //.param('roles', 'candidate') // Not allow for client not logged in
-                        .param('has_cv', 1)// boolean value
+                        .param('public_cv', 1)
+                        //.param('has_cv', 1)
                         .perPage(this.per_page)
                         .page(this.page);
 

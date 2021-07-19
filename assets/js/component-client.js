@@ -1,5 +1,10 @@
 (function ($) {
     $().ready(function () {
+        Vue.filter('jobStatus', function (value) {
+            if (!value) return ''
+            value = value.toString()
+            return value === 'pending' ? 'En attente de validation' : (value === 'private' ? 'Supprimer' : 'Publier');
+        });
         // Return random password
         const getRandomId = () => {
             const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -33,7 +38,7 @@
                 this.Wordpress.jobs = this.Wordpress.registerRoute('wp/v2', '/emploi/(?P<id>\\d+)', {
                     // Listing any of these parameters will assign the built-in
                     // chaining method that handles the parameter:
-                    params: ['context', 'per_page', 'offset', 'param']
+                    params: ['context', 'per_page', 'offset', 'param', 'status']
                 });
                 this.init();
             },
@@ -59,7 +64,10 @@
             }
         };
         const Home = {
-            template: '<p>Home page</p>'
+            template: '#dashboard',
+            mounted: function () {
+                console.log(this.$parent.Client);
+            }
         };
         const CVComponents = {
             experience: {
@@ -77,7 +85,7 @@
                 'comp-education': CVComponents.education,
                 'comp-experience': CVComponents.experience
             },
-            beforeRouteLeave (to, from, next) {
+            beforeRouteLeave(to, from, next) {
                 const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
                 if (answer) {
                     next()
@@ -118,7 +126,8 @@
                         city: '',
                         country: '',
                         desc: '',
-                        b: '', /** begin year */
+                        b: '',
+                        /** begin year */
                         e: '' /** end year */
                     },
                     formExpSelected: null,
@@ -153,7 +162,7 @@
                 //     self.currentUser = lodash.cloneDeep(response);
                 //     self.Loading = false;
                 // });
-                await this.$parent.Wordpress.users().me().context('edit').then(function(response) {
+                await this.$parent.Wordpress.users().me().context('edit').then(function (response) {
                     self.currentUser = lodash.cloneDeep(response);
                     //Populate data value
                     self.first_name = self.currentUser.first_name;
@@ -244,7 +253,7 @@
                         self.Loading = false;
                     });
                 },
-                updateEducations: function(data) {
+                updateEducations: function (data) {
                     const self = this;
                     this.Loading = true;
                     this.$parent.Wordpress.users().me().update({
@@ -276,14 +285,15 @@
                     };
                     this.formExpSelected = null;
                 },
-                resetEducation: function() {
+                resetEducation: function () {
                     this.formEduEdit = {
                         _id: getRandomId(),
                         establishment: '',
                         diploma: '',
                         city: '',
                         country: '',
-                        b: '', /** begin year */
+                        b: '',
+                        /** begin year */
                         e: '' /** end year */
                     };
                     this.formEduSelected = null;
@@ -293,7 +303,7 @@
                     this.resetExperience();
                     $('#experience').modal('show');
                 },
-                addEducation: function() {
+                addEducation: function () {
                     this.resetEducation();
                     $('#education').modal('show');
                 },
@@ -308,14 +318,14 @@
                     this.formExpSelected = id;
                     $('#experience').modal('show');
                 },
-                deleteExperience: function(evt, id) {
+                deleteExperience: function (evt, id) {
                     const experiences = this.getExperiences;
                     let currentExperiences = lodash.remove(experiences, exp => {
                         return exp._id === id;
                     });
                     this.updateExperiences(currentExperiences);
                 },
-                deleteEducation: function(evt, id) {
+                deleteEducation: function (evt, id) {
                     const educations = this.getEducations;
                     let currentEducations = lodash.remove(educations, edu => {
                         return edu._id === id;
@@ -326,21 +336,23 @@
                     evt.preventDefault();
                     const self = this;
                     const educations = this.getEducations;
-                    let eduSelected = lodash.find(educations, {_id: id});
+                    let eduSelected = lodash.find(educations, {
+                        _id: id
+                    });
                     Object.keys(eduSelected).forEach((item, index) => {
                         self.formEduEdit[item] = eduSelected[item];
                     });
                     this.formEduSelected = id;
                     $('#education').modal('show');
                 },
-                updateStatusCandidate: function() {
+                updateStatusCandidate: function () {
 
                 },
                 validateExpForm: function (ev) {
                     ev.preventDefault();
                     this.submitExpForm();
                 },
-                validateEduForm: function(ev) {
+                validateEduForm: function (ev) {
                     ev.preventDefault();
                     this.submitEduForm();
                 },
@@ -362,7 +374,7 @@
                     }
                     this.updateExperiences(experiences);
                 },
-                submitEduForm: function() {
+                submitEduForm: function () {
                     const self = this;
                     let educations = this.getEducations;
                     if (this.formEduSelected === null) {
@@ -380,7 +392,7 @@
                     }
                     this.updateEducations(educations);
                 },
-                submitCV: function(ev) {
+                submitCV: function (ev) {
                     ev.preventDefault();
                     const self = this;
                     this.errors = [];
@@ -425,11 +437,11 @@
                                 public_cv: this.publicCV
                             }
                         })
-                        .then(function(resp) {
+                        .then(function (resp) {
                             self.Loading = false;
                             self.hasCV = true;
                         })
-                        .catch(function(er) {
+                        .catch(function (er) {
                             self.Loading = false;
                         });
                 }
@@ -439,66 +451,89 @@
             template: "#client-annonce",
             data: function () {
                 return {
-                    loading : false,
+                    loading: false,
                     annonces: []
                 }
             },
-            mounted: function(){
-                const self = this;
-                this.loading = true;
-                this.$parent.Wordpress.jobs()
-                    .param('meta_key', 'employer_id')
-                    .param('meta_value', clientApiSettings.current_user_id)
-                    .per_page(10)
-                    .then(function(response) {
-                        console.log(response);
-                        self.annonces = lodash.clone(response);
-                        self.loading = false;
-                });
+            mounted: function () {
+                this.Populate();
+            },
+            methods: {
+                trashAnnonce: function (ev, jobId) {
+                    ev.preventDefault();
+                    var self = this;
+                    alertify.confirm("Voulez vous vraiment supprimer cette annonce. ID: " + jobId, function () {
+                            self.loading = true;
+                            self.$parent.Wordpress.jobs().id(jobId).update({
+                                status: 'private'
+                            }).then(function () {
+                                self.Populate();
+                            });
+                        },
+                        function () {
+
+                        });
+                },
+                Populate: function () {
+                    const self = this;
+                    this.loading = true;
+                    this.$parent.Wordpress.jobs()
+                        .status(['pending', 'publish', 'private'])
+                        .param('meta_key', 'employer_id')
+                        .param('meta_value', clientApiSettings.current_user_id)
+                        .per_page(10)
+                        .then(function (response) {
+                            self.annonces = lodash.clone(response);
+                            self.loading = false;
+                        });
+                }
             }
         };
         const AnnonceDetails = {
             template: "#annonce-apply",
-            data: function() {
+            data: function () {
                 return {
-                    loading : false,
+                    loading: false,
                     job: null,
-                    candidateApply : [],
+                    candidateApply: [],
                     jobAxiosInstance: null
                 }
             },
-            mounted: function() {
+            mounted: function () {
                 const self = this;
                 this.jobAxiosInstance = axios.create({
                     baseURL: clientApiSettings.root + 'job/v2',
-                    headers: {'X-WP-Nonce': clientApiSettings.nonce}
+                    headers: {
+                        'X-WP-Nonce': clientApiSettings.nonce
+                    }
                 });
                 this.loading = true;
                 const job_id = this.$route.params.id;
-                self.jobAxiosInstance.get(`details/${job_id}`).then(function(response) {
+                self.jobAxiosInstance.get(`details/${job_id}`).then(function (response) {
                     const details = response.data;
                     if (details.success) {
-                        self.candidateApply = lodash.map(details.data.candidate, candidate => {
+                        self.candidateApply = lodash.map(details.data.candidates, candidate => {
                             candidate.link = clientApiSettings.page_candidate + '#/candidate/' + candidate.id;
                             return candidate;
                         });
                         self.job = lodash.clone(details.data.job);
                     }
                     self.loading = false;
-                }).catch(function() {
+                }).catch(function () {
                     self.loading = false;
-                })
+                });
             },
-            computed: {
-            }
+            computed: {}
         }
-        const routes = [
-            {
+        const routes = [{
                 path: '/',
                 component: Layout,
                 redirect: '/home',
-                children: [
-                    { path: 'home', name: 'Home', component: Home },
+                children: [{
+                        path: 'home',
+                        name: 'Home',
+                        component: Home
+                    },
                     {
                         path: 'cv',
                         name: 'CV',
@@ -517,7 +552,9 @@
                 ],
                 beforeEnter: (to, from, next) => {
                     let isAuth = parseInt(clientApiSettings.current_user_id) !== 0;
-                    if (to.name != 'Login' && !isAuth) next({name: 'Login'});
+                    if (to.name != 'Login' && !isAuth) next({
+                        name: 'Login'
+                    });
                     else next();
                 },
             },
@@ -526,7 +563,9 @@
                 name: 'Login',
                 component: CompLogin,
                 beforeEnter: (to, from, next) => {
-                    if (parseInt(clientApiSettings.current_user_id) !== 0) next({name: 'Home'})
+                    if (parseInt(clientApiSettings.current_user_id) !== 0) next({
+                        name: 'Home'
+                    })
                     else next();
                 },
             }

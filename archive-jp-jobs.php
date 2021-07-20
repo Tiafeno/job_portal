@@ -39,9 +39,9 @@ get_header();
                     <div class="field_w_search">
                         <input type="text" class="form-control" @keyup="searchKey($event)"  placeholder="Search Keywords">
                     </div>
-                    <div class="field_w_search">
-                        <input type="text" class="form-control" placeholder="All Locations">
-                    </div>
+<!--                    <div class="field_w_search">-->
+<!--                        <input type="text" class="form-control" placeholder="All Locations">-->
+<!--                    </div>-->
                 </div>
             </div>
         </div>
@@ -124,7 +124,7 @@ get_header();
 
                     <!-- Single Verticle job -->
                     <job-vertical-lists v-if="!loadArchive" v-for="(item, index) in archives" :item="item" :key="item.id" ></job-vertical-lists>
-                    <div class="no-jobs" v-if="archives.length === 0 && !loadArchive">
+                    <div class="alert alert-warning" role="alert" v-if="archives.length === 0 && !loadArchive">
                         Aucune annonce trouver
                     </div>
 

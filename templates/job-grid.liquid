@@ -16,11 +16,11 @@
                         <img class="img-responsive" src="" alt="">
                     </a>
                 </div>
-                <h5><a href="employer-detail.html">${item.title.rendered}</a></h5>
+                <h5><a v-bind:href="item.link">${item.title.rendered}</a></h5>
                 <p class="text-muted" v-html="item.excerpt.rendered"></p>
             </div>
             <div class="utf_apply_job_btn_item">
-                <a v-bind:href="item.link" target="_blank" class="btn job-browse-btn btn-radius br-light">Postuler</a>
+                <a v-bind:href="item.link" target="_blank" class="btn job-browse-btn btn-radius br-light">Voir l'offre</a>
             </div>
         </div>
     </div>
@@ -31,7 +31,7 @@
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
                 <div class="heading">
-                    <h2>Latest Jobs</h2>
+                    <h2>LES OFFRES D’EMPLOI</h2>
                     <p>Lorem Ipsum is simply dummy text printing and type setting industry Lorem Ipsum been industry
                         standard dummy text ever since when unknown printer took a galley.</p>
                 </div>
@@ -42,7 +42,7 @@
             <job-grid v-for="job in jobs" v-bind:item="job" :key="job.id" v-bind:taxonomies="Taxonomies" ></job-grid>
         </div>
         <div class="col-md-12 mrg-top-20 text-center">
-            <a href="{{ job_archive_url }}" target="_parent" class="btn theme-btn btn-m">Browse All Jobs</a>
+            <a href="{{ job_archive_url }}" target="_parent" class="btn theme-btn btn-m">Voir plus d'offre</a>
         </div>
     </div>
 </section>

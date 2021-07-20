@@ -63,11 +63,107 @@
                 }
             }
         };
+        const EditPassword = {
+            template: '#edit-password-template',
+            data: function () {
+                return {
+                    loading: false,
+                    validators: [],
+                    pwd: '',
+                    pwd_conf: '',
+                }
+            },
+            methods: {
+                errorHandler: function (item) {
+                    this.validators.push(item);
+                },
+                submitNewPassword: function (ev) {
+                    ev.preventDefault();
+                    this.validators = [];
+                    var self = this;
+                    if (lodash.isEmpty(this.pwd) || lodash.isEmpty(this.pwd_conf)) {
+                        this.errorHandler("Veuillez remplire correctement les champs requis");
+                    }
+                    if (this.pwd !== this.pwd_conf) {
+                        this.errorHandler("Les deux (2) mot de passe ne sont pas identique");
+                    }
+                    if (!lodash.isEmpty(this.validators)) {
+                        return;
+                    }
+                    var form = new FormData();
+                    form.append('action', 'change_my_pwd');
+                    form.append('pwd', this.pwd);
+                    form.append('pwd_nonce', clientApiSettings.nonce_form);
+                    this.loading = true;
+                    axios.post(clientApiSettings.ajax_url, form).then(function (resp) {
+                        var response = resp.data;
+                        if (response.success) {
+                            alertify.alert('information', response.data, function () {
+                                window.location.reload();
+                            });
+                        }
+                    }).catch(function (err) {
+                    }).done(function () {
+                        self.loading = false;
+                    })
+
+                }
+            }
+        };
+        const ProfilEdit = {
+            template: "#profil-client-template",
+            data: function () {
+                return {
+                    validators: [],
+                    isCandidate: false,
+                    isEmployer: false,
+                    currentUser: null,
+                    currentUserCompany: null,
+                }
+            },
+            mounted: function () {
+                this.init();
+            },
+            methods: {
+                submitProfil: function (ev) {
+                    ev.preventDefault();
+                },
+                init: async function() {
+                    const self = this;
+                    this.loading = true;
+                    var currentUsr = await this.$parent.$parent.Wordpress.users().context('edit').me().get();
+                    self.currentUser = lodash.clone(currentUsr);
+                    // Check if is company
+                    if (lodash.indexOf(currentUsr.roles, 'employer') >= 0) {
+                        this.isEmployer = true;
+                        var companyId = currentUsr.meta.company_id;
+                        var CompanyModel = new wp.api.models.User({ id: parseInt(companyId) });
+                        CompanyModel.fetch({data: {context: 'edit'}}).done(function(companyResponse) {
+                            self.currentUserCompany = lodash.clone(companyResponse);
+                            self.loading = false;
+                        });
+                    } else {
+                        this.isCandidate = true;
+                    }
+                    self.profilHandler();
+                },
+                profilHandler: function() {
+
+                }
+            }
+        };
         const Home = {
             template: '#dashboard',
-            mounted: function () {
-                console.log(this.$parent.Client);
-            }
+            components: {
+                'comp-edit-pwd': EditPassword,
+                'comp-edit-profil': ProfilEdit
+            },
+            data: function () {
+                return {
+                    loading: false,
+                }
+            },
+            methods: {}
         };
         const CVComponents = {
             experience: {
@@ -345,9 +441,6 @@
                     this.formEduSelected = id;
                     $('#education').modal('show');
                 },
-                updateStatusCandidate: function () {
-
-                },
                 validateExpForm: function (ev) {
                     ev.preventDefault();
                     this.submitExpForm();
@@ -526,38 +619,39 @@
             computed: {}
         }
         const routes = [{
-                path: '/',
-                component: Layout,
-                redirect: '/home',
-                children: [{
-                        path: 'home',
-                        name: 'Home',
-                        component: Home
-                    },
-                    {
-                        path: 'cv',
-                        name: 'CV',
-                        component: CVComp,
-                    },
-                    {
-                        path: 'jobs',
-                        name: 'Annonce',
-                        component: AnnonceComp,
-                    },
-                    {
-                        path: 'job/:id/details',
-                        name: 'AnnonceDetails',
-                        component: AnnonceDetails
-                    }
-                ],
-                beforeEnter: (to, from, next) => {
-                    let isAuth = parseInt(clientApiSettings.current_user_id) !== 0;
-                    if (to.name != 'Login' && !isAuth) next({
-                        name: 'Login'
-                    });
-                    else next();
-                },
+            path: '/',
+            component: Layout,
+            redirect: '/home',
+            children: [{
+                path: 'home',
+                name: 'Home',
+                props: true,
+                component: Home
             },
+                {
+                    path: 'cv',
+                    name: 'CV',
+                    component: CVComp,
+                },
+                {
+                    path: 'jobs',
+                    name: 'Annonce',
+                    component: AnnonceComp,
+                },
+                {
+                    path: 'job/:id/details',
+                    name: 'AnnonceDetails',
+                    component: AnnonceDetails
+                }
+            ],
+            beforeEnter: (to, from, next) => {
+                let isAuth = parseInt(clientApiSettings.current_user_id) !== 0;
+                if (to.name != 'Login' && !isAuth) next({
+                    name: 'Login'
+                });
+                else next();
+            },
+        },
             {
                 path: '/login',
                 name: 'Login',

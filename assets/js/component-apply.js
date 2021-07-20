@@ -25,7 +25,7 @@
                         path: 'item',
                         name: 'ItemApply',
                         component: {
-                            template: '<router-link :to="{ path: \'/apply\'}"  class="btn-job theme-btn job-apply">Je postule</router-link>',
+                            template: '<router-link :to="{ path: \'/apply\'}"  class="btn-job theme-btn btn-outlined job-apply">Je postule</router-link>',
                         }
                     },
                     {

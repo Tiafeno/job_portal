@@ -70,9 +70,11 @@ class JobSearch_Widget extends Widget_Base
     {
         global $Liquid_engine;
         $settings = $this->get_settings_for_display(); // return array
+        // Region
         $regions = get_terms(['taxonomy' => 'region', 'hide_empty' => false, 'number' => 50]);
+        // Secteur d'activité
         $categories = get_terms(['taxonomy' => 'category', 'hide_empty' => false, 'number' => 50]);
-        echo $Liquid_engine->parseFile('job-search')->render(['regions' => $regions, 'categories' => $categories]);
+        echo $Liquid_engine->parseFile('job-search')->render(['regions' => $regions, 'categories' => $categories, 'ad_count' => $settings['ad_number']]);
     }
 
 

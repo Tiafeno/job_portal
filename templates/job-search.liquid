@@ -3,17 +3,22 @@
     <div class="container">
         <div class="col-md-10 col-sm-8">
             <div class="caption cl-white home_two_slid">
-                <h2>Search Between More Then <span class="theme-cl">50,000</span> Open Jobs.</h2>
-                <p>Trending Jobs Keywords: <span class="trending_key"><a href="#">Web Designer</a></span> <span class="trending_key"><a href="#">Web Developer</a></span> <span class="trending_key"><a href="#">IOS Developer</a></span> <span class="trending_key"><a href="#">Android Developer</a></span></p>
+                <h2>Recherchez parmi plus de <span class="theme-cl">{{ ad_count }}</span> offres d'emploi.</h2>
+                {% comment %}<p>Trending Jobs Keywords: <span class="trending_key">{% endcomment %}
+                        {% comment %}<a href="#">Web Designer</a></span> <span class="trending_key">{% endcomment %}
+                        {% comment %}<a href="#">Web Developer</a></span> <span class="trending_key">{% endcomment %}
+                        {% comment %}<a href="#">IOS Developer</a></span> <span class="trending_key">{% endcomment %}
+                        {% comment %}<a href="#">Android Developer</a></span>{% endcomment %}
+                {% comment %}</p>{% endcomment %}
             </div>
             <form name="search" role="search" action="" method="get" novalidate>
                 <fieldset class="utf_home_form_one">
                     <div class="col-md-3 col-sm-3 padd-0">
-                        <input type="text" class="form-control br-1" name="s" placeholder="Search Keywords..." />
+                        <input type="text" class="form-control br-1" name="s" placeholder="Rechercher des mots-clés..." />
                     </div>
                     <div class="col-md-3 col-sm-3 padd-0">
                         <select name="region" class="wide form-control br-1">
-                            <option value="" data-display="Location">All Region</option>
+                            <option value="" data-display="Location">Tous les régions</option>
                             {% for region in regions %}
                                 <option value="{{ region.term_id }}">{{ region.name }}</option>
                             {% endfor %}
@@ -22,7 +27,7 @@
                     </div>
                     <div class="col-md-4 col-sm-4 padd-0">
                         <select name="cat" class="wide form-control">
-                            <option value="" data-display="Category">Show All</option>
+                            <option value="" data-display="Category">Tous</option>
                             {% for categorie in categories %}
                                 <option value="{{ categorie.term_id }}">{{ categorie.name }}</option>
                             {% endfor %}
@@ -30,7 +35,7 @@
                     </div>
                     <div class="col-md-2 col-sm-2 padd-0 m-clear">
                         <input type="hidden"  name="post_type" value="jp-jobs">
-                        <button type="submit" class="btn theme-btn cl-white seub-btn">Search</button>
+                        <button type="submit" class="btn theme-btn cl-white seub-btn">Trouver</button>
                     </div>
                 </fieldset>
             </form>

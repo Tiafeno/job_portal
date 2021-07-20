@@ -33,7 +33,7 @@ $category = $job->get_reset_term('category');
 <script type="text/x-template" id="apply-job">
     <div>
         <div v-if="!isLogged">
-            <a class="btn btn-primary"
+            <a class="btn btn-primary btn-outlined"
                onclick="renderLoginModel()"
                data-toggle="modal"
                data-target="#signin">
@@ -43,7 +43,7 @@ $category = $job->get_reset_term('category');
 
         <p v-if="loading">Chargement en cours ...</p>
         <div class="row" v-if="isLogged && message != null">
-            <p class="text-muted font-12 padd-l-5 padd-r-5 " v-if="message.success !== null"
+            <p class="text-muted font-12 padd-l-5 padd-r-5" v-if="message.success !== null"
                v-bind:class="{'alert-info': message.success,  'alert-danger': !message.success}">
                 {{ message.data }}
             </p>
@@ -55,7 +55,7 @@ $category = $job->get_reset_term('category');
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <h2 class="heading"><?= the_title() ?></h2>
+                    <h3 class="mrg-bot-25"><?= the_title() ?></h3>
                 </div>
             </div>
             <!-- row -->
@@ -124,20 +124,19 @@ $category = $job->get_reset_term('category');
 <!--                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3430.566512514854!2d76.8192921147794!3d30.702470481647698!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390fecca1d6c0001%3A0xe4953728a502a8e2!2sChandigarh!5e0!3m2!1sen!2sin!4v1520136168627" width="100%" height="320" frameborder="0" style="border:0" allowfullscreen></iframe>-->
 <!--                        </div>-->
 <!--                    </div>-->
-                </div>
-
-                <!-- Sidebar -->
-                <div class="col-md-4 col-sm-5" id="apply-app">
-                    <div class="sidebar">
-                        <!-- Start: Job Overview -->
-                        <div class="">
-                            <div class="widget-boxed-body">
-                                <router-view></router-view>
+                    <div id="apply-app">
+                        <div class="sidebar">
+                            <!-- Start: Job Overview -->
+                            <div class="">
+                                <div class="widget-boxed-body">
+                                    <router-view></router-view>
+                                </div>
                             </div>
+                            <!-- End: Job Overview -->
                         </div>
-                        <!-- End: Job Overview -->
                     </div>
                 </div>
+
             </div>
             <!-- End Row -->
 
@@ -145,6 +144,7 @@ $category = $job->get_reset_term('category');
             // Get similar jobs
             $args = [
                 'post_type' => 'jp-jobs',
+                'post_status' => ['publish'],
                 'post__not_in' => [get_the_ID()], // current post id
                 'tax_query' => array(
                     'relation' => 'OR',
@@ -161,7 +161,7 @@ $category = $job->get_reset_term('category');
             $query_posts = new WP_Query($args);
             if ( $query_posts->have_posts() ) : ?>
 
-            <div class="row">
+            <div class="row mrg-top-40">
                 <div class="col-md-12">
                     <h4 class="mrg-bot-30">Similar Jobs</h4>
                 </div>

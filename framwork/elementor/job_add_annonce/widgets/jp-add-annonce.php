@@ -68,6 +68,7 @@ class JobAddAnnonce_Widget extends Widget_Base
         $employer_role = get_role( 'employer' );
         // grant the unfiltered_html capability
         $employer_role->add_cap( 'create_users', true );
+        $employer_role->add_cap( 'list_users', true );
 
         echo $Liquid_engine->parseFile('job-add-annonce')->render([]);
     }

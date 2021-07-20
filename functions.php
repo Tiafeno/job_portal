@@ -100,10 +100,24 @@ function remove_admin_bar() {
     }
 }
 
+/**
+ * Cette action permet de bien configurer la recherche dans
+ * la page search.php
+ */
+add_action('pre_get_posts', function (WP_Query $query) {
+    if (($query->is_search && $query->is_archive) && !is_admin() ) {
+        // Spécifier pour les annonces seulement
+        if ($query->get('post_type') === 'jp-jobs') {
+            $query->set('post_status', ['publish']);
+        }
+
+    }
+    return $query;
+});
+
 
 add_action( 'show_user_profile', 'crf_show_extra_profile_fields' );
 add_action( 'edit_user_profile', 'crf_show_extra_profile_fields' );
-
 function crf_show_extra_profile_fields( $user ) { ?>
     <h3>Extra profile information</h3>
     <table class="form-table">

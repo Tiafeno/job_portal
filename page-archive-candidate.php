@@ -112,7 +112,7 @@ get_header();
                                 </div>
                             </div>
                         </div>
-                        <div class="detail-wrapper">
+                        <div class="detail-wrapper" v-if="candidate.meta.profil">
                             <div class="detail-wrapper-header">
                                 <h4>Profil</h4>
                             </div>

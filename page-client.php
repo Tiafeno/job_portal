@@ -125,7 +125,7 @@ get_header();
             </div>
             <div class="widget-boxed">
                 <div class="widget-boxed-header">
-                    <h4><i class="ti-location-pin padd-r-10"></i>Mes information</h4>
+                    <h4>Mes information</h4>
                 </div>
                 <div class="widget-boxed-body">
                     <div class="side-list no-border">
@@ -148,17 +148,18 @@ get_header();
 
             <div class="widget-boxed" v-if="currentUserCompany !== null">
                 <div class="widget-boxed-header">
-                    <h4><i class="ti-location-pin padd-r-10"></i>Information sur l'entreprise</h4>
+                    <h4>Information sur l'entreprise</h4>
                 </div>
                 <div class="widget-boxed-body">
                     <div class="side-list no-border">
                         <ul>
-                            <li><i class="ti-credit-card padd-r-10"></i>Package: 20K To 50K/Month</li>
-                            <li><i class="ti-world padd-r-10"></i>https://www.example.com</li>
+                            <li><i class="ti-credit-card padd-r-10"></i>
+                                {{currentUserCompany.meta.address}}
+                                {{currentUserCompany.meta.city}}
+                            </li>
                             <li><i class="ti-mobile padd-r-10"></i>91 234 567 8765</li>
-                            <li><i class="ti-email padd-r-10"></i>mail@example.com</li>
-                            <li><i class="ti-pencil-alt padd-r-10"></i>Bachelor Degree</li>
-                            <li><i class="ti-shield padd-r-10"></i>3 Year Exp.</li>
+                            <li>NIF: {{currentUserCompany.meta.nif}}</li>
+                            <li>STAT: {{currentUserCompany.meta.stat}}</li>
                         </ul>
                     </div>
                 </div>

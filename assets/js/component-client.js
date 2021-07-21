@@ -5,10 +5,10 @@
             value = value.toString()
             return value === 'pending' ? 'En attente de validation' : (value === 'private' ? 'Supprimer' : 'Publier');
         });
-        Vue.filter('cvStatus', function(user) {
-           if (!user) return 'Inconnue';
-           const isPublic = user.meta.public_cv; // boolean
-           const hasCV = user.meta.has_cv; // boolean
+        Vue.filter('cvStatus', function (user) {
+            if (!user) return 'Inconnue';
+            const isPublic = user.meta.public_cv; // boolean
+            const hasCV = user.meta.has_cv; // boolean
             if (!hasCV) return "Indisponible";
             return isPublic ? "Publier" : "En attent de validation";
 
@@ -118,6 +118,25 @@
                 }
             }
         };
+        /**
+         * Cette composant permet de modifier le profil
+         *
+         * @type {{
+         * template: string, data: (
+         *  function(): {
+         *      currentUser: null,
+         *      validators: [],
+         *      isCandidate: boolean,
+         *      isEmployer: boolean,
+         *      currentUserCompany: null
+         * }),
+         *  methods: {
+         *      init: (function(): Promise<void>),
+         *      profilHandler: ProfilEdit.methods.profilHandler,
+         *      submitProfil: ProfilEdit.methods.submitProfil},
+         *      mounted: ProfilEdit.mounted }
+         *  }
+         */
         const ProfilEdit = {
             template: "#profil-client-template",
             data: function () {
@@ -136,7 +155,7 @@
                 submitProfil: function (ev) {
                     ev.preventDefault();
                 },
-                init: async function() {
+                init: async function () {
                     const self = this;
                     this.loading = true;
                     var currentUsr = await this.$parent.$parent.Wordpress.users().context('edit').me().get();
@@ -145,8 +164,8 @@
                     if (lodash.indexOf(currentUsr.roles, 'employer') >= 0) {
                         this.isEmployer = true;
                         var companyId = currentUsr.meta.company_id;
-                        var CompanyModel = new wp.api.models.User({ id: parseInt(companyId) });
-                        CompanyModel.fetch({data: {context: 'edit'}}).done(function(companyResponse) {
+                        var CompanyModel = new wp.api.models.User({id: parseInt(companyId)});
+                        CompanyModel.fetch({data: {context: 'edit'}}).done(function (companyResponse) {
                             self.currentUserCompany = lodash.clone(companyResponse);
                             self.loading = false;
                         });
@@ -155,7 +174,7 @@
                     }
                     self.profilHandler();
                 },
-                profilHandler: function() {
+                profilHandler: function () {
 
                 }
             }
@@ -344,7 +363,7 @@
                 },
             },
             methods: {
-                errorHandler: function(field) {
+                errorHandler: function (field) {
                     return `Le champ <b>"${field}"</b> est obligatoire`;
                 },
                 getMeta: function (value) {
@@ -615,7 +634,7 @@
                             }
                         })
                         .then(function (resp) {
-                            alertify.notify('Enregistrer avec succès', 'success', 5, function(){
+                            alertify.notify('Enregistrer avec succès', 'success', 5, function () {
                                 self.Loading = false;
                                 self.hasCV = true;
                             });

@@ -112,11 +112,11 @@ $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
                         <a class="btn-signup red-btn" onclick="renderLoginModel()" data-toggle="modal"
                            data-target="#signin">
                             <i class="login-icon ti-user"></i>
-                            Se connecter
+                            Connexion
                         </a>
                     </li>
                     <li class="sign-up"><a class="btn-signup red-btn" href="<?= home_url('/register') ?>">
-                            <span class="ti-briefcase"></span>Register</a>
+                            <span class="ti-briefcase"></span>S'inscrire</a>
                     </li>
                 <?php else:
                     ?>

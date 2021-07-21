@@ -408,7 +408,7 @@ get_header();
                         <div v-if="errors.length" style="margin-top: 40px">
                             <b>Please correct the following error(s):</b>
                             <ul>
-                                <li style="color:#ff0000" v-for="error in errors">{{ error }}</li>
+                                <li style="color:#ff0000" v-for="error in errors" v-html="error"></li>
                             </ul>
                         </div>
                     </div>

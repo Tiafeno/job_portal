@@ -62,6 +62,10 @@ class JobAddAnnonce_Widget extends Widget_Base
             if (!$result) {
                 update_user_meta( $current_user->ID, 'company_id', 0 );
             }
+        } else {
+            echo '<div class="alert alert-danger" role="alert">Vous n\'avez pas l\'autorisation 
+necessaire pour consulter cette page</div>';
+            return;
         }
 
         // get the the role object

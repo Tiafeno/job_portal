@@ -139,14 +139,6 @@ get_header();
     </section>
 </script>
 <!-- .end template-->
-
-    <div class="page-title">
-        <div class="container">
-            <div class="page-caption">
-                <h2>Browse Job</h2>
-            </div>
-        </div>
-    </div>
     <div id="archive-jobs">
         <comp-archive-jobs v-if="!loading" v-bind:taxonomies="Taxonomies"></comp-archive-jobs>
     </div>

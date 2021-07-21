@@ -41,7 +41,7 @@ class jpCandidate extends \WP_User
     public $status; // Je cherche...
     public $drive_licences; // A, B, C & A`
     public $languages = [];
-    public $phones = [];
+    public $phone = '';
     public $mastered_technology = [];
     public $educations = [];
     public $experiences = [];

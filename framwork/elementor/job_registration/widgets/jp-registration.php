@@ -45,15 +45,13 @@ class JobRegistration_Widget extends Widget_Base {
 
     protected function render() {
         global $Liquid_engine;
-
+        $home_url = home_url('/');
         if (is_user_logged_in()) {
             // is logged user
-            echo "<p class='text-center'>Vers la page d'accueil</p>";
+            echo "<p class='text-center'><a href='".$home_url."' target='_parent' class='btn btn-info'><i class='ti-back-left'></i> Page d'accueil</a> </p>";
             return;
         }
-
         do_action('action_jobportal_register');
-
         if (isset($_GET['register']) && boolval($_GET['register'])) {
             // Register successfully
             $msg = "<p><strong>Inscription réussie</strong>, cliquez sur le bouton ci-dessous pour vous connecter</p> <p>
@@ -109,8 +107,10 @@ add_action('action_jobportal_register', function() {
         if ($role == 'candidate') {
             $candidate = new jpCandidate($user_id);
             $candidate->profile_update([
-                'phones' => [ esc_sql($phone_number) ],
-                'hasCV' => false
+                'phones' => esc_sql($phone_number),
+                'hasCV' => false,
+                'public_cv' => false,
+
             ]);
         }
 

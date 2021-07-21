@@ -266,7 +266,7 @@ get_header();
                         <div class="detail-wrapper">
                             <div class="col-md-12 mrg-top-15">
                                 <div class="form-group">
-                                    <label>Emploi recherché ou métier *</label>
+                                    <label>Emploi recherché ou métier <span style="color: red">*</span></label>
                                     <v-select v-model="categories"
                                               multiple
                                               :selectable="() => categories.length < 2"
@@ -279,7 +279,7 @@ get_header();
                             </div>
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-group">
-                                    <label>Language</label>
+                                    <label>Langage(s) <span style="color: red">*</span></label>
                                     <v-select v-model="languages" multiple :options="optLanguages"
                                               :reduce="language => language.id" label="name"></v-select>
                                 </div>
@@ -287,7 +287,7 @@ get_header();
                             <div class="clearfix"></div>
                             <div class="col-md-2 col-sm-2 col-xs-12">
                                 <div class="form-group">
-                                    <label>Gender</label>
+                                    <label>Genre</label>
                                     <select class=" wide form-control" v-model="gender" required>
                                         <option value="M.">M.</option>
                                         <option value="Mr">Mr</option>
@@ -296,14 +296,14 @@ get_header();
                             </div>
                             <div class="col-md-4 col-sm-4 col-xs-12">
                                 <div class="form-group">
-                                    <label>First Name</label>
+                                    <label>Nom <span style="color: red">*</span></label>
                                     <input type="text" v-model="first_name" class="form-control" placeholder=""
                                            required>
                                 </div>
                             </div>
                             <div class="col-md-4 col-sm-4 col-xs-12">
                                 <div class="form-group">
-                                    <label>Last Name</label>
+                                    <label>Prénom</label>
                                     <input type="text" v-model="last_name" class="form-control" placeholder=""
                                            required>
                                 </div>
@@ -311,7 +311,7 @@ get_header();
 
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-group">
-                                    <label>Date Of Birth</label>
+                                    <label>Date de naissance <span style="color: red">*</span></label>
                                     <input type="date" class="form-control" placeholder="jj/mm/aaaa"
                                            v-model="birthday" name="birthday">
                                 </div>
@@ -335,14 +335,14 @@ get_header();
                                 </div>
                                 <div class="col-md-4 col-sm-4 col-xs-12">
                                     <div class="form-group">
-                                        <label>Address</label>
+                                        <label>Adresse</label>
                                         <input type="text" v-model="address" class="form-control"
                                                placeholder="Votre adresse" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-sm-4 col-xs-12">
                                     <div class="form-group">
-                                        <label>Phone</label>
+                                        <label>Numéro de téléphone</label>
                                         <input type="text" v-model="phone" class="form-control"
                                                placeholder="+261 32 XX XXX XX" required>
                                     </div>
@@ -354,7 +354,7 @@ get_header();
                     <div class="col-md-12 col-sm-12" id="educations">
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-header">
-                                <h4>Profil</h4>
+                                <h4>Biographie</h4>
                             </div>
                             <div class="detail-wrapper-body" id="education-list">
                                 <textarea v-model="profil" class="form-control textarea" name="profil"></textarea>

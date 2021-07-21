@@ -53,7 +53,7 @@
             }
 
         };
-        const CompArchives = {
+        const ArchivesCandidate = {
             template: '#candidate-archive-item',
             components: {
                 'com-pagination': Pagination
@@ -89,14 +89,12 @@
                         //.param('has_cv', 1)
                         .perPage(this.per_page)
                         .page(this.page);
-
                     const categoriesRequest = this.axiosInstance.get('categories?per_page=50');
                     await axios.all([categoriesRequest]).then(axios.spread(
                         (...responses) => {
                             self.categories = lodash.clone(responses[0].data);
                         }
                     )).catch(errors => { })
-
                     this.request.then(resp => {
                             let annonces = lodash.clone(resp);
                             self.annonces = lodash.map(annonces, annonce => {
@@ -127,7 +125,7 @@
                 },
             }
         };
-        const UserDetails = {
+        const SingleUser = {
             template: '#candidate-details',
             data: function() {
                 return {
@@ -187,7 +185,6 @@
                 self.loading = false;
             }
         };
-
         const routes = [
             {
                 path: '/',
@@ -197,12 +194,12 @@
                     {
                         path: 'candidates',
                         name: 'Archives',
-                        component: CompArchives
+                        component: ArchivesCandidate
                     },
                     {
                         path: 'candidate/:id',
                         name:'UserDetails',
-                        component: UserDetails,
+                        component: SingleUser,
                     }
                 ],
             }

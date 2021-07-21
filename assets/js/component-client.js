@@ -1,9 +1,17 @@
 (function ($) {
     $().ready(function () {
         Vue.filter('jobStatus', function (value) {
-            if (!value) return ''
+            if (!value) return 'Inconnue'
             value = value.toString()
             return value === 'pending' ? 'En attente de validation' : (value === 'private' ? 'Supprimer' : 'Publier');
+        });
+        Vue.filter('cvStatus', function(user) {
+           if (!user) return 'Inconnue';
+           const isPublic = user.meta.public_cv; // boolean
+           const hasCV = user.meta.has_cv; // boolean
+            if (!hasCV) return "Indisponible";
+            return isPublic ? "Publier" : "En attent de validation";
+
         });
         // Return random password
         const getRandomId = () => {
@@ -207,6 +215,7 @@
 
                     optLanguages: [],
                     optCategories: [],
+                    optRegions: [],
 
                     currentUser: null,
                     Loading: true,
@@ -214,6 +223,7 @@
                     // Si la valeur est different de null, c'est qu'il a selectioner une liste a modifier
                     // Ne pas oublier de reinisialiser la valeur apres mise a jour
                     // Default value: null
+                    eduValidator: [],
                     formEduSelected: null,
                     formEduEdit: {
                         _id: getRandomId(),
@@ -226,6 +236,7 @@
                         /** begin year */
                         e: '' /** end year */
                     },
+                    expValidator: [],
                     formExpSelected: null,
                     formExpEdit: {
                         _id: getRandomId(),
@@ -266,6 +277,7 @@
                     self.phone = self.currentUser.meta.phone;
                     self.address = self.currentUser.meta.address;
                     self.gender = self.currentUser.meta.gender;
+                    self.city = self.currentUser.meta.city;
                     self.birthday = self.currentUser.meta.birthday;
                     self.profil = self.currentUser.meta.profil;
 
@@ -303,13 +315,18 @@
                 });
 
                 // Recuperer les langues
-                fetch(clientApiSettings.root + 'wp/v2/language').then(res => {
+                fetch(clientApiSettings.root + 'wp/v2/language?per_page=50').then(res => {
                     res.json().then(json => (self.optLanguages = json));
                 });
 
-                // Recuperer les langues
-                fetch(clientApiSettings.root + 'wp/v2/categories').then(res => {
+                // Recuperer les categories
+                fetch(clientApiSettings.root + 'wp/v2/categories?per_page=50').then(res => {
                     res.json().then(json => (self.optCategories = json));
+                });
+
+                // Recuperer les items de region
+                fetch(clientApiSettings.root + 'wp/v2/region?per_page=50').then(res => {
+                    res.json().then(json => (self.optRegions = json));
                 });
 
 
@@ -327,6 +344,9 @@
                 },
             },
             methods: {
+                errorHandler: function(field) {
+                    return `Le champ <b>"${field}"</b> est obligatoire`;
+                },
                 getMeta: function (value) {
                     let metaValue = lodash.isNull(this.currentUser) ? JSON.stringify([]) :
                         (typeof this.currentUser.meta == 'undefined' ? JSON.stringify([]) : this.currentUser.meta[value]);
@@ -415,14 +435,16 @@
                     $('#experience').modal('show');
                 },
                 deleteExperience: function (evt, id) {
-                    const experiences = this.getExperiences;
+                    evt.preventDefault();
+                    const experiences = this.getMeta('experiences');
                     let currentExperiences = lodash.remove(experiences, exp => {
                         return exp._id === id;
                     });
                     this.updateExperiences(currentExperiences);
                 },
                 deleteEducation: function (evt, id) {
-                    const educations = this.getEducations;
+                    evt.preventDefault();
+                    const educations = this.getMeta('educations');
                     let currentEducations = lodash.remove(educations, edu => {
                         return edu._id === id;
                     });
@@ -443,10 +465,50 @@
                 },
                 validateExpForm: function (ev) {
                     ev.preventDefault();
+                    this.expValidator = [];
+                    const form = this.formExpEdit;
+                    if (lodash.isEmpty(form.office)) {
+                        this.expValidator.push(this.errorHandler('Poste'));
+                    }
+                    if (lodash.isEmpty(form.enterprise)) {
+                        this.expValidator.push(this.errorHandler('Entreprise'));
+                    }
+                    if (lodash.isEmpty(form.city)) {
+                        this.expValidator.push(this.errorHandler('Ville'));
+                    }
+                    if (lodash.isEmpty(form.country)) {
+                        this.expValidator.push(this.errorHandler('Pays'));
+                    }
+                    if (!form.b) {
+                        this.expValidator.push(this.errorHandler('Année de début'))
+                    }
+                    if (!lodash.isEmpty(this.expValidator)) {
+                        return;
+                    }
                     this.submitExpForm();
                 },
                 validateEduForm: function (ev) {
                     ev.preventDefault();
+                    this.eduValidator = [];
+                    const form = this.formEduEdit;
+                    if (lodash.isEmpty(form.city)) {
+                        this.eduValidator.push(this.errorHandler('Ville'));
+                    }
+                    if (lodash.isEmpty(form.country)) {
+                        this.eduValidator.push(this.errorHandler('Pays'))
+                    }
+                    if (lodash.isEmpty(form.diploma)) {
+                        this.eduValidator.push(this.errorHandler('Diplôme'))
+                    }
+                    if (lodash.isEmpty(form.establishment)) {
+                        this.eduValidator.push(this.errorHandler('Etablissement'))
+                    }
+                    if (!form.b) {
+                        this.eduValidator.push(this.errorHandler('Année de début'))
+                    }
+                    if (!lodash.isEmpty(this.eduValidator)) {
+                        return;
+                    }
                     this.submitEduForm();
                 },
                 submitExpForm: function () {
@@ -488,22 +550,44 @@
                 submitCV: function (ev) {
                     ev.preventDefault();
                     const self = this;
+                    let experiences = this.getMeta('experiences');
+                    let educations = this.getMeta('educations');
                     this.errors = [];
                     if (lodash.isEmpty(this.languages)) {
-                        this.errors.push('Champ langue est obligatoire');
+                        this.errors.push(this.errorHandler('Langue'));
                     }
                     if (lodash.isEmpty(this.categories)) {
-                        this.errors.push('Emploi recherché ou métier est obligatoire')
+                        this.errors.push(this.errorHandler('Emploi recherché ou métier'));
                     }
                     if (lodash.isEmpty(this.gender)) {
-                        this.errors.push('Votre genre est obligatoire')
+                        this.errors.push(this.errorHandler('Genre'));
                     }
                     if (lodash.isEmpty(this.address)) {
-                        this.errors.push('Champ adresse est obligatoire')
+                        this.errors.push(this.errorHandler('Adresse'));
                     }
                     if (lodash.isEmpty(this.city)) {
-                        this.errors.push('Champ ville est obligatoire')
+                        this.errors.push(this.errorHandler('Ville'));
                     }
+                    // Verifier s'il y a une experience et education au minimum
+                    let msgExperienceEmpty = "Ajoutez au moins une experience dans votre CV";
+                    if (lodash.isEmpty(experiences)) {
+                        this.errors.push(msgExperienceEmpty);
+                    } else {
+                        experiences = JSON.parse(experiences);
+                        if (lodash.isEmpty(experiences)) {
+                            this.errors.push(msgExperienceEmpty);
+                        }
+                    }
+                    let msgEducationEmpty = "Ajoutez au moins un parcour à votre CV";
+                    if (lodash.isEmpty(educations)) {
+                        this.errors.push(msgEducationEmpty);
+                    } else {
+                        educations = JSON.parse(educations);
+                        if (lodash.isEmpty(educations)) {
+                            this.errors.push(msgEducationEmpty);
+                        }
+                    }
+
                     if (!lodash.isEmpty(this.errors)) {
                         return false;
                     }
@@ -531,8 +615,10 @@
                             }
                         })
                         .then(function (resp) {
-                            self.Loading = false;
-                            self.hasCV = true;
+                            alertify.notify('Enregistrer avec succès', 'success', 5, function(){
+                                self.Loading = false;
+                                self.hasCV = true;
+                            });
                         })
                         .catch(function (er) {
                             self.Loading = false;

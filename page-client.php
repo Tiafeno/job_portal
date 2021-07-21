@@ -23,6 +23,29 @@ wp_localize_script('comp-client', 'clientApiSettings', [
 
 get_header();
 ?>
+    <style type="text/css">
+        .vs--searchable .vs__dropdown-toggle {
+            height: 50px;
+        }
+        .vs__dropdown-toggle {
+            border: 2px solid #dde6ef;
+            -webkit-box-shadow: 0 1px 1px rgb(7 177 7 / 8%);
+            box-shadow: 0 1px 1px rgb(7 177 7 / 8%);
+        }
+        .vs__selected {
+            display: flex;
+            align-items: center;
+            background-color: #d1eddf;
+            border: none;
+            border-radius: 4px;
+            color: #334e6f;
+            line-height: 1.4;
+            margin: 4px 2px 0px;
+            padding: 0 1em;
+            z-index: 0;
+        }
+
+    </style>
     <script type="text/x-template" id="client-layout">
         <!-- ================ Profile Settings ======================= -->
         <section class="padd-top-80 padd-bot-80">
@@ -95,15 +118,18 @@ get_header();
     </script>
 
     <script type="text/x-template" id="profil-client-template">
-        <div class="mrg-top-20">
-            <div class="widget-boxed" v-if="currentUser !== null">
+        <div class="mrg-top-20" v-if="currentUser !== null">
+            <div class="emp-des mrg-bot-20">
+                <h3>{{currentUser.name}}</h3>
+                <span class="theme-cl">{{ isCandidate ? 'Candidat' : 'Employeur'}}</span>
+            </div>
+            <div class="widget-boxed">
                 <div class="widget-boxed-header">
                     <h4><i class="ti-location-pin padd-r-10"></i>Mes information</h4>
                 </div>
                 <div class="widget-boxed-body">
                     <div class="side-list no-border">
                         <ul>
-                            <li><i class="ti-pencil-alt padd-r-10"></i>{{currentUser.name}}</li>
                             <li v-if="currentUser.meta.address != ''">
                                 <i class="ti-credit-card padd-r-10"></i>{{currentUser.meta.address}}
                             </li>
@@ -139,20 +165,16 @@ get_header();
             </div>
         </div>
     </script>
-<!--Tableau de bord template-->
+    <!--Tableau de bord template-->
     <script type="text/x-template" id="dashboard">
         <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
-            <div class="emp-des">
-                <h3>Daniel Dicoss</h3>
-                <span class="theme-cl">Account Manager</span>
 
-            </div>
             <div class='row'>
                 <div class="col-md-6">
                     <comp-edit-profil></comp-edit-profil>
                 </div>
                 <div class="col-md-4">
-                        <comp-edit-pwd></comp-edit-pwd>
+                    <comp-edit-pwd></comp-edit-pwd>
                 </div>
             </div>
             <div class="row">
@@ -160,7 +182,7 @@ get_header();
             </div>
         </section>
     </script>
-<!--Annonce handler template-->
+    <!--Annonce handler template-->
     <script type="text/x-template" id="client-annonce">
         <!-- ======================== Manage Job ========================= -->
         <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
@@ -206,17 +228,17 @@ get_header();
         </section>
         <!-- ====================== End Manage Company ================ -->
     </script>
-<!--Experience template-->
-    <script id="experience-template" type="text/x-template">
+    <!--Experience template-->
+    <script type="text/x-template" id="experience-template">
         <div class="edu-history info"><i></i>
             <div class="detail-info" @click="$emit('edit', $event, item._id)">
                 <h3>{{item.office}}</h3>
-                <i>{{item.b}} - {{item.e}}</i>
+                <i>{{item.b}} - {{item.e ? item.e : "Jusqu'a aujourd'hui"}}</i>
                 <p>{{item.desc}}</p>
             </div>
         </div>
     </script>
-<!--Education template-->
+    <!--Education template-->
     <script id="education-template" type="text/x-template">
         <div class="edu-history info"><i></i>
             <div class="detail-info" @click="$emit('edit', $event, item._id)">
@@ -227,21 +249,21 @@ get_header();
             </div>
         </div>
     </script>
-<!--Client CV handler template-->
+    <!--Client CV handler template-->
     <script type="text/x-template" id="client-cv">
         <div id="cv">
             <form class="cv-form" method="post" @submit="submitCV" novalidate>
                 <div class="row">
-                    <div class="col-md-12 col-sm-12">
-                        <h2 class="font-bold">REFERENCE
-                            <a target="_blank" title="Voir le CV" class="text-muted"
-                               href="https://www.itjobmada.com/candidate/cv563/">#CV563</a>
-                        </h2>
+                    <div class="col-md-12 col-sm-12" v-if="currentUser !== null">
+                        <div class="emp-des mrg-bot-20">
+                            <h3>CV{{currentUser.id}}</h3>
+                            <span class="theme-cl">{{ currentUser | cvStatus }}</span>
+                        </div>
                     </div>
 
                     <div class="col-md-12 col-sm-12">
                         <div class="detail-wrapper">
-                            <div class="col-md-12">
+                            <div class="col-md-12 mrg-top-15">
                                 <div class="form-group">
                                     <label>Emploi recherché ou métier *</label>
                                     <v-select v-model="categories"
@@ -262,45 +284,35 @@ get_header();
                                 </div>
                             </div>
                             <div class="clearfix"></div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 col-sm-12">
-                        <div class="detail-wrapper">
-                            <div class="detail-wrapper-header">
-                                <h4>Informations</h4>
+                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                <div class="form-group">
+                                    <label>Gender</label>
+                                    <select class=" wide form-control" v-model="gender" required>
+                                        <option value="M.">M.</option>
+                                        <option value="Mr">Mr</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="detail-wrapper-body">
-                                <div class="col-md-2 col-sm-2 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Gender</label>
-                                        <select class=" wide form-control" v-model="gender" required>
-                                            <option value="M.">M.</option>
-                                            <option value="Mr">Mr</option>
-                                        </select>
-                                    </div>
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label>First Name</label>
+                                    <input type="text" v-model="first_name" class="form-control" placeholder=""
+                                           required>
                                 </div>
-                                <div class="col-md-4 col-sm-4 col-xs-12">
-                                    <div class="form-group">
-                                        <label>First Name</label>
-                                        <input type="text" v-model="first_name" class="form-control" placeholder=""
-                                               required>
-                                    </div>
+                            </div>
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                <div class="form-group">
+                                    <label>Last Name</label>
+                                    <input type="text" v-model="last_name" class="form-control" placeholder=""
+                                           required>
                                 </div>
-                                <div class="col-md-4 col-sm-4 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Last Name</label>
-                                        <input type="text" v-model="last_name" class="form-control" placeholder=""
-                                               required>
-                                    </div>
-                                </div>
+                            </div>
 
-                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                    <div class="form-group">
-                                        <label>Date Of Birth</label>
-                                        <input type="date" class="form-control" placeholder="jj/mm/aaaa"
-                                               v-model="birthday" name="birthday">
-                                    </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label>Date Of Birth</label>
+                                    <input type="date" class="form-control" placeholder="jj/mm/aaaa"
+                                           v-model="birthday" name="birthday">
                                 </div>
                             </div>
                         </div>
@@ -352,7 +364,7 @@ get_header();
                     <div class="col-md-12 col-sm-12" id="educations">
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-header">
-                                <h4>Educations</h4>
+                                <h4>Educations ou parcours scolaire</h4>
                             </div>
                             <div class="detail-wrapper-body" id="education-list">
                                 <comp-education v-for="education in getEducations" v-if="!Loading"
@@ -363,7 +375,8 @@ get_header();
                                 </comp-education>
                             </div>
                             <div class="padd-l-15 padd-bot-15">
-                                <button type="button" @click="addEducation()" class="btn-job theme-btn">+ Ajouter
+                                <button type="button" @click="addEducation()" class="btn-info btn btn-outlined">
+                                    <i class="ti-plus"></i> Ajouter un parcours
                                 </button>
                             </div>
                         </div>
@@ -371,7 +384,7 @@ get_header();
                     <div class="col-md-12 col-sm-12" id="experiences">
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-header">
-                                <h4>Work Experience</h4>
+                                <h4>Expériences</h4>
                             </div>
                             <div class="detail-wrapper-body" id="experience-list">
                                 <comp-experience v-for="experience in getExperiences" v-if="!Loading"
@@ -382,14 +395,15 @@ get_header();
                                 </comp-experience>
                             </div>
                             <div class="padd-l-15 padd-bot-15">
-                                <button type="button" @click="addExperience()" class="btn-job theme-btn">+ Ajouter
+                                <button type="button" @click="addExperience()" class="btn-info btn btn-outlined">
+                                    <i class="ti-plus"></i> Ajouter une expérience
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-8">
-                        <button type="submit" class="btn btn-outlined">Enregistrer</button>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary" :disabled="Loading">Enregistrer</button>
                         <div v-if="errors.length" style="margin-top: 40px">
                             <b>Please correct the following error(s):</b>
                             <ul>
@@ -412,7 +426,7 @@ get_header();
                                         <div class="row">
 
                                             <div class="col-md-12">
-                                                <label class="col-form-label">Office <span
+                                                <label class="col-form-label">Poste <span
                                                             style="color: red">*</span></label>
                                                 <div class="form-group">
                                                     <input placeholder="" autocomplete="off" name="office"
@@ -422,7 +436,7 @@ get_header();
                                             </div>
 
                                             <div class="col-md-12">
-                                                <label class="col-form-label">Enterprise <span
+                                                <label class="col-form-label">Entreprise <span
                                                             style="color: red">*</span></label>
                                                 <div class="form-group">
                                                     <input placeholder="" autocomplete="on"
@@ -458,7 +472,6 @@ get_header();
                                             </div>
 
                                             <div class="row">
-
                                                 <div class="form-group col-md-6">
                                                     <div class="col-sm-12">
                                                         <p class="">De <span style="color: red">*</span></p>
@@ -474,7 +487,6 @@ get_header();
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 <div class="form-group col-md-6">
                                                     <div class="col-sm-12">
                                                         <p class="text-uppercase">à </p>
@@ -491,30 +503,30 @@ get_header();
                                                         </div>
                                                     </div>
                                                 </div>
-
                                             </div>
-
                                             <div class="col-sm-12">
-                                                <label class="col-form-label ">Description <span
-                                                            style="color: red">*</span></label>
+                                                <label class="col-form-label ">Description courte </label>
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                <textarea placeholder="" autocomplete="off" v-model="formExpEdit.desc"
+                                                <textarea placeholder="" cols="10" autocomplete="off" v-model="formExpEdit.desc"
                                                           name="desc"
                                                           class="form-control"
                                                           required=""></textarea>
                                                     </div>
                                                 </div>
                                             </div>
-
                                             <div class="col-sm-12">
-                                                <div class="text-center">
+                                                <div class="flex-middle">
                                                     <button type="button"
                                                             @click="deleteExperience($event, formExpEdit._id)"
                                                             v-if="formExpSelected != null" class="btn btn-m ">Supprimer
                                                     </button>
                                                     <button type="submit" class="btn btn-m theme-btn ">Enregistrer
                                                     </button>
+                                                </div>
+                                                <div v-if="expValidator.length" style="margin-top: 40px">
+                                                    <b>Please correct the following error(s):</b>
+                                                    <ul><li style="color:#ff0000" v-for="error in expValidator" v-html="error"></li></ul>
                                                 </div>
                                             </div>
 
@@ -539,7 +551,7 @@ get_header();
                                     <form @submit="validateEduForm" method="post" action="" novalidate>
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <label class="col-form-label ">Establishment <span
+                                                <label class="col-form-label ">Etablissement  <span
                                                             style="color: red">*</span></label>
                                                 <div class="form-group">
                                                     <input placeholder="Ex: Université de Majunga" autocomplete="off"
@@ -553,7 +565,7 @@ get_header();
                                             <div class="col-md-12">
                                                 <label class="col-form-label ">Diplôme <span style="color: red">*</span></label>
                                                 <div class="form-group">
-                                                    <input placeholder="Ex: Master II" autocomplete="on" name="diploma"
+                                                    <input placeholder="Ex: Master II en Gestion d'entreprise" autocomplete="on" name="diploma"
                                                            v-model="formEduEdit.diploma" class="form-control "
                                                            required="">
                                                 </div>
@@ -603,7 +615,7 @@ get_header();
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <div class="col-sm-12">
-                                                        <p>Année de fin (ou prévision)</p>
+                                                        <p>Année de fin</p>
                                                     </div>
                                                     <div class="col-sm-12">
                                                         <div class="form-group">
@@ -613,7 +625,6 @@ get_header();
                                                                 <option v-for="year in yearRange" :value="year">
                                                                     {{year}}
                                                                 </option>
-
                                                             </select>
                                                         </div>
                                                     </div>
@@ -630,6 +641,10 @@ get_header();
                                                         Enregistrer
                                                     </button>
                                                 </div>
+                                                <div v-if="eduValidator.length" style="margin-top: 40px">
+                                                    <b>Please correct the following error(s):</b>
+                                                    <ul><li style="color:#ff0000" v-for="error in eduValidator" v-html="error"></li></ul>
+                                                </div>
                                             </div>
 
                                         </div>
@@ -643,7 +658,7 @@ get_header();
             </form>
         </div>
     </script>
-<!--Annonce apply handler template-->
+    <!--Annonce apply handler template-->
     <script type="text/x-template" id="annonce-apply">
         <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
             <h4 class="mrg-bot-10" v-if="job != null">

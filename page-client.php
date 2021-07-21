@@ -691,7 +691,6 @@ get_header();
         </section>
     </script>
 
-
     <div class="padd-top-80 padd-bot-80">
         <div class="container">
             <div id="client">

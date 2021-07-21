@@ -7,7 +7,7 @@
 wp_enqueue_script(
     'comp-archive-candidate',
     get_stylesheet_directory_uri() . '/assets/js/comp-archive-candidate.js',
-    ['vue-router', 'axios', 'wpapi', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'vue-select'],
+    ['vue-router', 'axios', 'wpapi', 'wp-api', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'vue-select'],
     null,
     true
 );
@@ -71,7 +71,9 @@ get_header();
                             <i class="fa fa-heart"></i>
                         </label>
                     </div>
-                    <div class="contact-img"><img src="assets/img/client-2.jpg" class="img-responsive" alt=""></div>
+                    <div class="contact-img">
+<!--                        <img src="assets/img/client-2.jpg" class="img-responsive" alt="">-->
+                    </div>
                     <div class="contact-caption">
                         <router-link :to="{ name: 'UserDetails', params: { id: annonce.id }}">
                             {{annonce.meta.reference}}
@@ -98,7 +100,7 @@ get_header();
                                 <div class="row">
                                     <div class="col-md-7 user_profile_img mrg-bot-30">
                                         <h2 class="meg-0 text-info">{{candidate.meta.reference}}</h2>
-                                        <h5>Front End Designer</h5>
+                                        <span class="skill-tag" v-for="item in candidate.itemCategories">{{item}}</span>
                                     </div>
                                     <div class="col-md-5 user_job_detail">
                                         <div class="col-md-12 mrg-bot-10"><i class="ti-credit-card padd-r-10"></i>
@@ -120,7 +122,7 @@ get_header();
                         </div>
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-header">
-                                <h4>Education</h4>
+                                <h4>Educations ou parcours scolaire</h4>
                             </div>
                             <div class="detail-wrapper-body">
                                 <div class="edu-history success" v-for="edu in educations" :key="edu._id">
@@ -135,14 +137,14 @@ get_header();
                         </div>
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-header">
-                                <h4>Work & Experience</h4>
+                                <h4>Expériences</h4>
                             </div>
                             <div class="detail-wrapper-body">
                                 <div class="edu-history success" v-for="exp in experiences" :key="exp._id">
                                     <i></i>
                                     <div class="detail-info">
                                         <h3>{{exp.office}}</h3>
-                                        <i>{{exp.b}} - {{exp.e}}</i>
+                                        <i>{{exp.b}} - {{exp.e ? exp.e : "Jusqu'a aujourd'hui"}}</i>
                                         <span>{{exp.enterprise}}</span>
                                         <p>{{exp.desc}}</p>
                                     </div>

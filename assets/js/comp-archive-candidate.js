@@ -1,5 +1,5 @@
-(function($) {
-    $().ready(function() {
+(function ($) {
+    $().ready(function () {
         const Pagination = {
             template: '#pagination-candidate-template',
             props: ['paging', 'pagesize'],
@@ -19,18 +19,18 @@
                     pageSize: self.pagesize,
                     ulClassName: 'pagination',
                     className: '',
-                    callback: function (data, pagination) {},
-                    beforePageOnClick : function(el) {
+                    callback: function (data, pagination) {
+                    },
+                    beforePageOnClick: function (el) {
                         const page = el.currentTarget;
                         const data = page.dataset;
                         self.$emit('change-route-page', parseInt(data.num));
                     }
                 });
             },
-            methods: {
-            },
+            methods: {},
             watch: {
-                paging: function() {
+                paging: function () {
                     if (typeof this.paging.totalPages === 'undefined') return [];
                     this.source = lodash.range(0, parseInt(this.paging.totalPages));
                     return this.paging;
@@ -44,7 +44,7 @@
                     Wordpress: null
                 }
             },
-            created: function() {
+            created: function () {
                 if (typeof apiSettings === 'undefined') return;
                 this.Wordpress = new WPAPI({
                     endpoint: apiSettings.root,
@@ -67,11 +67,12 @@
                     paging: null,
                     annonces: [],
                     categories: [],
-                    axiosInstance: null,
+                    wpAxiosInstance: null,
+
                 }
             },
-            mounted: function() {
-                this.axiosInstance = axios.create({
+            mounted: function () {
+                this.wpAxiosInstance = axios.create({
                     baseURL: apiSettings.root + 'wp/v2',
                     headers: {
                         'X-WP-Nonce': apiSettings.nonce
@@ -86,29 +87,30 @@
                     this.request = this.$parent.Wordpress.users()
                         //.param('roles', 'candidate') // Not allow for client not logged in
                         .param('public_cv', 1)
-                        //.param('has_cv', 1)
+                        .param('has_cv', 1)
                         .perPage(this.per_page)
                         .page(this.page);
-                    const categoriesRequest = this.axiosInstance.get('categories?per_page=50');
+                    const categoriesRequest = this.wpAxiosInstance.get('categories?per_page=50');
                     await axios.all([categoriesRequest]).then(axios.spread(
                         (...responses) => {
                             self.categories = lodash.clone(responses[0].data);
                         }
-                    )).catch(errors => { })
+                    )).catch(errors => {
+                    })
                     this.request.then(resp => {
-                            let annonces = lodash.clone(resp);
-                            self.annonces = lodash.map(annonces, annonce => {
-                                annonce.job = '';
-                                let currentCategories = JSON.parse(annonce.meta.categories);
-                                if (!lodash.isArray(currentCategories)) return annonce;
-                                let job = lodash.find(self.categories, {'id': lodash.head(currentCategories)});
-                                if (lodash.isUndefined(job) || !job) return annonce;
-                                annonce.job = job.name;
-                                return annonce;
-                            });
-                            self.paging = lodash.isUndefined(resp._paging) ? null : resp._paging;
-                            self.loading = false;
-                        })
+                        let annonces = lodash.clone(resp);
+                        self.annonces = lodash.map(annonces, annonce => {
+                            annonce.job = '';
+                            let currentCategories = JSON.parse(annonce.meta.categories);
+                            if (!lodash.isArray(currentCategories)) return annonce;
+                            let job = lodash.find(self.categories, {'id': lodash.head(currentCategories)});
+                            if (lodash.isUndefined(job) || !job) return annonce;
+                            annonce.job = job.name;
+                            return annonce;
+                        });
+                        self.paging = lodash.isUndefined(resp._paging) ? null : resp._paging;
+                        self.loading = false;
+                    })
                 },
                 Route: function (page) {
                     if (page === this.page) return;
@@ -127,7 +129,7 @@
         };
         const SingleUser = {
             template: '#candidate-details',
-            data: function() {
+            data: function () {
                 return {
                     loading: false,
                     userId: 0,
@@ -142,15 +144,22 @@
                 }
             },
             computed: {
-                hasCandidateLanguage: function() {
+                hasCandidateLanguage: function () {
                     return !lodash.isEmpty(this.crtCandidateLanguages);
                 }
             },
-            mounted: async function() {
+            mounted: async function () {
                 const self = this;
                 this.loading = true;
                 this.userId = parseInt(this.$route.params.id);
-                let Candidate = await this.$parent.Wordpress.users().id(this.userId).get();
+                const candidateInstance = axios.create({baseURL: apiSettings.root + 'job-portal'});
+                let responseCandidate = await candidateInstance.get(`/users/${this.userId}`);
+                responseCandidate = responseCandidate.data;
+                if (!responseCandidate.success) {
+                    alertify.error("Une erreur s'est produit");
+                    return;
+                }
+                let Candidate = lodash.cloneDeep(responseCandidate.data);
                 let axiosInstance = axios.create({
                     baseURL: apiSettings.root + 'wp/v2',
                     headers: {
@@ -174,6 +183,17 @@
                             if (lodash.isUndefined(item)) return null;
                             return item;
                         });
+
+                        // item categories
+                        if (!lodash.isEmpty(Candidate.meta.categories)) {
+                            let idCategories = JSON.parse(Candidate.meta.categories); // Array return
+                            let itemCategories = lodash.map(idCategories, idCtg => {
+                                let item = lodash.find(self.categories, {'id': parseInt(idCtg, 10)});
+                                return lodash.isUndefined(item) ? null : item.name;
+                            });
+                            Candidate.itemCategories = lodash.compact(itemCategories);
+                        }
+
                         self.crtCandidateLanguages = lodash.compact(crtCandidateLanguages);
                     }
                 ));
@@ -198,7 +218,7 @@
                     },
                     {
                         path: 'candidate/:id',
-                        name:'UserDetails',
+                        name: 'UserDetails',
                         component: SingleUser,
                     }
                 ],

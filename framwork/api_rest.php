@@ -37,7 +37,7 @@ add_action( 'rest_api_init', function() {
     }
 } );
 
-// Add has_cv api rest parameter
+// Add has_cv, public_cv api rest parameter
 add_action('rest_api_init', function () {
     // Cette valeur est pour identifier s'il a déja rempli son CV
     register_meta('user', 'has_cv', [
@@ -58,26 +58,25 @@ add_action('rest_api_init', function () {
         }
     ]);
     add_filter('rest_user_query', function ($args, $request) {
+        $meta_query = [];
+        array_push($meta_query, ['relation' => 'AND']);
         if (isset($request['has_cv']) && !empty($request['has_cv'])) {
-            $args['meta_query'][] = [
-                'relation' => 'AND',
-                [
+            $args = [
                     'key' => 'has_cv',
-                    'value' => (bool)$request['has_cv'],
+                    'value' => intval($request['has_cv']),
                     'compare' => '='
-                ]
             ];
+            array_push($meta_query, $args);
         }
         if (isset($request['public_cv']) && !empty($request['public_cv'])) {
-            $args['meta_query'][] = [
-                'relation' => 'AND',
-                [
+            $argc = [
                     'key' => 'public_cv',
-                    'value' => (bool)$request['public_cv'],
+                    'value' => intval($request['public_cv']),
                     'compare' => '='
-                ]
             ];
+            array_push($meta_query, $argc);
         }
+        $args['meta_query'] = $meta_query;
         return $args;
     }, 10, 2);
 });
@@ -200,6 +199,32 @@ add_action('rest_api_init', function () {
             },
             'permission_callback' => function ($data) {
                 return current_user_can('edit_posts');
+            },
+            'args' => [
+                'id' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
+            ]
+        ),
+    ]);
+    // Get user for not restriction by wordpress
+    register_rest_route('job-portal', '/users/(?P<id>\d+)', [
+        array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $user_id = intval($request['id']);
+                $request = new WP_REST_Request();
+                $request->set_param('context', 'edit');
+                $user_controller = new WP_REST_Users_Controller();
+                $candidate = $user_controller->prepare_item_for_response(new WP_User($user_id), $request)->data;
+                // Send response data
+                wp_send_json_success($candidate);
+
+            },
+            'permission_callback' => function ($data) {
+                return true;
             },
             'args' => [
                 'id' => array(

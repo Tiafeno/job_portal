@@ -6,7 +6,6 @@ add_filter('body_class', function ($classes) {
 add_filter('rest_jp-jobs_query', function($args, $request) {
     $args['meta_key']   = $request['meta_key'];
     $args['meta_value'] = $request['meta_value'];
-
     return $args;
 }, 10, 2);
 add_action('rest_api_init', function() {
@@ -19,7 +18,6 @@ add_action('rest_api_init', function() {
             return true;
         }
     ]);
-
     //Entreprise
     register_meta('user', 'country', [
         'type' =>  'integer',
@@ -53,7 +51,6 @@ add_action('rest_api_init', function() {
             return true;
         }
     ]);
-
     register_meta('user', 'nif', [
         'type' =>  'string',
         'single' => true,
@@ -70,7 +67,6 @@ add_action('rest_api_init', function() {
             return is_user_logged_in(  );
         }
     ]);
-
     // Employer
     register_meta('user', 'company_id', [
         'type' =>  'integer',
@@ -80,7 +76,6 @@ add_action('rest_api_init', function() {
             return true;
         }
     ]);
-
     // Candidate
     register_meta('user', 'reference', [
         'type' =>  'string',
@@ -231,7 +226,6 @@ add_action('wp_enqueue_scripts', function() {
         'jp-aos',
     ]);
     wp_enqueue_style('jp-responsive');
-    // script
     wp_register_script('jquery-validate', 'https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js', ['jquery']);
     wp_register_script('jp-bootstrap', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/js/bootstrap.min.js', ['jquery'], '1.0.0', true);
     wp_register_script('jp-bootsnav', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/js/bootsnav.js', ['jquery', 'jp-bootstrap'], '1.0.0', true);
@@ -275,7 +269,6 @@ add_action('wp_enqueue_scripts', function() {
         'ajax_url' => admin_url( 'admin-ajax.php' ),
         'nonce_field' => wp_create_nonce('ajax-login-nonce')
     ]);
-
     wp_enqueue_script('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/alertify.min.js', ['jquery'], null, true);
     wp_enqueue_script('jp-custom');
     wp_enqueue_script('comp-login');

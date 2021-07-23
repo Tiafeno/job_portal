@@ -61,6 +61,9 @@
             data: function () {
                 return {
                     loading: false,
+                    s: '',
+                    region: '',
+                    cat: '',
                     request: '',
                     per_page: 10, // default
                     page: 1, //default
@@ -98,19 +101,36 @@
                     )).catch(errors => {
                     })
                     this.request.then(resp => {
-                        let annonces = lodash.clone(resp);
-                        self.annonces = lodash.map(annonces, annonce => {
-                            annonce.job = '';
-                            let currentCategories = JSON.parse(annonce.meta.categories);
-                            if (!lodash.isArray(currentCategories)) return annonce;
-                            let job = lodash.find(self.categories, {'id': lodash.head(currentCategories)});
-                            if (lodash.isUndefined(job) || !job) return annonce;
-                            annonce.job = job.name;
-                            return annonce;
-                        });
-                        self.paging = lodash.isUndefined(resp._paging) ? null : resp._paging;
+                        self._buildAnnonceHandler(resp);
                         self.loading = false;
-                    })
+                    });
+                },
+                _buildAnnonceHandler: function(wpResponse) {
+                    let annonces = lodash.clone(wpResponse);
+                    this.annonces = lodash.map(annonces, annonce => {
+                        annonce.job = '';
+                        let currentCategories = JSON.parse(annonce.meta.categories);
+                        if (!lodash.isArray(currentCategories)) return annonce;
+                        let job = lodash.find(this.categories, {'id': lodash.head(currentCategories)});
+                        if (lodash.isUndefined(job) || !job) return annonce;
+                        annonce.job = job.name;
+                        return annonce;
+                    });
+                    this.paging = lodash.isUndefined(wpResponse._paging) ? null : wpResponse._paging;
+                },
+                filterHandler: function(ev) {
+                    ev.preventDefault();
+                    const self = this;
+                    this.loading = true;
+                    const filterReq = this.request
+                        .param('s', this.s)
+                        .param('region', this.region)
+                        .param('cat', this.cat)
+                        .get();
+                    filterReq.then(function(resp) {
+                        self._buildAnnonceHandler(resp);
+                        self.loading = false;
+                    });
                 },
                 Route: function (page) {
                     if (page === this.page) return;
@@ -122,12 +142,13 @@
                         .get();
                     self.loading = true;
                     archivesPromise.then(response => {
+                        self._buildAnnonceHandler(response);
                         self.loading = false;
                     });
                 },
             }
         };
-        const SingleUser = {
+        const SingleCandidate = {
             template: '#candidate-details',
             data: function () {
                 return {
@@ -219,7 +240,7 @@
                     {
                         path: 'candidate/:id',
                         name: 'UserDetails',
-                        component: SingleUser,
+                        component: SingleCandidate,
                     }
                 ],
             }
@@ -227,9 +248,7 @@
         const router = new VueRouter({
             routes // short for `routes: routes`
         });
-
         Vue.component('v-select', VueSelect.VueSelect);
-        // Application
         new Vue({
             el: '#candidate-archive',
             router

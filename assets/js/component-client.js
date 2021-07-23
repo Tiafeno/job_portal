@@ -1,5 +1,6 @@
 (function ($) {
     $().ready(function () {
+        Vue.component('v-select', VueSelect.VueSelect);
         Vue.filter('jobStatus', function (value) {
             if (!value) return 'Inconnue'
             value = value.toString()
@@ -24,7 +25,6 @@
             }
             return randomstring;
         };
-
         const Layout = {
             template: '#client-layout',
             data: function () {
@@ -220,15 +220,16 @@
                 return {
                     hasCV: false,
                     publicCV: false,
-                    city: '',
                     errors: [],
                     first_name: '',
                     last_name: '',
                     phone: '',
                     address: "",
+                    city: '',
+                    region: 0,
                     gender: "",
                     birthday: "",
-                    profil: "",
+                    profil: "", // Biographie
                     languages: [],
                     categories: [],
 
@@ -299,6 +300,7 @@
                     self.city = self.currentUser.meta.city;
                     self.birthday = self.currentUser.meta.birthday;
                     self.profil = self.currentUser.meta.profil;
+                    self.region = self.currentUser.meta.region;
 
                     let languages = self.currentUser.meta.languages;
                     languages = lodash.isEmpty(languages) ? [] : JSON.parse(languages);
@@ -584,6 +586,9 @@
                     if (lodash.isEmpty(this.address)) {
                         this.errors.push(this.errorHandler('Adresse'));
                     }
+                    if (!this.region || this.region === 0 || this.region == '0') {
+                        this.errors.push(this.errorHandler('Region'));
+                    }
                     if (lodash.isEmpty(this.city)) {
                         this.errors.push(this.errorHandler('Ville'));
                     }
@@ -622,6 +627,7 @@
                                 phone: this.phone,
                                 address: this.address,
                                 gender: this.gender,
+                                region: this.region,
                                 city: this.city,
                                 languages: _languages,
                                 categories: _categories,
@@ -772,13 +778,9 @@
         const router = new VueRouter({
             routes // short for `routes: routes`
         });
-
-        Vue.component('v-select', VueSelect.VueSelect);
-        // Application
         new Vue({
             el: '#client',
             router
         });
-
     });
 })(jQuery);

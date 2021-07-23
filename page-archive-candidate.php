@@ -16,7 +16,7 @@ wp_localize_script('comp-archive-candidate', 'apiSettings', [
     'nonce' => wp_create_nonce('wp_rest'),
     'user_id' => get_current_user_id()
 ]);
-$job_type_terms = get_terms(['taxonomy' => 'job_type','hide_empty' => false]);
+$regions = get_terms(['taxonomy' => 'region','hide_empty' => false]);
 $categories = get_terms(['taxonomy' => 'category', 'hide_empty' => false]);
 get_header();
 ?>
@@ -27,29 +27,28 @@ get_header();
             <div class=" padd-bot-10 jov_search_block_inner">
                 <div class="row">
                     <div class="container">
-                        <form method="get" action="" novalidate>
+                        <form method="get" action="" @submit="filterHandler" novalidate>
                             <fieldset class="search-form">
                                 <div class="col-md-3 col-sm-3">
                                     <input type="hidden" name="post_type" value="jp-jobs">
-                                    <input type="text" class="form-control" name="s" value="<?= isset($_GET['s']) ? $_GET['s'] : '' ?>" placeholder="Job Title, Keywords or Company Name..." />
+                                    <input type="text" class="form-control" name="s" v-model="s" value="" placeholder="Reference, Keywords or Name..." />
                                 </div>
                                 <div class="col-md-3 col-sm-3">
-                                    <select class="wide form-control" name="job_type" value="<?= isset($_GET['job_type']) ? $_GET['job_type'] : '' ?>">
-                                        <option value="" data-display="Location">Tous type de contrat</option>
-                                        <?php foreach ($job_type_terms as $term): ?>
-                                            <option value="<?= $term->slug ?>"
-                                                <?php if(isset($_GET['job_type']) && $_GET['job_type'] === $term->slug) echo "selected='selected'"; ?>>
-                                                <?= $term->name ?> (<?= $term->count ?>)
+                                    <select class="wide form-control" v-model="region" name="region" value="">
+                                        <option value="" data-display="Location">Tous les regions</option>
+                                        <?php foreach ($regions as $term): ?>
+                                            <option value="<?= $term->term_id ?>" >
+                                                <?= $term->name ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
                                 <div class="col-md-4 col-sm-4">
-                                    <select class="wide form-control" name="cat" value="<?= isset($_GET['cat']) ? $_GET['cat'] : '' ?>">
-                                        <option value="" data-display="Category">Show All</option>
+                                    <select class="wide form-control" name="cat" v-model="cat" value="">
+                                        <option value="" data-display="Category">Tous les métiers</option>
                                         <?php foreach ($categories as $term): ?>
-                                            <option value="<?= $term->term_id ?>" <?php if(isset($_GET['cat']) && $_GET['cat'] == $term->term_id) echo "selected='selected'"; ?>>
-                                                <?= $term->name ?> (<?= $term->count ?>)
+                                            <option value="<?= $term->term_id ?>" >
+                                                <?= $term->name ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>

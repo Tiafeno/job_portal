@@ -328,6 +328,15 @@ get_header();
                             <div class="detail-wrapper-body">
                                 <div class="col-md-4 col-sm-4 col-xs-12">
                                     <div class="form-group">
+                                        <label>Region</label>
+                                        <select name="region" v-model="region" class="form-control">
+                                            <option value="0">Selectionner une region</option>
+                                            <option v-for="region in optRegions" :value="region.id">{{region.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                    <div class="form-group">
                                         <label>Ville</label>
                                         <input type="text" v-model="city" class="form-control" placeholder="Ville"
                                                required>

@@ -4,6 +4,7 @@ namespace JobAddAnnonce\Widgets;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Elementor\Widget_Base;
+use jobLogin\Widgets\jobLogin_Widget;
 
 class JobAddAnnonce_Widget extends Widget_Base
 {
@@ -16,7 +17,6 @@ class JobAddAnnonce_Widget extends Widget_Base
             ['comp-login', 'lodash', 'medium-editor'], null, true);
         wp_enqueue_style( 'medium-editor' );
     }
-
     public function get_script_depends()
     {
         wp_localize_script('comp-add-annonce', 'job_handler_api', [
@@ -55,6 +55,16 @@ class JobAddAnnonce_Widget extends Widget_Base
     protected function render()
     {
         global $Liquid_engine;
+
+        if (!is_user_logged_in()) {
+            $login_widget = new jobLogin_Widget();
+            //apply_filters( 'elementor/widget/render_content', string $widget_content, ElementorWidget_Base $this )
+            $nonce = wp_create_nonce('jp-login-action');
+            $render = $Liquid_engine->parseFile('job-login')->render(['nonce' => $nonce]);
+            echo apply_filters( 'elementor/widget/render_content', $render, $login_widget );
+            return true;
+        }
+
         $current_user = wp_get_current_user();
         if (in_array('employer', $current_user->roles)) {
             $company_id = (int)get_user_meta( $current_user->ID, 'company_id', true );
@@ -63,9 +73,9 @@ class JobAddAnnonce_Widget extends Widget_Base
                 update_user_meta( $current_user->ID, 'company_id', 0 );
             }
         } else {
-            echo '<div class="alert alert-danger" role="alert">Vous n\'avez pas l\'autorisation 
-necessaire pour consulter cette page</div>';
-            return;
+            // Logged but not have access for this page
+            echo '<div class="alert alert-danger" role="alert">Seul les employés peuvent accéder à cette page</div>';
+            return true;
         }
 
         // get the the role object

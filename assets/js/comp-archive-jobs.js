@@ -16,8 +16,11 @@
             },
             created: function () {
                 if (lodash.isArray(this.salaries)) {
+
                     this.items = lodash.map(this.salaries, salary => {
-                        salary.filter_name = 'Under ' + salary.name;
+                        var valueFloat = parseFloat(salary.name);
+                        var amount = valueFloat.toLocaleString("en-GB", {style: "currency", currency: "MGA", minimumFractionDigits: 0});
+                        salary.filter_name = 'Plus de ' + amount.toString();
                         return salary;
                     });
                 }
@@ -62,7 +65,7 @@
                 return {
                     loading: false,
                     isLogged: false,
-                    buttonText: "Apply Now",
+                    buttonText: "Je postule",
                     message: {success: null, data: ''},
                 }
             },
@@ -71,7 +74,7 @@
             },
             watch: {
                 loading: function() {
-                    this.buttonText = this.loading ? "Chargement..." : "Apply Now";
+                    this.buttonText = this.loading ? "Chargement..." : "Je postule";
                 }
             },
             methods: {

@@ -87,7 +87,7 @@ get_header();
     <script type="text/x-template" , id="edit-password-template">
         <div class="widget-boxed">
             <div class="widget-boxed-header">
-                <h4>Changer mon mot de passe</h4>
+                <h4>Changer de mot de passe</h4>
             </div>
             <div class="widget-boxed-body">
                 <form @submit="submitNewPassword" method="post" action="" novalidate>
@@ -279,7 +279,7 @@ get_header();
                             </div>
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-group">
-                                    <label>Langage(s) <span style="color: red">*</span></label>
+                                    <label>Langue maitrisée <span style="color: red">*</span></label>
                                     <v-select v-model="languages" multiple :options="optLanguages"
                                               :reduce="language => language.id" label="name"></v-select>
                                 </div>

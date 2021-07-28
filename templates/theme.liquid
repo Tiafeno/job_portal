@@ -45,32 +45,22 @@
 <script id="component-login-template" type="text/x-template">
     <div class="login-body">
         <!-- Nav tabs -->
-        <ul class="nav nav-tabs nav-advance theme-bg" role="tablist">
-            <li class="nav-item active">
-                <a class="nav-link" data-toggle="tab" href="#employer" role="tab">
-                    <i class="ti-user"></i> Job Seeker
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#candidate" role="tab">
-                    <i class="ti-user"></i> Job Provider
-                </a>
-            </li>
-        </ul>
+                <h3>Connexion</h3>
+                <p>Accédez à nos services avec un seul compte</p>
         <!-- Nav tabs -->
         <form @submit="checkLoginForm" method="post" action="" novalidate>
             <div class="form-group">
                 <input type="text" v-model="user_login" name="user_login" class="form-control"
-                       placeholder="Email Address" required>
+                       placeholder="Votre adresse email" required>
             </div>
             <div class="form-group">
                 <input type="password" v-model="user_password" name="user_password" class="form-control"
-                       placeholder="Password" required>
+                       placeholder="Mot de passe" required>
             </div>
             <div class="form-group"> <span class="custom-checkbox">
                     <input type="checkbox" id="4">
-                    <label for="4"></label>Remember Me </span>
-                {% comment %}<a href="#" title="Forget" class="fl-right">Forgot Password?</a>{% endcomment %}
+                    <label for="4"></label>Se souvenir de moi </span>
+                {% comment %}<a href="#" title="Forget" class="fl-right">Mot de passe oublié?</a>{% endcomment %}
             </div>
             <div class="form-group text-center">
                 <button type="submit" class="btn theme-btn full-width btn-m">${buttonText}</button>

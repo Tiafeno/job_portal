@@ -125,9 +125,17 @@ $category = $job->get_reset_term('category');
 <!--                        </div>-->
 <!--                    </div>-->
                     <div id="apply-app">
-                        <div class="sidebar">
+                        <div class="sidebar padd-top-40" >
+                            <div>
+                                Si cette offre vous intéresse, veuillez vous inscrire à notre site et créez votre compte gratuitement. Vous pourrez ainsi postuler à toutes les offres qui vous correspondent, disponibles dans votre espace client.
+                                Cliquez ensuite sur le bouton <span class="font-bold">je postule</span> en dessous de l’offre pour envoyer votre candidature.
+                                Une fois fait , votre CV sera transmis directement aux recruteurs.
+                                <div class="mrg-bot-20"></div>
+                                <p>N'oubliez pas de bien remplir votre CV (expériences professionnelles + formations) pour augmenter votre chance d'être recruté.</p>
+
+                            </div>
                             <!-- Start: Job Overview -->
-                            <div class="">
+                            <div class="mrg-top-15">
                                 <div class="widget-boxed-body">
                                     <router-view></router-view>
                                 </div>
@@ -163,7 +171,7 @@ $category = $job->get_reset_term('category');
 
             <div class="row mrg-top-40">
                 <div class="col-md-12">
-                    <h4 class="mrg-bot-30">Similar Jobs</h4>
+                    <h4 class="mrg-bot-30">Annonce similaire</h4>
                 </div>
             </div>
             <div class="row">
@@ -191,7 +199,7 @@ $category = $job->get_reset_term('category');
                                 </p>
                             </div>
                             <div class="utf_apply_job_btn_item">
-                                <a href="<?= get_the_permalink() ?>" target="-_parent" class="btn job-browse-btn btn-radius br-light">Apply Now</a>
+                                <a href="<?= get_the_permalink() ?>" target="-_parent" class="btn job-browse-btn btn-radius br-light">Je postule</a>
                             </div>
                         </div>
                     </div>
@@ -202,7 +210,7 @@ $category = $job->get_reset_term('category');
             <?php else : ?>
             <div class="row">
                 <div class="col-md-12">
-                    <p><?php _e( 'Sorry, no posts matched your criteria.' ); ?></p>
+<!--                    <p>--><?php //_e( 'Sorry, no posts matched your criteria.' ); ?><!--</p>-->
                 </div>
             </div>
             <?php endif; ?>

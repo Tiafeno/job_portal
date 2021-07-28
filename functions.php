@@ -115,6 +115,9 @@ add_action('pre_get_posts', function (WP_Query $query) {
     return $query;
 });
 
+/**
+ * Cette action permet de se connecter au site
+ */
 add_action('init', function () {
     if (!isset($_POST['jp-login-nonce'])) return;
     $nonce = trim($_POST['jp-login-nonce']);
@@ -128,7 +131,6 @@ add_action('init', function () {
         $user_signon = wp_signon($info, false);
         if (!is_wp_error($user_signon)) {
             // redirection dans l'espace client
-            echo 'login success';
             wp_set_current_user( $user_signon->ID );
             wp_set_auth_cookie( $user_signon->ID, $remember, false );
             //do_action( 'wp_login', $user_signon->user_login );

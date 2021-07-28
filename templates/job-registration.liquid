@@ -83,34 +83,4 @@
         border: 2px solid red;
     }
 </style>
-<script type="text/javascript">
-    (function ($) {
-        $().ready(function() {
-            $("#register-form").validate({
-                rules: {
-                    role: {
-                        required: true
-                    },
-                    first_name: {
-                        required: true,
-                        minlength: 4
-                    },
-                    password: {
-                        required:true,
-                        minlength: 5
-                    },
-                    confirm_password: {
-                        required: true,
-                        minlength: 5,
-                        equalTo: "#password"
-                    },
-                    email: {
-                        required: true,
-                        email: true
-                    }
-                }
-            });
-        });
-    })(jQuery);
-</script>
 <!-- ====================== End Signup Form ============= -->

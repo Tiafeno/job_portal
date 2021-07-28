@@ -27,7 +27,7 @@ class jobLogin_Widget extends Widget_Base
     {
         global $Liquid_engine;
         $nonce = wp_create_nonce('jp-login-action');
-        echo $Liquid_engine->parseFile('job-login')->render(['nonce' => $nonce]);
+        echo $Liquid_engine->parseFile('job-login')->render(['nonce' => $nonce, 'msg' => '']);
     }
 }
 

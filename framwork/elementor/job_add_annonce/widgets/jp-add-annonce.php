@@ -60,7 +60,8 @@ class JobAddAnnonce_Widget extends Widget_Base
             $login_widget = new jobLogin_Widget();
             //apply_filters( 'elementor/widget/render_content', string $widget_content, ElementorWidget_Base $this )
             $nonce = wp_create_nonce('jp-login-action');
-            $render = $Liquid_engine->parseFile('job-login')->render(['nonce' => $nonce]);
+            $msg = "Connectez vous avant de pouvoir publier une annonce";
+            $render = $Liquid_engine->parseFile('job-login')->render(['nonce' => $nonce, 'msg' => $msg ]);
             echo apply_filters( 'elementor/widget/render_content', $render, $login_widget );
             return true;
         }

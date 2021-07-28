@@ -7,6 +7,22 @@ use JP\Framwork\Elements\jpCandidate;
 
 class JobRegistration_Widget extends Widget_Base {
     public static $slug = "job_registration";
+    public function __construct($data = [], $args = null)
+    {
+        parent::__construct($data, $args);
+    }
+
+    public function get_script_depends()
+    {
+        wp_register_script('registration', get_stylesheet_directory_uri() . '/assets/js/registration.js',
+            ['lodash'], null, true);
+        wp_localize_script('registration', 'registerSetting', [
+            'is_logged' => is_user_logged_in(),
+            'espace_client' => home_url('/espace-client')
+        ]);
+        return ['registration'];
+    }
+
     public function get_name() {
         return self::$slug;
     }
@@ -55,7 +71,7 @@ class JobRegistration_Widget extends Widget_Base {
         if (isset($_GET['register']) && boolval($_GET['register'])) {
             // Register successfully
             $msg = "<p><strong>Inscription réussie</strong>, cliquez sur le bouton ci-dessous pour vous connecter</p> <p>
-            <span class='' onClick='showLoginModal()'>Connexion</span></p>";
+            <span class='btn btn-success' onClick='showLoginModal()'>Connexion</span></p>";
             echo $msg;
             return;
         }

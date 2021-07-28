@@ -9,16 +9,18 @@ const CompLogin = {
             user_password: '',
             remember_me: '',
             security: '',
-            buttonText: 'Login'
+            defaultBtnText: "Se connecter",
+            buttonText: ''
         }
     },
     created: function() {
+        this.buttonText = lodash.clone(this.defaultBtnText);
         if (typeof com_login_params === 'undefined') return;
         this.security = com_login_params.nonce_field
     },
     watch: {
         loading: function() {
-            this.buttonText = this.loading ? 'Chargement...' : 'Login';
+            this.buttonText = this.loading ? 'Chargement...' : this.defaultBtnText;
         }
     },
     methods: {
@@ -26,10 +28,10 @@ const CompLogin = {
             e.preventDefault();
             this.errors = [];
             if (lodash.isEmpty(this.user_login)) {
-                this.errors.push('Adresse email ou indentifiant est requis');
+                this.errors.push("L'adresse email est requis");
             }
             if (lodash.isEmpty(this.user_password)) {
-                this.errors.push('Le mot de passe est requis');
+                this.errors.push('Le mot de passe est obligatoire');
             }
             if (!lodash.isEmpty(this.errors)) {
                 return false;

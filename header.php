@@ -46,7 +46,7 @@
             // Application
             if (typeof CompLogin === 'undefined') {
                 console.warn('Commposant login non definie');
-                return;
+                return false;
             }
             ;
             new Vue({
@@ -126,6 +126,11 @@ $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
                            Espace client
                         </a>
                     </li>
+                <li>
+                    <a class=" btn-signup red-btn" href="<?= wp_logout_url(home_url('/')) ?>" >
+                        <i class="ti ti-envelope"></i>
+                    </a>
+                </li>
 
                 <?php endif; ?>
             </ul>

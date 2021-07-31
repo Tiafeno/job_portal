@@ -59,15 +59,15 @@ class JobAddAnnonce_Widget extends Widget_Base
     {
         global $Liquid_engine;
 
-        if (!is_user_logged_in()) {
-            $login_widget = new jobLogin_Widget();
-            //apply_filters( 'elementor/widget/render_content', string $widget_content, ElementorWidget_Base $this )
-            $nonce = wp_create_nonce('jp-login-action');
-            $msg = "Connectez vous avant de pouvoir publier une annonce";
-            $render = $Liquid_engine->parseFile('job-login')->render(['nonce' => $nonce, 'msg' => $msg ]);
-            echo apply_filters( 'elementor/widget/render_content', $render, $login_widget );
-            return true;
-        }
+//        if (!is_user_logged_in()) {
+//            $login_widget = new jobLogin_Widget();
+//            //apply_filters( 'elementor/widget/render_content', string $widget_content, ElementorWidget_Base $this )
+//            $nonce = wp_create_nonce('jp-login-action');
+//            $msg = "Connectez vous avant de pouvoir publier une annonce";
+//            $render = $Liquid_engine->parseFile('job-login')->render(['nonce' => $nonce, 'msg' => $msg ]);
+//            echo apply_filters( 'elementor/widget/render_content', $render, $login_widget );
+//            return true;
+//        }
 
         $current_user = wp_get_current_user();
         if (in_array('employer', $current_user->roles)) {
@@ -76,10 +76,6 @@ class JobAddAnnonce_Widget extends Widget_Base
             if (!$result) {
                 update_user_meta( $current_user->ID, 'company_id', 0 );
             }
-        } else {
-            // Logged but not have access for this page
-            echo '<div class="alert alert-danger" role="alert">Seul les employés peuvent accéder à cette page</div>';
-            return true;
         }
 
         // get the the role object

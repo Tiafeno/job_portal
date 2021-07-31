@@ -6,19 +6,17 @@
             data: function () {
                 return {}
             },
-            created: function () {
-
-            },
-            mounted: function () {
-
-            },
-            methods: {},
             filters: {
-                jobTypeName: function(value, taxonomies) {
+                jobType: function(value, Tax) {
                     if (!lodash.isArray(value)) return '';
                     var firstValue = value[0];
-                    console.log(taxonomies);
-                    var result = lodash.find(taxonomies.Types, {id: parseInt(firstValue)});
+                    var result = lodash.find(Tax.Types, {id: parseInt(firstValue)});
+                    return result.name;
+                },
+                jobCategories: function(value, Tax) {
+                    if (!lodash.isArray(value)) return '';
+                    var firstValue = value[0];
+                    var result = lodash.find(Tax.Categories, {id: parseInt(firstValue)});
                     return result.name;
                 },
                 capitalize: function (value) {
@@ -45,7 +43,6 @@
                     jobs: [],
                     Me: {},
                     WPAPI: null,
-
                 }
             },
             created: function () {
@@ -75,7 +72,6 @@
                             self.Taxonomies.Types = lodash.clone(responses[0].data);
                         }
                     )).catch(errors => { })
-
                     this.WPAPI.jobs = this.WPAPI.registerRoute('wp/v2', '/emploi/(?P<id>\\d+)', {
                         params: ['before', 'after', 'author', 'per_page', 'offset', 'context', 'search']
                     });
@@ -83,11 +79,8 @@
                     this.WPAPI.jobs().per_page(this.itemsCount).then(function (jobsResponse) {
                         self.loading = false;
                         self.jobs = lodash.clone(jobsResponse);
-                        console.log(jobsResponse);
                     });
                 },
-
-
             },
             delimiters: ['${', '}']
         });

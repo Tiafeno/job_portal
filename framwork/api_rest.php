@@ -123,11 +123,53 @@ add_action('rest_api_init', function () {
             'single' => true,
             'show_in_rest' => true,
             'auth_callback' => function () {
-                //return current_user_can( 'edit_posts' );
                 return true;
             }
         ]);
     }
+    // Add custom field in job post type
+    register_rest_field( ['jp-jobs'], 'company', array(
+        'get_callback' => function( $job_arr ) {
+            $employer_id = get_post_meta($job_arr['id'], 'employer_id', true);
+            $employer_id = intval($employer_id);
+
+            $request = new WP_REST_Request();
+            $request->set_param('context', 'view');
+
+            $company_id = get_user_meta($employer_id, 'company_id', true);
+            $company_id = intval($company_id);
+            if (0 === $company_id) {
+                return new WP_Error('rest_user_not_find',
+                    "L'utilisateur est introuvable ou n'existe pas", ['status' => 500]);
+            }
+
+            $company_controller = new WP_REST_Users_Controller();
+            $Company = new WP_User($company_id);
+
+            return $company_controller->prepare_item_for_response($Company, $request)->data;
+
+        },
+        // Pour modifier, cette function reçois la valeur entier (company_id)
+        'update_callback' => function( $value, $job_obj ) {
+            $company_id = intval($value);
+            if (0 === $company_id)
+                return new WP_Error('rest_integer_failer',
+                "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
+
+            $employer_id = get_post_meta($job_obj->ID, 'employer_id', true);
+            $employer_id = intval($employer_id);
+
+            $ret = update_post_meta($employer_id->ID, 'company_id', $company_id);
+            if ( false === $ret ) {
+                return new WP_Error(
+                    'rest_updated_failed',
+                    __( 'Failed to update employer id.' ),
+                    array( 'status' => 500 )
+                );
+            }
+            return true;
+        }
+    ) );
 });
 
 add_action('rest_api_init', function () {

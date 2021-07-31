@@ -20,8 +20,8 @@
                     heading: "Ajouter une entreprise",
                     sectionClass: 'utf_create_company_area padd-top-80 padd-bot-80',
                     wordpress_api: new WPAPI({
-                        endpoint: window.wpApiSettings.root,
-                        nonce: window.wpApiSettings.nonce
+                        endpoint: window.job_handler_api.root,
+                        nonce: window.job_handler_api.nonce
                     }),
                     errors: [],
                     formData: {
@@ -105,45 +105,57 @@
                     })
                         .then(function (response) {
                             // Add this company for the employee
-                            self.wordpress_api.users().id(self.me.id).update({
+                            self.wordpress_api.users().me().update({
                                 meta: {company_id: response.id}
                             }).then(function (response) {
                                 self.loading = false;
                                 // Company add successfuly
-                                self.$emit('has-company-account', true);
+                                self.$router.push({name: 'Annonce'});
                             });
                         }).catch(function (err) {
-                            self.loading = false;
-                            self.errorHandler(err);
-                        });
+                        self.loading = false;
+                        self.errorHandler(err);
+                    });
                 },
                 errorHandler: function (response) {
-                    console.log(response);
+                    let title = '';
                     switch (response.code) {
                         case 'existing_user_email':
-                            alertify.alert('Erreur', response.message, function () {
-                            });
+                            title = 'Erreur';
                             break;
                         default:
-                            alertify.alert('Information', response.message, function () {
-                            });
+                            title = 'Information';
                             break
                     }
+                    alertify.alert(title, response.message, function () {
+                    });
                 },
                 formatHTML: function (str) {
                     return str.replace(/(<([^>]+)>)/ig, "");
                 }
             },
             created: function () {
+                const self = this;
+                this.loading = true;
+                this.wordpress_api.users().me().context('view').then( (response) =>  {
+                    const me = lodash.cloneDeep(response);
+                    const hasCompany = me.meta.company_id !== 0;
+                    if (hasCompany) {
+                        self.$router.push({name: 'Annonce'});
+                    }
+                    self.loading = false;
+                }).catch(function (err) {
+                    self.loading = false;
+                    self.errorHandler(err);
+                });
+
             },
             mounted: function () {
-                $('select')
-                    .dropdown({
-                        clearable: true,
-                        placeholder: ''
-                    })
+                $('select').dropdown({
+                    clearable: true,
+                    placeholder: ''
+                })
             },
-            props: ['me'],
             delimiters: ['${', '}']
 
         };
@@ -152,6 +164,7 @@
             template: '#create-annonce',
             data: function () {
                 return {
+                    me: {},
                     heading: "Ajouter une annonce",
                     sectionClass: 'utf_create_company_area padd-bot-80',
                     loading: false,
@@ -168,12 +181,10 @@
                     },
                 }
             },
-            created: function () {
-            },
             mounted: function () {
                 $('select').dropdown({
                     clearable: true,
-                    placeholder: 'any'
+                    placeholder: 'Selectionnez une option'
                 });
                 this.inputs.description = new MediumEditor('#advert-description', {
                     toolbar: {
@@ -181,7 +192,7 @@
                            if nothing is passed this is what is used */
                         allowMultiParagraphSelection: true,
                         buttons: ['bold', 'italic', 'underline', 'strikethrough', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull', 'orderedlist', 'unorderedlist', 'outdent', 'indent', 'h2', 'h3'],
-                        
+
                         firstButtonClass: 'medium-editor-button-first',
                         lastButtonClass: 'medium-editor-button-last',
                         standardizeSelectionStart: false,
@@ -199,8 +210,31 @@
                     }
                 });
             },
+            created: function () {
+                const self = this;
+                this.WPAPI = new WPAPI({
+                    endpoint: job_handler_api.root,
+                    nonce: job_handler_api.nonce
+                });
+                this.WPAPI.jobs = this.WPAPI.registerRoute('wp/v2', '/emploi/(?P<id>\\d+)', {
+                    // Listing any of these parameters will assign the built-in
+                    // chaining method that handles the parameter:
+                    params: ['context']
+                });
+                // Si le client est connecter, On verifie s'il existe deja une entreprise
+                this.loading = true;
+                this.WPAPI.users().me().context('view')
+                    .then(function (resp) {
+                        self.me = lodash.clone(resp);
+                        var hasCompany = self.me.meta.company_id !== 0;
+                        if (!hasCompany) {
+                            self.$router.push({name: 'Company'});
+                        }
+                        self.loading = false;
+                    });
+            },
             methods: {
-                errorHandler: function(inputName) {
+                errorHandler: function (inputName) {
                     var err = `Le champ <b>"${inputName}"</b> est obligatoire`;
                     this.errors.push(err);
                 },
@@ -230,18 +264,17 @@
                 },
                 submitForm: function () {
                     const self = this;
-                    this.loading  = true;
+                    this.loading = true;
                     let _category = [],
-                        _region   = [],
+                        _region = [],
                         _salaries = [],
-                        _jobtype  = [];
+                        _jobtype = [];
 
                     if (this.inputs.category) _category.push(parseInt(this.inputs.category));
                     if (this.inputs.salary_range) _salaries.push(parseInt(this.inputs.salary_range));
                     if (this.inputs.type) _jobtype.push(parseInt(this.inputs.type));
                     if (this.inputs.region) _region.push(parseInt(this.inputs.region));
-
-                    this.wpapinode.jobs().create({
+                    this.WPAPI.jobs().create({
                         title: this.inputs.title,
                         content: this.inputs.description.getContent(),
                         categories: _category, // taxonomy
@@ -260,69 +293,76 @@
                         alertify.alert('Information', "Votre annonce a bien été publier avec succès", function () {
                             window.location.href = job_handler_api.account_url;
                         });
-                        
                     }).catch(function (err) {
                         self.loading = false;
                         alertify.alert('Erreur', err.message, function () {});
                     });
                 }
             },
-            props: ['me', 'wpapinode'],
             delimiters: ['${', '}']
         };
 
         // Application
-        new Vue({
-            el: '#add-annonce',
-            components: {
-                'create-company': CreateCompany,
-                'comp-login': CompLogin,
-                'create-annonce': CreateAnnonce
-            },
+        const Layout = {
+            template: '<div>Chargement</div>',
             data: function () {
-                return {
-                    isClient: false,
-                    hasCompany: false,
-                    Me: {},
-                    WPAPI: null,
-                    stateView: '',
-                }
+                return {}
             },
             created: function () {
                 // Check if is client
                 // var job_handler_api is global js variable in localize for add-annonce widget
                 this.isClient = parseInt(job_handler_api.current_user_id) !== 0;
-                if (typeof wpApiSettings === 'undefined') return;
-                this.vfClient();
+                if (typeof job_handler_api === 'undefined') return;
             },
-            methods: {
-                vfClient: function () {
-                    const self = this;
-                    this.WPAPI = new WPAPI({
-                        endpoint: wpApiSettings.root,
-                        nonce: wpApiSettings.nonce
-                    });
-                    this.WPAPI.jobs = this.WPAPI.registerRoute('wp/v2', '/emploi/(?P<id>\\d+)', {
-                        // Listing any of these parameters will assign the built-in
-                        // chaining method that handles the parameter:
-                        params: ['context']
-                    });
-                    // Si le client est connecter, On verifie s'il existe deja une entreprise
-                    if (this.isClient) {
-                        this.WPAPI.users().me().context('edit')
-                            .then(function (resp) {
-                                self.Me = lodash.clone(resp);
-                                self.hasCompany = self.Me.meta.company_id !== 0;
-                            });
-                    }
-                },
-                hasCompanyAccountfn: function ($event) {
-                    console.log($event);
-                    this.hasCompany = $event;
-                },
-
-            },
+            methods: {},
             delimiters: ['${', '}']
+        };
+        const routes = [
+            {
+                path: '/',
+                component: Layout,
+                redirect: '/create-annonce',
+            },
+            {
+                path: '/create-company',
+                component: CreateCompany,
+                name: 'Company',
+                beforeEnter: (to, from, next) => {
+                    let isAuth = parseInt(job_handler_api.current_user_id) !== 0;
+                    if (to.name != 'Login' && !isAuth) next({
+                        name: 'Login'
+                    });
+                    else next();
+                },
+            },
+            {
+                path: '/create-annonce',
+                component: CreateAnnonce,
+                name: 'Annonce',
+                beforeEnter: (to, from, next) => {
+                    let isAuth = parseInt(job_handler_api.current_user_id) !== 0;
+                    if (to.name != 'Login' && !isAuth) next({
+                        name: 'Login'
+                    });
+                    else next();
+                },
+            },
+            {
+                path: '/login',
+                name: 'Login',
+                component: CompLogin,
+                beforeEnter: (to, from, next) => {
+                    if (job_handler_api.isLogged) next({name: 'Annonce'})
+                    else next();
+                },
+            }
+        ];
+        const router = new VueRouter({
+            routes // short for `routes: routes`
+        });
+        new Vue({
+            el: '#add-annonce',
+            router
         });
 
     });

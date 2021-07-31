@@ -11,16 +11,34 @@
                 },
                 password: {
                     required:true,
-                    minlength: 5
+                    minlength: 8
                 },
                 confirm_password: {
                     required: true,
-                    minlength: 5,
                     equalTo: "#password"
                 },
                 email: {
                     required: true,
                     email: true
+                }
+            },
+            messages: {
+                role: 'Ce champ est obligatoire',
+                first_name: {
+                    required: 'Ce champ est obligatoire',
+                    minlength: 'Votre nom est trop courte'
+                },
+                password: {
+                    required: 'Ce champ est obligatoire',
+                    minlength: 'Veuillez saisir au moins 8 caractères.',
+                },
+                confirm_password: {
+                    required: 'Ce champ est obligatoire',
+                    equalTo: "Entrez à nouveau la même valeur s'il vous plait."
+                },
+                email: {
+                    required: 'Ce champ est obligatoire',
+                    email: 'S\'il vous plaît, mettez une adresse email valide.'
                 }
             }
         });

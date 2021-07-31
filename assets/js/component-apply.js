@@ -6,12 +6,6 @@
                 'X-WP-Nonce': apiSettings.nonce
             }
         });
-        const wpapiAxiosInstance = axios.create({
-            baseURL: apiSettings.root + 'wp/v2',
-            headers: {
-                'X-WP-Nonce': apiSettings.nonce
-            }
-        });
         const AppLayout = {
             template: '<div class="side-list no-border"><router-view></router-view></div>',
         }
@@ -25,7 +19,7 @@
                         path: 'item',
                         name: 'ItemApply',
                         component: {
-                            template: '<router-link :to="{ path: \'/apply\'}"  class="btn-job theme-btn btn-outlined job-apply">Je postule</router-link>',
+                            template: '<router-link :to="{ path: \'/apply\'}" class="btn btn-job theme-btn btn-outlined job-apply">Je postule</router-link>',
                         }
                     },
                     {
@@ -45,8 +39,7 @@
                                 this.isLogged = !!apiSettings.isLogged;
                                 if (!this.isLogged) {
                                     // Call login modal
-                                    renderLoginModel();
-                                    $('#signin').modal('show');
+                                    showLoginModal();
                                 } else {
                                     this.loading = true;
                                     jobapiAxiosInstance.post(`apply/${apiSettings.jobId}`, {}).then(function(response) {
@@ -57,6 +50,17 @@
                                         self.loading = false;
                                     })
                                 }
+                            }
+                        },
+                        beforeEnter: (to, from, next) => {
+                            if (apiSettings.isLogged) {
+                                next();
+                            }
+                            else {
+                                if (!apiSettings.isLogged) {
+                                    showLoginModal();
+                                }
+                                next({name: 'ItemApply'});
                             }
                         },
                     }

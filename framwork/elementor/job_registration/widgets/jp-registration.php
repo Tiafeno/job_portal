@@ -128,6 +128,9 @@ add_action('action_jobportal_register', function() {
                 'public_cv' => false,
 
             ]);
+        } else {
+            update_user_meta($user_id, 'company_id', 0);
+
         }
 
         do_action('send_email_new_user', $user_id); // Envoyer le mail

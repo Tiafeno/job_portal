@@ -32,14 +32,14 @@ $category = $job->get_reset_term('category');
 ?>
 <script type="text/x-template" id="apply-job">
     <div>
-        <div v-if="!isLogged">
-            <a class="btn btn-primary btn-outlined"
-               onclick="renderLoginModel()"
-               data-toggle="modal"
-               data-target="#signin">
-                Se connecter
-            </a>
-        </div>
+<!--        <div v-if="!isLogged">-->
+<!--            <a class="btn btn-primary btn-outlined"-->
+<!--               onclick="renderLoginModel()"-->
+<!--               data-toggle="modal"-->
+<!--               data-target="#signin">-->
+<!--                Se connecter-->
+<!--            </a>-->
+<!--        </div>-->
 
         <p v-if="loading">Chargement en cours ...</p>
         <div class="row" v-if="isLogged && message != null">

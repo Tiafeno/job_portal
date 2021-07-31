@@ -22,7 +22,7 @@
 
 <script id="create-company" type="text/x-template">
     <section v-bind:class="[sectionClass]">
-        <div class="container">
+        <div class="container" v-if="!loading">
             <h2>${heading}</h2>
             <form class="c-form" @submit="checkForm" method="post" action="" novalidate>
                 <!-- General Information -->
@@ -248,7 +248,5 @@
     </section>
 </script>
 <div id="add-annonce">
-    <comp-login v-if="!isClient"></comp-login>
-    <create-company v-if="isClient && !hasCompany" v-bind:me="Me" v-on:has-company-account="hasCompanyAccountfn"></create-company>
-    <create-annonce v-if="isClient && hasCompany" v-bind:me="Me"  v-bind:wpapinode="WPAPI"></create-annonce>
+    <router-view></router-view>
 </div>

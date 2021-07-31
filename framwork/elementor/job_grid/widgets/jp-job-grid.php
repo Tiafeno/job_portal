@@ -15,8 +15,8 @@ class JobGrid_Widget extends Widget_Base
         wp_register_script('comp-job-grid', get_stylesheet_directory_uri() . '/assets/js/component-job-grid.js',
             ['vuejs', 'wpapi', 'axios', 'lodash'], null, true);
     }
-    public function get_script_depends()
-    {
+
+    public function get_script_depends() {
         wp_localize_script('comp-job-grid', 'apiSettings', [
             'root' => esc_url_raw( rest_url() ),
             'nonce' => wp_create_nonce( 'wp_rest' )
@@ -24,36 +24,23 @@ class JobGrid_Widget extends Widget_Base
         return ['comp-job-grid'];
     }
 
-
-    public function get_name()
-    {
+    public function get_name() {
         return self::$slug;
     }
 
-    public function get_title()
-    {
+    public function get_title() {
         return 'Job Grid';
     }
 
-    /**
-     * Retrieve button widget icon.
-     *
-     * @access public
-     *
-     * @return string Widget icon.
-     */
-    public function get_icon()
-    {
+    public function get_icon() {
         return 'fas fa-newspaper';
     }
 
-    public function get_categories()
-    {
+    public function get_categories() {
         return ['general'];
     }
 
-    protected function _register_controls()
-    {
+    protected function _register_controls() {
 
         $this->start_controls_section(
             'content_section',
@@ -62,17 +49,25 @@ class JobGrid_Widget extends Widget_Base
                 'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
             ]
         );
-
         $this->add_control(
-            'widget_value',
+            'title',
             [
-                'label' => __('value', self::$slug),
+                'label' => __('Titre', self::$slug),
                 'type' => \Elementor\Controls_Manager::TEXT,
-                'default' => __('value', self::$slug),
-                'placeholder' => __('Value Attribute', self::$slug),
+                'default' => __('Les offres d\'emploie', self::$slug),
+                'placeholder' => __('Titre du widget', self::$slug),
             ]
         );
-
+        $this->add_control(
+            'description',
+            [
+                'label' => __('Description', self::$slug),
+                'type' => \Elementor\Controls_Manager::TEXTAREA,
+                'default' => __("On vous aident à vous faire recruter en vous contactant lorsque les postes " .
+                    "correspondent à votre profil.", self::$slug),
+                'placeholder' => __('Quelque description...', self::$slug),
+            ]
+        );
         $this->end_controls_section();
     }
 
@@ -86,8 +81,11 @@ class JobGrid_Widget extends Widget_Base
     protected function render()
     {
         global $Liquid_engine;
+        $settings = $this->get_settings_for_display();
         echo $Liquid_engine->parseFile('job-grid')->render([
-            'job_archive_url' => get_post_type_archive_link('jp-jobs')
+            'job_archive_url' => get_post_type_archive_link('jp-jobs'),
+            'title' => $settings['title'],
+            'description' => $settings['description']
         ]);
     }
 }

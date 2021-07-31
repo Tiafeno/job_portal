@@ -3,7 +3,7 @@
 <script  id="job-grid-template" type="text/x-template">
     <div class="col-md-3 col-sm-6">
         <div class="utf_grid_job_widget_area">
-            <span class="job-type full-type">${item.job_type | jobTypeName(taxonomies)}</span>
+            <span class="job-type full-type">${item.job_type | jobType(taxonomies)}</span>
             <div class="utf_job_like">
                 <label class="toggler toggler-danger">
                     <input type="checkbox" >
@@ -11,13 +11,13 @@
                 </label>
             </div>
             <div class="u-content">
-                <div class="avatar box-80 hidden">
-                    <a v-bind:href="item.link" target="_blank">
-                        <img class="img-responsive" src="" alt="">
+                <div class="avatar box-80">
+                    <a v-bind:href="item.link" v-if="!item.company.hasOwnProperty('errors')" target="_blank">
+                        <img class="img-responsive" :src="item.company.avatar_urls[96]" alt="">
                     </a>
                 </div>
                 <h5><a v-bind:href="item.link">${item.title.rendered}</a></h5>
-                <p class="text-muted" v-html="item.excerpt.rendered"></p>
+                <p class="text-muted">${item.categories | jobCategories(taxonomies)}</p>
             </div>
             <div class="utf_apply_job_btn_item">
                 <a v-bind:href="item.link" target="_blank" class="btn job-browse-btn btn-radius br-light">Voir l'offre</a>
@@ -31,15 +31,15 @@
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
                 <div class="heading">
-                    <h2>LES OFFRES D’EMPLOI</h2>
-                    <p>Lorem Ipsum is simply dummy text printing and type setting industry Lorem Ipsum been industry
-                        standard dummy text ever since when unknown printer took a galley.</p>
+                    <h2>{{ title }}</h2>
+                    <p>{{ description }}</p>
                 </div>
             </div>
         </div>
         <div class="row">
+            <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
             <!-- Single Job -->
-            <job-grid v-for="job in jobs" v-bind:item="job" :key="job.id" v-bind:taxonomies="Taxonomies" ></job-grid>
+            <job-grid v-for="job in jobs" v-bind:item="job" :key="job.id" v-if="Object.keys(Taxonomies).length !== 0" v-bind:taxonomies="Taxonomies" ></job-grid>
         </div>
         <div class="col-md-12 mrg-top-20 text-center">
             <a href="{{ job_archive_url }}" target="_parent" class="btn theme-btn btn-m">Voir plus d'offre</a>

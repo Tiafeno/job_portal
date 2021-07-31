@@ -42,6 +42,11 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600&display=swap" rel="stylesheet">
     <script type="text/javascript">
+        function RestrictSpace(event) {
+            if (event.keyCode == 32) {
+                return false;
+            }
+        }
         function renderLoginModel() {
             // Application
             if (typeof CompLogin === 'undefined') {

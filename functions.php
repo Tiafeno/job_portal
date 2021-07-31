@@ -30,7 +30,10 @@ $Liquid_engine->registerFilter('taxonomy', function($taxonomy_name) {
 
 add_action('wp_head', function() {
     global $Liquid_engine;
-    echo $Liquid_engine->parseFile('theme')->render([]);
+    $forgot_pwd_url = home_url('/forgot-password');
+    echo $Liquid_engine->parseFile('theme')->render([
+        'forgot_pwd_url' => $forgot_pwd_url
+    ]);
 });
 
 load_theme_textdomain(__SITENAME__, get_template_directory() . '/languages');

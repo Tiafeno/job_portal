@@ -3,7 +3,7 @@
     <div class="container">
         <div class="col-md-10 col-sm-8">
             <div class="caption cl-white home_two_slid">
-                <h2>Recherchez parmi plus de <span class="theme-cl">{{ ad_count }}</span> offres d'emploi.</h2>
+                <h2>{{ description }}</h2>
                 {% comment %}<p>Trending Jobs Keywords: <span class="trending_key">{% endcomment %}
                         {% comment %}<a href="#">Web Designer</a></span> <span class="trending_key">{% endcomment %}
                         {% comment %}<a href="#">Web Developer</a></span> <span class="trending_key">{% endcomment %}
@@ -27,7 +27,7 @@
                     </div>
                     <div class="col-md-4 col-sm-4 padd-0">
                         <select name="cat" class="wide form-control">
-                            <option value="" data-display="Category">Tous</option>
+                            <option value="" data-display="Category">Tous les secteurs d'activité</option>
                             {% for categorie in categories %}
                                 <option value="{{ categorie.term_id }}">{{ categorie.name }}</option>
                             {% endfor %}

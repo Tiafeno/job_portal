@@ -2,18 +2,20 @@
 <section class="padd-top-80 padd-bot-80">
     <div class="container">
         <div class="log-box">
-            <form class="log-form" id="register-form" action="{{ action }}" method="post">
+            <h3>Crée votre compte</h3>
+            <p>Accédez à nos services</p>
+            <form class="log-form mrg-top-40" id="register-form" action="{{ action }}" method="post">
                 <div class="row">
-                    <div class="col-md-3 col-sm-6 col-xs-12" style="margin-bottom: 10px">
+                    <div class="col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="role" id="role_candidate" value="candidate">
-                            <label class="form-check-label" for="role_candidate">Je suis un <b>candidate</b></label>
+                            <label class="form-check-label" for="role_candidate"><b>Candidate</b></label>
                         </div>
                     </div>
-                    <div class="col-md-3 col-sm-6 col-xs-12" style="margin-bottom: 10px">
+                    <div class="col-md-6 col-sm-6 col-xs-12" style="margin-bottom: 10px">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="role" id="role_employer" value="employer" required>
-                            <label class="form-check-label" for="role_employer">Je suis un <b>employeur</b></label>
+                            <label class="form-check-label" for="role_employer"><b>Employeur</b> ou <b>Recruteur</b></label>
                         </div>
                     </div>
                 </div>
@@ -48,7 +50,8 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Numéro de téléphone</label>
-                            <input type="text" name="phone" id="phone" class="form-control" placeholder="Phone Number">
+                            <input type="text" name="phone" id="phone" class="form-control" onkeypress="if(event.keyCode === 32)
+                           return false;" placeholder="Exp: 03X XX XXX XX">
                         </div>
                     </div>
                 </div>

@@ -14,13 +14,16 @@ class JobAddAnnonce_Widget extends Widget_Base
         parent::__construct($data, $args);
         // https://developers.elementor.com/creating-a-new-widget/adding-javascript-to-elementor-widgets/
         wp_register_script('comp-add-annonce', get_stylesheet_directory_uri() . '/assets/js/component-add-annonce.js',
-            ['comp-login', 'lodash', 'medium-editor'], null, true);
+            ['comp-login', 'lodash', 'medium-editor',  'vue-router'], null, true);
         wp_enqueue_style( 'medium-editor' );
     }
     public function get_script_depends()
     {
         wp_localize_script('comp-add-annonce', 'job_handler_api', [
             'current_user_id' => intval(get_current_user_id()),
+            'isLogged' => is_user_logged_in(),
+            'root' => esc_url_raw( rest_url() ),
+            'nonce' => wp_create_nonce( 'wp_rest' ),
             'account_url' => home_url( _ACCOUNT_URL_ )
         ]);
         return ['comp-add-annonce'];

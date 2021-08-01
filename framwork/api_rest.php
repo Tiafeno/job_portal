@@ -127,6 +127,7 @@ add_action('rest_api_init', function () {
             }
         ]);
     }
+
     // Add custom field in job post type
     register_rest_field( ['jp-jobs'], 'company', array(
         'get_callback' => function( $job_arr ) {
@@ -170,6 +171,17 @@ add_action('rest_api_init', function () {
             return true;
         }
     ) );
+
+    register_rest_field('user', 'avatar', [
+        'get_callback' => function($user_arr) {
+            $avatar_id = get_user_meta($user_arr['id'], 'avatar_id', true);
+            return $avatar_id ? $avatar_id : '';
+        },
+        'update_callback' => function($value, $user_obj) {
+            $ret = update_user_meta($user_obj->ID, 'avatar_id', intval($value));
+            return $ret;
+        }
+    ]);
 });
 
 add_action('rest_api_init', function () {
@@ -299,4 +311,195 @@ add_action('rest_api_init', function () {
         ),
     ]);
 
+});
+
+add_action('rest_api_init', function() {
+    //Annonce
+    // Additional params at api_rest line 104
+    register_meta('user', 'experience', [ // sans 's'
+        'type' =>  'integer',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    //Entreprise
+    register_meta('user', 'country', [
+        'type' =>  'integer',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'employees', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'zipcode', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'website', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'nif', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return is_user_logged_in(  );
+        }
+    ]);
+    register_meta('user', 'stat', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return is_user_logged_in(  );
+        }
+    ]);
+    // Employer
+    register_meta('user', 'company_id', [
+        'type' =>  'integer',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    // Candidate
+    register_meta('user', 'reference', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'region', [
+        'type' =>  'integer',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'status', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'phone', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return is_user_logged_in();
+        }
+    ]);
+    register_meta('user', 'address', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'city', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'categories', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'gender', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'birthday', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'profil', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'drive_licences', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'languages', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'educations', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'experiences', [
+        'type' =>  'string',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+
+    // https://github.com/WP-API/rest-filter/blob/master/plugin.php
+    /**
+     * adds a "filter" query parameter to API post collections to filter returned results
+     * based on public WP_Query parameters, adding back the "filter" parameter
+     * that was removed from the API when it was merged into WordPress core.
+     */
 });

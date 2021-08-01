@@ -22,6 +22,7 @@
 
 <script id="create-company" type="text/x-template">
     <section v-bind:class="[sectionClass]">
+        <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
         <div class="container" v-if="!loading">
             <h2>${heading}</h2>
             <form class="c-form" @submit="checkForm" method="post" action="" novalidate>
@@ -30,31 +31,42 @@
                     <div class="box-header"><h4>General Information</h4></div>
                     <div class="box-body">
                         <div class="row">
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Nom de l'entreprise ou société <span style="color: red">*</span></label>
-                                <input type="text" v-model="formData.name" name="name" class="form-control"
-                                       placeholder="Nom de l'entreprise ou société" required>
-                            </div>
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Categorie de l'entreprise ou société <span style="color: red">*</span></label>
-                                <select v-model="formData.category" name="category" class="form-control ui dropdown" required>
-                                    <option value="">Selectionner une catégorie</option>
-                                    {% for categorie in categories %}<option value="{{ categorie.term_id }}">{{ categorie.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label>Nom de l'entreprise ou société <span style="color: red">*</span></label>
+                                    <input type="text" v-model="formData.name" name="name" class="form-control"
+                                           placeholder="Nom de l'entreprise ou société" required>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label>Categorie de l'entreprise ou société <span style="color: red">*</span></label>
+                                    <select v-model="formData.category" name="category" class="form-control ui dropdown" required>
+                                        <option value="">Selectionner une catégorie</option>
+                                        {% for categorie in categories %}<option value="{{ categorie.term_id }}">{{ categorie.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
 
-                            <div class="clearfix"></div>
+                                <div class="clearfix"></div>
 
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>NIF <span style="color: red">*</span></label>
-                                <input type="text" v-model="formData.nif" name="nif" class="form-control" placeholder="" required>
-                                <span class="sub-description">Cette donnée sera uniquement utilisée à des fins d’analyse.</span>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label>NIF <span style="color: red">*</span></label>
+                                    <input type="text" v-model="formData.nif" name="nif" class="form-control" placeholder="" required>
+                                    <span class="sub-description">Cette donnée sera uniquement utilisée à des fins d’analyse.</span>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label>Numéro statistique <span style="color: red">*</span></label>
+                                    <input type="text" v-model="formData.stat" name="stat" class="form-control" placeholder="" required>
+                                    <span class="sub-description">Cette donnée sera uniquement utilisée à des fins d’analyse.</span>
+                                </div>
                             </div>
-                            <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Numéro statistique <span style="color: red">*</span></label>
-                                <input type="text" v-model="formData.stat" name="stat" class="form-control" placeholder="" required>
-                                <span class="sub-description">Cette donnée sera uniquement utilisée à des fins d’analyse.</span>
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                <div id="leftcol_item">
+                                    <img class="ui small centered circular image" :src="company_logo">
+                                    <input type="file" id="company-logo" @change="previewFiles" style="display: none">
+                                    <button class="btn text-uppercase text-center light-gray-btn" @click="uploadLogoHandler" style="margin: auto;display: block;margin-top: 10px;">
+                                        Ajouter un logo
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="clearfix"></div>
@@ -133,7 +145,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="text-center">
-                            <button type="submit" :disabled="loading" class="btn btn-m theme-btn full-width">Enregistrer mon entreprise</button>
+                            <button type="submit" :disabled="loading" class="btn light-gray-btn">Enregistrer mon entreprise</button>
                         </div>
                     </div>
                     
@@ -235,7 +247,7 @@
                 </div>
 
                 <div class="text-center">
-                    <button type="submit" class="btn btn-m theme-btn full-width">Publier mon annonce</button>
+                    <button type="submit" class="btn light-gray-btn">Publier mon annonce</button>
                 </div>
                 <div v-if="errors.length" style="margin-top: 40px">
                     <b>Please correct the following error(s):</b>

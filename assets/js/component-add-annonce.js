@@ -11,6 +11,63 @@
             }
             return randomstring;
         };
+        const fileFilter = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i;
+        /**
+         * Cette fonction permet de redimensionner une image
+         *
+         * @param imgObj - the image element
+         * @param newWidth - the new width
+         * @param newHeight - the new height
+         * @param startX - the x point we start taking pixels
+         * @param startY - the y point we start taking pixels
+         * @param ratio - the ratio
+         * @returns {string}
+         */
+        const drawImage = (imgObj, newWidth, newHeight, startX, startY, ratio) => {
+            //set up canvas for thumbnail
+            const tnCanvas = document.createElement('canvas');
+            const tnCanvasContext = tnCanvas.getContext('2d');
+            tnCanvas.width = newWidth;
+            tnCanvas.height = newHeight;
+
+            /* use the sourceCanvas to duplicate the entire image. This step was crucial for iOS4 and under devices. Follow the link at the end of this post to see what happens when you don’t do this */
+            const bufferCanvas = document.createElement('canvas');
+            const bufferContext = bufferCanvas.getContext('2d');
+            bufferCanvas.width = imgObj.width;
+            bufferCanvas.height = imgObj.height;
+            bufferContext.drawImage(imgObj, 0, 0);
+
+            /* now we use the drawImage method to take the pixels from our bufferCanvas and draw them into our thumbnail canvas */
+            tnCanvasContext.drawImage(bufferCanvas, startX, startY, newWidth * ratio, newHeight * ratio, 0, 0, newWidth, newHeight);
+            return tnCanvas.toDataURL();
+        };
+
+        /**
+         * Récuperer les valeurs dispensable pour une image pré-upload
+         * @param {File} file
+         * @returns {Promise<any>}
+         */
+        const getFileReader = (file) => {
+            return new Promise((resolve, reject) => {
+                const byteLimite = 2097152; // 2Mb
+                if (file && file.size <= byteLimite) {
+                    let fileReader = new FileReader();
+                    fileReader.onload = (Event) => {
+                        const img = new Image();
+                        img.src = Event.target.result;
+                        img.onload = () => {
+                            const imgCrop = drawImage(img, img.width, img.height, 0, 0, 1);
+                            resolve({
+                                src: imgCrop
+                            });
+                        };
+                    };
+                    fileReader.readAsDataURL(file);
+                } else {
+                    reject('Le fichier sélectionné est trop volumineux. La taille maximale est 2Mo.');
+                }
+            });
+        };
         // Ajouter une entreprise
         const CreateCompany = {
             template: '#create-company',
@@ -23,9 +80,11 @@
                         endpoint: window.job_handler_api.root,
                         nonce: window.job_handler_api.nonce
                     }),
+                    company_logo: '//semantic-ui.com/images/wireframe/square-image.png',
                     errors: [],
                     formData: {
                         name: '',
+                        logo: '',
                         category: '',
                         email: '',
                         address: '',
@@ -79,11 +138,37 @@
                         this.addCompany(data);
                     }
                 },
-                addCompany: function (item) {
+                previewFiles: function (event) {
+                    const files = event.target.files;
+                    this.formData.logo = files.item(0);
+                    getFileReader(files.item(0)).then(draw => {
+                        this.company_logo = draw.src;
+                    });
+                },
+                uploadLogoHandler: function (event) {
+                    event.preventDefault();
+                    $('input#company-logo').trigger('click');
+                },
+                addCompany: async function (item) {
                     const self = this;
-                    this.loading = true;
                     const _email = item.email;
                     const _name = item.name;
+                    let fileId = '';
+                    // Upload avatar
+                    this.loading = true;
+                    if (typeof item.logo === 'object' && item.logo !== '') {
+                        await this.wordpress_api.media()
+                            // Specify a path to the file you want to upload, or a Buffer
+                            .file(item.logo)
+                            .create({
+                                title: `logo ${item.name}`,
+                                alt_text: item.name,
+                                description: item.description
+                            }).then(response => {
+                                // Your media is now uploaded: let's associate it with a post
+                                fileId = response.id;
+                            });
+                    }
                     this.wordpress_api.users().create({
                         name: _name,
                         nickname: _email,
@@ -94,6 +179,7 @@
                         last_name: "",
                         roles: ['company'],
                         description: item.description,
+                        avatar: fileId,
                         meta: {
                             country: item.country,
                             city: item.city,
@@ -102,19 +188,18 @@
                             stat: item.stat,
                             newsletter: 0, // bool value to subscribe or not
                         }
-                    })
-                        .then(function (response) {
-                            // Add this company for the employee
-                            self.wordpress_api.users().me().update({
-                                meta: {company_id: response.id}
-                            }).then(function (response) {
-                                self.loading = false;
-                                // Company add successfuly
-                                self.$router.push({name: 'Annonce'});
-                            });
-                        }).catch(function (err) {
-                        self.loading = false;
-                        self.errorHandler(err);
+                    }).then(function (user) {
+                        // Add this company for the employee
+                        self.wordpress_api.users().me().update({
+                            meta: {company_id: user.id}
+                        }).then(() => {
+                            self.loading = false;
+                            // Company add successfuly
+                            self.$router.push({name: 'Annonce'});
+                        });
+                    }).catch(err => {
+                        this.loading = false;
+                        this.errorHandler(err);
                     });
                 },
                 errorHandler: function (response) {
@@ -137,7 +222,7 @@
             created: function () {
                 const self = this;
                 this.loading = true;
-                this.wordpress_api.users().me().context('view').then( (response) =>  {
+                this.wordpress_api.users().me().context('view').then((response) => {
                     const me = lodash.cloneDeep(response);
                     const hasCompany = me.meta.company_id !== 0;
                     if (hasCompany) {
@@ -295,7 +380,8 @@
                         });
                     }).catch(function (err) {
                         self.loading = false;
-                        alertify.alert('Erreur', err.message, function () {});
+                        alertify.alert('Erreur', err.message, function () {
+                        });
                     });
                 }
             },

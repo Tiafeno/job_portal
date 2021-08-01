@@ -201,7 +201,7 @@ add_action('rest_api_init', function() {
 
 add_action('wp_enqueue_scripts', function() {
     // style
-    wp_register_style('job-portal', get_stylesheet_directory_uri() . '/assets/css/job-portal.css');
+    wp_register_style('job-portal', get_stylesheet_directory_uri() . '/assets/css/job-portal.css', [], '1.1.1');
     wp_register_style('medium-editor', get_stylesheet_directory_uri() . '/assets/js/vuejs/medium-editor.min.css');
     wp_register_style('jp-bootstrap', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/css/bootstrap.min.css');
     wp_register_style('jp-bootstrap-select', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/css/bootstrap-select.min.css');

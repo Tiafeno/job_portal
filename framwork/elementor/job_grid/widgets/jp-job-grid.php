@@ -13,7 +13,7 @@ class JobGrid_Widget extends Widget_Base
         parent::__construct($data, $args);
         // https://developers.elementor.com/creating-a-new-widget/adding-javascript-to-elementor-widgets/
         wp_register_script('comp-job-grid', get_stylesheet_directory_uri() . '/assets/js/component-job-grid.js',
-            ['vuejs', 'wpapi', 'axios', 'lodash'], null, true);
+            ['vuejs', 'wp-api', 'axios', 'lodash'], null, true);
     }
 
     public function get_script_depends() {

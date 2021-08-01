@@ -1,0 +1,38 @@
+<!-- ================= Category start ========================= -->
+<section class="utf_job_category_area" id="grid-categorie-items">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="heading">
+                    <h2>{{ title }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+
+                <grid-item v-bind:item="item" v-if="items.length > 0" v-for="item in items" :key="item.id" ></grid-item>
+                <div class="col-md-12 mrg-top-20 text-center">
+                    <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                    <button type="button" @click="moreCategories" class="btn theme-btn btn-m">Voir tous les catégories</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script type="text/x-template" id="grid-item">
+    <div class="col-md-3 col-sm-6">
+        <a :href="'{{ archive_url }}/?cat=' + item.id" :title="item.name">
+            <div class="utf_category_box_area">
+                <div class="utf_category_desc">
+                    <div class="utf_category_icon"> <i class="icon-bargraph" aria-hidden="true"></i> </div>
+                    <div class="category-detail utf_category_desc_text">
+                        <h4>${item.name}</h4>
+                        <p>${item.count} Offre(s)</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</script>

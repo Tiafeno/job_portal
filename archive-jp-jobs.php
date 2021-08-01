@@ -11,27 +11,81 @@ wp_localize_script('comp-archive-jobs', 'archiveApiSettings',[
 
 get_header();
 ?>
+<style>
+    .count-item {
+        background: #26ae61;
+        color: #ffffff;
+        width: 30px;
+        height: 30px;
+        display: inline-block;
+        border-radius: 50%;
+        margin-left: 4px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 28px;
+    }
+</style>
 <!-- Template-->
 <script  id="filter-salary-template" type="text/x-template">
-        <div class="widget-boxed padd-bot-0" v-if="items.length > 0">
-            <div class="widget-boxed-header">
-                <h4>Salaire offert</h4>
-            </div>
-            <div class="widget-boxed-body">
-                <div class="side-list no-border">
-                    <ul>
-                        <li v-for="item in items">
-                            <span class="custom-checkbox">
-                                <input type="checkbox" :id="item.id" :name="'salarie'" :value="item.id" v-on:change="selectedFilter">
-                                <label :for="item.id"></label>
-                            </span> {{ item.filter_name }} <span class="pull-right"> {{ item.count }}</span>
-                        </li>
+    <div class="widget-boxed padd-bot-0" v-if="items.length > 0">
+        <div class="widget-boxed-header">
+            <h4>Salaire offert</h4>
+        </div>
+        <div class="widget-boxed-body">
+            <div class="side-list no-border">
+                <ul>
+                    <li v-for="item in items">
+                        <span class="custom-checkbox">
+                            <input type="checkbox" class="salary-filter" :id="item.id" :name="'salaries'" :value="item.id" v-on:change="selectedFilter">
+                            <label :for="item.id"></label>
+                        </span> {{ item.filter_name }} <span class="pull-right"> {{ item.count }}</span>
+                    </li>
 
-                    </ul>
-                </div>
+                </ul>
             </div>
         </div>
-    </script>
+    </div>
+</script>
+<script  id="filter-category-template" type="text/x-template">
+    <div class="widget-boxed padd-bot-0" v-if="items.length > 0">
+        <div class="widget-boxed-header">
+            <h4>Secteur d'activité</h4>
+        </div>
+        <div class="widget-boxed-body">
+            <div class="side-list no-border">
+                <ul>
+                    <li v-for="item in items">
+                        <span class="custom-radio">
+                            <input type="radio" class="category-filter" :id="item.id" :checked="valueSelected === item.id" :name="'cat'" :value="item.id" v-on:change="selectedFilter">
+                            <label :for="item.id"></label>
+                        </span><i class="count-item">{{ item.count }} </i> {{ item.name }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+<script  id="filter-region-template" type="text/x-template">
+    <div class="widget-boxed padd-bot-0" v-if="items.length > 0">
+        <div class="widget-boxed-header">
+            <h4>Region</h4>
+        </div>
+        <div class="widget-boxed-body">
+            <div class="side-list no-border">
+                <ul>
+                    <li v-for="item in items">
+                <span class="custom-radio">
+                    <input type="radio" class="region-filter" :id="item.id" :checked="valueSelected === item.id" :name="'region'" :value="item.id" v-on:change="selectedFilter">
+                    <label :for="item.id"></label>
+                </span> <i class="count-item">{{ item.count }} </i> {{ item.name }}
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
 <script  id="filter-search-template" type="text/x-template">
         <div class="widget-boxed padd-bot-0">
             <div class="widget-boxed-body">
@@ -88,21 +142,37 @@ get_header();
 <script type="text/x-template" id="pagination-jobs-template">
     <div class="utf_flexbox_area padd-0" id="pagination-archive"></div>
 </script>
-<script  id="job-archive-template" type="text/x-template">
-    <section class="padd-top-80 padd-bot-80">
+<script id="job-archive-template" type="text/x-template">
+    <section class="padd-top-80 padd-bot-80" id="archive-jobs">
         <div class="container padd-top-40">
             <div class="row">
-                <div class="col-md-3 col-sm-5">
+                <div class="col-md-5 col-sm-5">
                     <filter-search v-on:changed="applyFilter"></filter-search>
                     <filter-salary
                             v-bind:salaries="taxonomies.Salaries"
                             v-if="typeof taxonomies.Salaries === 'object'"
                             v-on:changed="applyFilter">
                     </filter-salary>
+
+                    <filter-region
+                            v-bind:regions="taxonomies.Regions"
+                            v-if="typeof taxonomies.Regions === 'object'"
+                            v-on:changed="applyFilter">
+                    </filter-region>
+
+                    <filter-category
+                            v-bind:categories="taxonomies.Categories"
+                            v-if="typeof taxonomies.Categories === 'object'"
+                            v-on:changed="applyFilter">
+                    </filter-category>
+
+                    <div class="ali-right">
+                        <button type="button" @click="resetFilter" class="btn light-gray-btn">Reset filter</button>
+                    </div>
                 </div>
 
                 <!-- Start Job List -->
-                <div class="col-md-9 col-sm-7">
+                <div class="col-md-7 col-sm-7">
                     <div class="row mrg-bot-20">
                         <div class="col-md-4 col-sm-12 col-xs-12 browse_job_tlt">
                             <h4 class="job_vacancie" v-if="paging !== null">{{ paging.total }} Emplois & postes vacants</h4>

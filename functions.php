@@ -32,7 +32,8 @@ add_action('wp_head', function() {
     global $Liquid_engine;
     $forgot_pwd_url = home_url('/forgot-password');
     echo $Liquid_engine->parseFile('theme')->render([
-        'forgot_pwd_url' => $forgot_pwd_url
+        'forgot_pwd_url' => $forgot_pwd_url,
+        'register_url' => home_url('/register')
     ]);
 });
 

@@ -1,3 +1,4 @@
+{% comment %}This file is injected by function.php{% endcomment %}
 <style type="text/css">
     /* theme.liquid file **/
     .ui.selection.dropdown {
@@ -63,7 +64,8 @@
                 <a href="{{ forgot_pwd_url }}" title="Forget" class="fl-right">Mot de passe oublié?</a>
             </div>
             <div class="form-group text-center">
-                <button type="submit" class="btn theme-btn full-width btn-m">${buttonText}</button>
+                <button type="submit" class="btn theme-btn  btn-m">${buttonText}</button>
+                <p class="mrg-top-20">Vous ne possédez pas encore de compte ? <a href="{{ register_url }}" class="font-bold">Inscription</a> </p>
             </div>
             <p v-if="errors.length" style="margin-top: 40px; padding-left: 20px;">
                 <b>Please correct the following error(s):</b>

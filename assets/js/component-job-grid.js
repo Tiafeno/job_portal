@@ -51,9 +51,7 @@
                 }
                 this.axiosInstance = axios.create({
                     baseURL: apiSettings.root + 'wp/v2',
-                    headers: {
-                        'X-WP-Nonce': apiSettings.nonce
-                    }
+                    headers: {'X-WP-Nonce': apiSettings.nonce}
                 });
                 this.init();
             },
@@ -68,8 +66,7 @@
                             self.Taxonomies.Categories = lodash.clone(responses[1].data);
                             self.Taxonomies.Types = lodash.clone(responses[0].data);
                         }
-                    )).catch(errors => {
-                    })
+                    )).catch(errors => {})
 
                     this.EmploiCollection = new wp.api.collections.Emploi();
                     this.EmploiCollection.fetch({

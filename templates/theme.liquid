@@ -46,8 +46,8 @@
 <script id="component-login-template" type="text/x-template">
     <div class="login-body">
         <!-- Nav tabs -->
-                <h3>Connexion</h3>
-                <p>Accédez à nos services avec un seul compte</p>
+                <h3 class="text-center">Bonjour!</h3>
+                <p class="text-center">Connectez-vous pour découvrir toutes nos fonctionnalités.</p>
         <!-- Nav tabs -->
         <form @submit="checkLoginForm" method="post" action="" novalidate>
             <div class="form-group">
@@ -65,7 +65,7 @@
             </div>
             <div class="form-group text-center">
                 <button type="submit" class="btn theme-btn  btn-m">${buttonText}</button>
-                <p class="mrg-top-20">Vous ne possédez pas encore de compte ? <a href="{{ register_url }}" class="font-bold">Inscription</a> </p>
+                <p class="mrg-top-20">Vous ne possédez pas encore de compte ? <a href="{{ register_url }}" class="font-bold">Créer un compte</a> </p>
             </div>
             <p v-if="errors.length" style="margin-top: 40px; padding-left: 20px;">
                 <b>Please correct the following error(s):</b>

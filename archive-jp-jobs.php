@@ -25,6 +25,9 @@ get_header();
         font-weight: 600;
         line-height: 28px;
     }
+    .can-skils li {
+        padding: 2px 0 !important;
+    }
 </style>
 <!-- Template-->
 <script  id="filter-salary-template" type="text/x-template">
@@ -100,7 +103,6 @@ get_header();
             </div>
         </div>
     </script>
-
 <script type="text/x-template" id="apply-job">
     <div>
         <button @click="apply()" type="button" class="btn-job theme-btn job-apply">{{buttonText}}</button>
@@ -114,17 +116,19 @@ get_header();
     <div class="job-verticle-list">
         <div class="vertical-job-card">
             <div class="vertical-job-header">
-                <div class="vrt-job-cmp-logo"> </div>
-                <h4><a href="job-detail.html"></a>{{ item.title.rendered }}</h4>
-                <span class="com-tagline">{{item.get_cat_name}}</span> <span class="pull-right vacancy-no">ID. <span class="v-count">{{item.id}}</span></span>
+                <div class="vrt-job-cmp-logo">
+                    <a :href="item.link"><img :src="item.company.avatar_urls[96]" class="img-responsive" alt=""></a>
+                </div>
+                <h4><a href="job-detail.html"></a>{{ item.company.name }}</h4>
+                <span class="com-tagline">{{item.title.rendered}}</span> <span class="pull-right vacancy-no">ID. <span class="v-count">{{item.id}}</span></span>
             </div>
             <div class="vertical-job-body">
                 <div class="row">
                     <div class="col-md-9 col-sm-12 col-xs-12">
                         <ul class="can-skils">
-                            <li><strong>Job Type: </strong>{{ item.get_type_name}}</li>
-                            <li><strong>Experience: </strong>{{item.meta.experience}} Year</li>
-                            <li><span v-html="item.excerpt.rendered"></span></li>
+                            <li><strong>Type de contrat: </strong>{{ item.get_type_name}}</li>
+                            <li><strong>Expérience: </strong>{{item.meta.experience == 0 ? '0-3 Mois' : item.meta.experience + ' ans'}}</li>
+                            <li><strong>Secteur d'activité: </strong>{{item.get_cat_name}}</li>
                         </ul>
                     </div>
                     <div class="col-md-3 col-sm-12 col-xs-12">
@@ -147,28 +151,25 @@ get_header();
         <div class="container padd-top-40">
             <div class="row">
                 <div class="col-md-5 col-sm-5">
+                    <div class="left floated">
+                        <button type="button" @click="resetFilter" class="btn light-gray">Reset filter</button>
+                    </div>
                     <filter-search v-on:changed="applyFilter"></filter-search>
                     <filter-salary
                             v-bind:salaries="taxonomies.Salaries"
                             v-if="typeof taxonomies.Salaries === 'object'"
                             v-on:changed="applyFilter">
                     </filter-salary>
-
                     <filter-region
                             v-bind:regions="taxonomies.Regions"
                             v-if="typeof taxonomies.Regions === 'object'"
                             v-on:changed="applyFilter">
                     </filter-region>
-
                     <filter-category
                             v-bind:categories="taxonomies.Categories"
                             v-if="typeof taxonomies.Categories === 'object'"
                             v-on:changed="applyFilter">
                     </filter-category>
-
-                    <div class="ali-right">
-                        <button type="button" @click="resetFilter" class="btn light-gray-btn">Reset filter</button>
-                    </div>
                 </div>
 
                 <!-- Start Job List -->
@@ -190,15 +191,13 @@ get_header();
                             </div>
                         </div>
                     </div>
-
+                    <div class="lds-roller" v-if="loadArchive"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
                     <!-- Single Verticle job -->
                     <job-vertical-lists v-if="!loadArchive" v-for="(item, index) in archives" :item="item" :key="item.id" ></job-vertical-lists>
                     <div class="alert alert-warning" role="alert" v-if="archives.length === 0 && !loadArchive">
                         Aucune annonce trouver
                     </div>
-
                     <div class="clearfix"></div>
-
                     <com-pagination v-if="paging !== null" v-bind:paging="paging" @change-route-page="Route" v-bind:pagesize="per_page"></com-pagination>
 
                 </div>
@@ -209,6 +208,7 @@ get_header();
 </script>
 <!-- .end template-->
     <div id="archive-jobs">
+        <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
         <comp-archive-jobs v-if="!loading" v-bind:taxonomies="Taxonomies"></comp-archive-jobs>
     </div>
 <?php

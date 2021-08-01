@@ -44,8 +44,8 @@
             // @event on click more categories button
             moreCategories: function($event) {
                 $event.preventDefault();
-                this.loading = true;
                 if (this.categoriesCollections.hasMore()) {
+                    this.loading = true;
                     this.categoriesCollections.more().then(resp => {
                         this.items = this.items.concat(resp);
                         this.loading = false;

@@ -135,8 +135,8 @@ $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
                         </a>
                     </li>
                 <li>
-                    <a class="btn-danger btn red-btn" href="<?= wp_logout_url(home_url('/')) ?>" >
-                        <i class="fa fa-plug"></i>
+                    <a class="btn-danger btn red-btn" href="<?= wp_logout_url(home_url('/')) ?>" style="font-size: 20px">
+                        <i class="fa fa-sign-out"></i>
                     </a>
                 </li>
 

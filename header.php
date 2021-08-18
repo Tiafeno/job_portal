@@ -112,13 +112,13 @@ $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
             ?>
 
             <ul class="nav navbar-nav navbar-right">
-                <?php if (!is_user_logged_in()): ?>
                     <li class="br-right">
                         <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
                             <i class="login-icon ti-archive"></i>
                             Publier une offre
                         </a>
                     </li>
+                <?php if (!is_user_logged_in()): ?>
                     <li class="br-right">
                         <a class="btn-signup red-btn" onclick="renderLoginModel()" data-toggle="modal"
                            data-target="#signin">

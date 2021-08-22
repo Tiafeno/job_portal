@@ -178,8 +178,7 @@ add_action('rest_api_init', function () {
             return $avatar_id ? $avatar_id : '';
         },
         'update_callback' => function($value, $user_obj) {
-            $ret = update_user_meta($user_obj->ID, 'avatar_id', intval($value));
-            return $ret;
+            return update_user_meta($user_obj->ID, 'avatar_id', intval($value));;
         }
     ]);
 });
@@ -193,10 +192,10 @@ add_action('rest_api_init', function () {
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function (WP_REST_Request $request) {
                 global $wpdb;
-
                 // verifier si le client est connecter
                 if (!is_user_logged_in()) {
                     wp_send_json_error("Veuillez vous connecter");
+                    return;
                 }
                 $current_user_id = get_current_user_id();
                 $user = new WP_User($current_user_id);
@@ -204,28 +203,33 @@ add_action('rest_api_init', function () {
                 if (!in_array('candidate', (array)$user->roles)) {
                     //The user haven't the "candidate" role
                     wp_send_json_error("Seul un candidate peut postuler pour cette annonce");
+                    return;
                 }
-
                 $job_id = intval($request['id']);
                 $table = $wpdb->prefix . 'job_apply';
                 // Verify if user has apply this job
-                $key_check_sql = $wpdb->prepare("SELECT * FROM $table WHERE job_id = %d AND user_id = %d",
-                    intval($job_id), intval($current_user_id));
-                $key_check_row = $wpdb->get_results($key_check_sql);
-                if ($key_check_row) {
-                    wp_send_json_success("Vous avez déja postuler pour cette annonce");
-                } else {
-                    $request = $wpdb->insert($table, [
+                $sql = "SELECT * FROM $table WHERE job_id = %d AND candidate_id = %d";
+                $key_check_row = $wpdb->get_results($wpdb->prepare( $sql, intval($job_id), intval($current_user_id)));
+                if (!$key_check_row) {
+                    // Get post employer id
+                    $employer_id = get_post_meta($job_id, "employer_id", true);
+                    $employer_id = $employer_id ? intval($employer_id) : 0;
+                    // Insert table
+                    $addApplyRequest = $wpdb->insert($table, [
                         'job_id' => $job_id,
-                        'user_id' => intval($current_user_id),
+                        'candidate_id' => intval($current_user_id),
+                        'employer_id' => $employer_id
                     ]);
                     $wpdb->flush();
-                    if ($request) {
+                    if ($addApplyRequest) {
                         wp_send_json_success("Envoyer avec succes");
-                    } else {
-                        wp_send_json_error("Une erreur s'est produit pendant l'opération");
+                        return;
                     }
+                    wp_send_json_error("Une erreur s'est produit pendant l'opération");
+                    return;
                 }
+                wp_send_json_success("Vous avez déja postuler pour cette annonce");
+                return;
             },
             'permission_callback' => function ($data) {
                 return current_user_can('edit_posts');
@@ -238,6 +242,24 @@ add_action('rest_api_init', function () {
                 ),
             ]
         ),
+    ]);
+    register_rest_route('job/v2', '/purchase/(?P<id_apply>\d+)', [
+        [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => function (WP_REST_Request $request) {
+
+            },
+            'permission_callback' => function ($data) {
+                return current_user_can('edit_posts');
+            },
+            'args' => [
+                'id_apply' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
+            ]
+        ]
     ]);
     register_rest_route('job/v2', '/details/(?P<id>\d+)', [
         array(
@@ -263,7 +285,7 @@ add_action('rest_api_init', function () {
                     // Get candidate apply for this job
                     foreach ($job_rows as $job_row) {
                         $usr_controller = new WP_REST_Users_Controller();
-                        $usr = new WP_User((int)$job_row->user_id);
+                        $usr = new WP_User((int)$job_row->candidate_id);
                         $candidate = $usr_controller->prepare_item_for_response($usr, $request)->data;
                         $results->candidates[] = $candidate;
                     }
@@ -296,7 +318,6 @@ add_action('rest_api_init', function () {
                 $candidate = $user_controller->prepare_item_for_response(new WP_User($user_id), $request)->data;
                 // Send response data
                 wp_send_json_success($candidate);
-
             },
             'permission_callback' => function ($data) {
                 return true;

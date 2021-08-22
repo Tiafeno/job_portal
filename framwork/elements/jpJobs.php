@@ -27,9 +27,7 @@ class jpJobs
      */
     public function __get($name)
     {
-        if (isset($this->post->{$name})):
-            return $this->post->{$name};
-        endif;
+        if (isset($this->post->{$name})) return $this->post->{$name};
         $meta_value = get_post_meta($this->post->ID, $name, true);
         return $meta_value;
     }

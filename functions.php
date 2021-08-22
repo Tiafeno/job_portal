@@ -9,7 +9,7 @@ defined('__SITENAME__') ? null: define('__SITENAME__', 'job_portal');
 defined('_ACCOUNT_URL_') ? null: define('_ACCOUNT_URL_', DS .'espace-client');
 defined('_ADD_ANNONCE_URL_') ? null: define('_ADD_ANNONCE_URL_', DS . 'add-annonce');
 
-require_once __DIR__ . '/framwork/loader.php'; // Load all elements
+include_once __DIR__ . '/framwork/loader.php'; // Load all elements
 require_once __DIR__ . '/vendor/autoload.php';
 
 \Liquid\Liquid::set('INCLUDE_PREFIX', '');
@@ -91,7 +91,6 @@ add_action('after_switch_theme', function() {
 		date_add DATETIME NOT NULL,
 		PRIMARY KEY  `apply_id` (`ID`)
 	) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
-
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $sql );
 });
@@ -114,7 +113,6 @@ add_action('pre_get_posts', function (WP_Query $query) {
         if ($query->get('post_type') === 'jp-jobs') {
             $query->set('post_status', ['publish']);
         }
-
     }
     return $query;
 });
@@ -142,4 +140,14 @@ add_action('init', function () {
         }
     }
 });
+
+// Cette action permet d'afficher des contenues dynamique
+// et aussi gerer les abonnements
+add_action('acf/render_field/name=pricing', 'acf_pricing_field');
+function acf_pricing_field() {
+    global $Liquid_engine;
+
+    echo "Pricing here..";
+}
+
 

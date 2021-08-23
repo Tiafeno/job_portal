@@ -4,12 +4,12 @@ if (!defined('ABSPATH')) {
 }
 
 class jpHelpers {
-    public function __construct() {
+    public function __construct() {}
 
-    }
     public static function getInstance() {
         return new self();
     }
+
     public static function getValue( $name, $def = false ) {
         if ( ! isset( $name ) || empty( $name ) || ! is_string( $name ) ) {
             return $def;
@@ -18,11 +18,13 @@ class jpHelpers {
         $returnValue = urldecode( preg_replace( '/((\%5C0+)|(\%00+))/i', '', urlencode( $returnValue ) ) );
         return ! is_string( $returnValue ) ? $returnValue : stripslashes( $returnValue );
     }
+
     public function get_user_json_meta_values(WP_User $user, $meta_value) {
         $user_term = get_the_author_meta($meta_value, $user->ID);
         $user_term_ids = empty($user_term) ? [] : json_decode($user_term, false);
         return  array_values($user_term_ids);
     }
+
     public function get_app_configs() {
         $directory = trailingslashit( get_template_directory_uri() );
         $url = $directory . 'configs/schema.json';

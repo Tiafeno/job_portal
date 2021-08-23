@@ -700,32 +700,39 @@
                     loading: false,
                     job: null,
                     candidateApply: [],
-                    jobAxiosInstance: null
+                    jHTTPInstance: null,
                 }
             },
             mounted: function () {
-                const self = this;
-                this.jobAxiosInstance = axios.create({
+                this.jHTTPInstance = axios.create({
                     baseURL: clientApiSettings.root + 'job/v2',
-                    headers: {
-                        'X-WP-Nonce': clientApiSettings.nonce
-                    }
+                    headers: {'X-WP-Nonce': clientApiSettings.nonce}
                 });
                 this.loading = true;
                 const job_id = this.$route.params.id;
-                self.jobAxiosInstance.get(`details/${job_id}`).then(function (response) {
+                this.jHTTPInstance.get(`${job_id}/apply`).then(response => {
                     const details = response.data;
                     if (details.success) {
-                        self.candidateApply = lodash.map(details.data.candidates, candidate => {
+                        this.candidateApply = lodash.map(details.data.candidates, candidate => {
                             candidate.link = clientApiSettings.page_candidate + '#/candidate/' + candidate.id;
                             return candidate;
                         });
-                        self.job = lodash.clone(details.data.job);
+                        this.job = lodash.clone(details.data.job);
                     }
-                    self.loading = false;
+                    this.loading = false;
                 }).catch(function () {
-                    self.loading = false;
+                    this.loading = false;
                 });
+            },
+            methods: {
+                purchased: function (candidateId) {
+                    let _form = new FormData();
+                    _form.append('candidate_id', candidateId);
+                    this.jHTTPInstance.post(`${this.job.id}/purchase`, _form).then(resp => {
+                        console.log(resp);
+                    })
+
+                }
             },
             computed: {}
         }
@@ -733,12 +740,13 @@
             path: '/',
             component: Layout,
             redirect: '/home',
-            children: [{
-                path: 'home',
-                name: 'Home',
-                props: true,
-                component: Home
-            },
+            children: [
+                {
+                    path: 'home',
+                    name: 'Home',
+                    props: true,
+                    component: Home
+                },
                 {
                     path: 'cv',
                     name: 'CV',

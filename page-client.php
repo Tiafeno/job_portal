@@ -363,7 +363,7 @@ get_header();
                     <div class="col-md-12 col-sm-12" id="educations">
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-header">
-                                <h4>Biographie</h4>
+                                <h4>Mon personnalité (Qu'est-ce qui vous motive vraiment?)</h4>
                             </div>
                             <div class="detail-wrapper-body" id="education-list">
                                 <textarea v-model="profil" class="form-control textarea" name="profil"></textarea>
@@ -688,8 +688,12 @@ get_header();
                     <tr v-for="candidate in candidateApply" v-if="candidateApply.length !== 0 && !loading">
                         <td> {{ candidate.meta.reference }}</td>
                         <td><i class="ti-credit-card"></i> {{ candidate.meta.address }}</td>
-                        <td><a class="cl-info mrg-5" :href="candidate.link" target="_blank"><i class="ti-info-alt"></i>
-                                Voir le candidat </a></td>
+                        <td>
+                            <a class="cl-info mrg-5" :href="candidate.link" target="_blank"><i class="ti-info-alt"></i>
+                                Voir le candidat
+                            </a>
+                            <button class="btn btn-info" @click="purchased(candidate.id)" > Purchase </button>
+                        </td>
                     </tr>
                     <tr v-if="candidateApply.length === 0 && !loading">
                         <td>Aucune donnée disponible dans le tableau</td>

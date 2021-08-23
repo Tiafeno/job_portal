@@ -22,24 +22,30 @@
                 items: []
             }
         },
-        created: function () {
+        mounted: function () {
             this.init();
         },
         methods: {
             init: function () {
                 this.loading = true;
-                // Initialise collection api
-                this.categoriesCollections = new wp.api.collections.Categories();
-                this.categoriesCollections.fetch({
-                    data: {
-                        per_page: 8,
-                        orderby: 'count',
-                        order: 'desc'
-                    }
-                }).then(resp => {
-                    this.items = _.clone(resp);
+                try {
+                    // Initialise collection api
+                    this.categoriesCollections = new wp.api.collections.Categories();
+                    this.categoriesCollections.fetch({
+                        data: {
+                            per_page: 8,
+                            orderby: 'count',
+                            order: 'desc'
+                        }
+                    }).then(resp => {
+                        this.items = _.clone(resp);
+                        this.loading = false;
+                    });
+                } catch (e) {
                     this.loading = false;
-                });
+                    console.warn(e);
+                }
+
             },
             // @event on click more categories button
             moreCategories: function($event) {

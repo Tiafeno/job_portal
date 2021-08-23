@@ -146,8 +146,12 @@ add_action('init', function () {
 add_action('acf/render_field/name=pricing', 'acf_pricing_field');
 function acf_pricing_field() {
     global $Liquid_engine;
-
-    echo "Pricing here..";
+    $app_configs = jpHelpers::getInstance()->get_app_configs();
+    $pricings = $app_configs->pricing->account;
+    $args = [
+        'pricings' => $pricings
+    ];
+    echo $Liquid_engine->parseFile('pricings/pricing-layout')->render($args);
 }
 
 

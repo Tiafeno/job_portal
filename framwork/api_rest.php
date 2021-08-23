@@ -187,7 +187,7 @@ add_action('rest_api_init', function () {
     /**
      * Récuperer la liste des candidates
      */
-    register_rest_route('job/v2', '/apply/(?P<id>\d+)', [
+    register_rest_route('job/v2', '/(?P<job_id>\d+)/apply', [
         array(
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function (WP_REST_Request $request) {
@@ -242,46 +242,27 @@ add_action('rest_api_init', function () {
                 ),
             ]
         ),
-    ]);
-    register_rest_route('job/v2', '/purchase/(?P<id_apply>\d+)', [
-        [
-            'methods' => WP_REST_Server::READABLE,
-            'callback' => function (WP_REST_Request $request) {
-
-            },
-            'permission_callback' => function ($data) {
-                return current_user_can('edit_posts');
-            },
-            'args' => [
-                'id_apply' => array(
-                    'validate_callback' => function ($param, $request, $key) {
-                        return is_numeric($param);
-                    }
-                ),
-            ]
-        ]
-    ]);
-    register_rest_route('job/v2', '/details/(?P<id>\d+)', [
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
                 global $wpdb;
                 //$current_user_id = get_current_user_id();
-                $job_id = intval($request['id']);
+                $job_id = intval($request['job_id']);
+                $job = get_post($job_id);
                 $table = $wpdb->prefix . 'job_apply';
                 // Verify if user has apply this job
                 $job_sql = $wpdb->prepare("SELECT * FROM $table WHERE job_id = %d ", $job_id);
                 $job_rows = $wpdb->get_results($job_sql, OBJECT);
+                // Request params
+                $request = new WP_REST_Request();
+                $request->set_param('context', 'view');
+                // Create results object
                 $results = new stdClass();
-                $job = get_post((int)$job_id);
                 $results->job = new stdClass();
-                $results->job->title = $job->post_title;
                 $results->job->id = $job->ID;
+                $results->job->title = $job->post_title;
                 $results->candidates = [];
                 if ($job_rows) {
-                    // Request params
-                    $request = new WP_REST_Request();
-                    $request->set_param('context', 'edit');
                     // Get candidate apply for this job
                     foreach ($job_rows as $job_row) {
                         $usr_controller = new WP_REST_Users_Controller();
@@ -304,12 +285,52 @@ add_action('rest_api_init', function () {
             ]
         ),
     ]);
+    register_rest_route('job/v2', '/(?P<job_id>\d+)/purchase/(?P<id_candidate>\d+)', [
+        [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $job_id = intval($request['job_id']);
+                $candidate_id =  intval($request['candidate_id']);
+                $job = get_post($job_id);
+
+                $insertion = wp_insert_post( []);
+
+                // Crée une produit pour cette achat
+                $args = array(
+                    'status'        => null,
+                    'customer_id'   => get_current_user_id(),
+                    'customer_note' => "",
+                    'parent'        => null,
+                    'created_via'   => null,
+                    'cart_hash'     => null,
+                    'order_id'      => 0,
+                );
+                $order = wc_create_order($args);
+                $order->add_product();
+
+                WC()->cart->empty_cart(); // Clear empty cart
+
+
+
+            },
+            'permission_callback' => function ($data) {
+                return current_user_can('edit_posts');
+            },
+            'args' => [
+                'id_apply' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
+            ]
+        ]
+    ]);
     // Get user for not restriction by wordpress
-    register_rest_route('job-portal', '/users/(?P<id>\d+)', [
+    register_rest_route('job-portal', '/users/(?P<user_id>\d+)', [
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
-                $user_id = intval($request['id']);
+                $user_id = intval($request['user_id']);
                 // Create request
                 $request = new WP_REST_Request();
                 $request->set_param('context', 'edit');

@@ -14,13 +14,12 @@ class JobGridCategories_Widget extends Widget_Base
         parent::__construct($data, $args);
         // https://developers.elementor.com/creating-a-new-widget/adding-javascript-to-elementor-widgets/
         wp_register_script('comp-grid-categories', get_stylesheet_directory_uri() . '/assets/js/comp-job-grid-categories.js',
-            ['lodash', 'wp-api'], null, true);
+            ['lodash', 'wp-api', 'wpapi'], null, true);
     }
     public function get_script_depends() {
         wp_localize_script('comp-grid-categories', 'gridAPIHandler', [
             'root' => esc_url_raw( rest_url() ),
-            'nonce' => wp_create_nonce( 'wp_rest' ),
-            'archive_categories_url' => get_taxono
+            'nonce' => wp_create_nonce( 'wp_rest' )
         ]);
         return ['comp-grid-categories'];
     }

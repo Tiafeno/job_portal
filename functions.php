@@ -9,6 +9,11 @@ defined('__SITENAME__') ? null: define('__SITENAME__', 'job_portal');
 defined('_ACCOUNT_URL_') ? null: define('_ACCOUNT_URL_', DS .'espace-client');
 defined('_ADD_ANNONCE_URL_') ? null: define('_ADD_ANNONCE_URL_', DS . 'add-annonce');
 
+// Table
+global $wpdb;
+define('APPLY_TABLE', "{$wpdb->prefix}job_apply");
+define('APPLY_PURCHASE_TABLE', "{$wpdb->prefix}job_apply_purchase");
+
 include_once __DIR__ . '/framwork/loader.php'; // Load all elements
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -123,8 +128,8 @@ add_action('pre_get_posts', function (WP_Query $query) {
 add_action('init', function () {
     if (!isset($_POST['jp-login-nonce'])) return;
     $nonce = trim($_POST['jp-login-nonce']);
-    $verify_result = wp_verify_nonce($nonce, 'jp-login-action');
-    if ($verify_result) {
+    $nonce_verify = wp_verify_nonce($nonce, 'jp-login-action');
+    if ($nonce_verify) {
         $remember = isset($_POST['remember']) ? true : false;
         $info = array();
         $info['user_login'] = $_POST['log'];

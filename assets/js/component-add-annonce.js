@@ -296,7 +296,6 @@
                 });
             },
             created: function () {
-                const self = this;
                 this.WPAPI = new WPAPI({
                     endpoint: job_handler_api.root,
                     nonce: job_handler_api.nonce
@@ -308,14 +307,19 @@
                 });
                 // Si le client est connecter, On verifie s'il existe deja une entreprise
                 this.loading = true;
-                this.WPAPI.users().me().context('view')
-                    .then(function (resp) {
-                        self.me = lodash.clone(resp);
-                        var hasCompany = self.me.meta.company_id !== 0;
-                        if (!hasCompany) {
-                            self.$router.push({name: 'Company'});
+                this.WPAPI.users().me().context('edit')
+                    .then( resp => {
+                        this.me = lodash.clone(resp);
+                        this.loading = false;
+                        // Verifier le role du client
+                        let roles = this.me.roles;
+                        if (lodash.indexOf(roles, 'employer') < 0) {
+                            this.$router.push({name: "DenialAccess"});
+                            return;
                         }
-                        self.loading = false;
+                        // Verifier si l'utilisateur possede deja une entreprise ou societe
+                        var hasCompany = this.me.meta.company_id !== 0;
+                        if (!hasCompany) this.$router.push({name: 'Company'});
                     });
             },
             methods: {
@@ -387,6 +391,9 @@
             },
             delimiters: ['${', '}']
         };
+        const DenialAccess = {
+            template: "#denial-access", // Include in theme.liquid
+        }
 
         // Application
         const Layout = {
@@ -441,6 +448,11 @@
                     if (job_handler_api.isLogged) next({name: 'Annonce'})
                     else next();
                 },
+            },
+            {
+                path: '/denial-access',
+                component: DenialAccess,
+                name: 'DenialAccess',
             }
         ];
         const router = new VueRouter({

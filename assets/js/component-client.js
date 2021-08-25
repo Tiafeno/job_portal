@@ -735,7 +735,36 @@
                 }
             },
             computed: {}
-        }
+        };
+        const AdApplied = {
+            template: "#ad-applied",
+            data: function () {
+                return {
+                    jobs: [],
+                    loading: false,
+                }
+            },
+            mounted: function () {
+                this.initComponent();
+            },
+            methods: {
+                initComponent: function () {
+                    this.loading = true;
+                    const clientId = clientApiSettings.current_user_id;
+                    axios.get(clientApiSettings.ajax_url, {
+                        params: {
+                            cid: clientId,
+                            action: 'ad_handler_apply'
+                        }
+                    }).then((resp) => {
+                        if (resp.status === 200) {
+                            this.jobs = lodash.clone(resp.data);
+                        }
+                        this.loading = false;
+                    });
+                }
+            }
+        };
         const routes = [{
             path: '/',
             component: Layout,
@@ -761,6 +790,11 @@
                     path: 'job/:id/details',
                     name: 'AnnonceDetails',
                     component: AnnonceDetails
+                },
+                {
+                    path: 'ad_applied',
+                    name: 'AdApplied',
+                    component: AdApplied
                 }
             ],
             beforeEnter: (to, from, next) => {

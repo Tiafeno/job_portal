@@ -19,6 +19,7 @@ class jpHelpers {
         return ! is_string( $returnValue ) ? $returnValue : stripslashes( $returnValue );
     }
 
+    // Don't touch it
     public function get_user_json_meta_values(WP_User $user, $meta_value) {
         $user_term = get_the_author_meta($meta_value, $user->ID);
         $user_term_ids = empty($user_term) ? [] : json_decode($user_term, false);
@@ -61,29 +62,12 @@ add_action( 'edit_user_profile_update', 'save_profile_fields' );
 add_action( 'show_user_profile', 'crf_show_extra_profile_fields' );
 add_action( 'edit_user_profile', 'crf_show_extra_profile_fields' );
 function crf_show_extra_profile_fields( $user ) {
-    ?>
-    <h3>Extra profile information</h3>
-    <table class="form-table">
-        <tr>
-            <th><label for="city"><?php _e("Ville"); ?></label></th>
-            <td>
-                <input type="text" name="city" id="city" value="<?php echo esc_attr( get_the_author_meta( 'city', $user->ID ) ); ?>" class="regular-text" /><br />
-            </td>
-        </tr>
-        <tr>
-            <th><label for="address"><?php _e("Address"); ?></label></th>
-            <td>
-                <input type="text" name="address" id="address" value="<?php echo esc_attr( get_the_author_meta( 'address', $user->ID ) ); ?>" class="regular-text" /><br />
-            </td>
-        </tr>
-        <tr>
-            <th><label for="phone"><?php _e("Numéro de téléphone"); ?></label></th>
-            <td>
-                <input type="text" name="phone" id="phone" value="<?php echo esc_attr( get_the_author_meta( 'phone', $user->ID ) ); ?>" class="regular-text" /><br />
-            </td>
-        </tr>
-    </table>
-<?php
+    global $Liquid_engine;
+    echo $Liquid_engine->parseFile('admin/extra-profil-information')->render([
+            'city' =>  esc_attr(get_the_author_meta('city', $user->ID)),
+            'address' =>  esc_attr(get_the_author_meta('address', $user->ID)),
+            'phone' =>  esc_attr(get_the_author_meta('phone', $user->ID))
+    ]);
     if (in_array('candidate', $user->roles)):
         $languages = get_terms(['taxonomy' => 'language', 'hide_empty' => false, 'number' => 50]);
         $categories = get_terms(['taxonomy' => 'category', 'hide_empty' => false, 'number' => 50]);

@@ -64,6 +64,11 @@ get_header();
                                         Mon CV
                                     </router-link>
                                 </li>
+                                <li v-if="isCandidate">
+                                    <router-link :to="{ path: '/ad_applied' }"><i class="login-icon ti-dashboard"></i>
+                                        Offre postuler
+                                    </router-link>
+                                </li>
                                 <li v-if="isEmployer">
                                     <router-link :to="{ path: '/jobs' }"><i class="login-icon ti-dashboard"></i>
                                         Mes Annonces
@@ -698,6 +703,36 @@ get_header();
                     <tr v-if="candidateApply.length === 0 && !loading">
                         <td>Aucune donnée disponible dans le tableau</td>
                     </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </script>
+
+    <!--Annonce or offer applied handler template-->
+    <script type="text/x-template" id="ad-applied">
+        <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
+            <h4 class="mrg-bot-10">Tous les offres que vous avez postuler</h4>
+            <div class="table-responsive">
+                <table class="table table-lg table-hover">
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="job in jobs" v-if="jobs.length !== 0 && !loading">
+                            <td> {{ job.title.rendered }}</td>
+                            <td>
+                                <a class="cl-info mrg-5" :href="job.link" target="_blank"><i class="ti-info-alt"></i>
+                                    Voir l'offre
+                                </a>
+                            </td>
+                        </tr>
+                        <tr v-if="jobs.length === 0 && !loading">
+                            <td>Aucune donnée disponible dans le tableau</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

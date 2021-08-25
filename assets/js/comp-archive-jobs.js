@@ -32,7 +32,7 @@ const paramKeys = Object.keys(params); // return array of keys
                     $event.preventDefault();
                     let values = [];
                     // Get all input selected
-                    const inputChecked = $('input:checked.region-filter');
+                    const inputChecked = $('select.region-filter');
                     inputChecked.each(function (index, el) {
                         values.push($(el).val());
                     });
@@ -63,7 +63,7 @@ const paramKeys = Object.keys(params); // return array of keys
                     $event.preventDefault();
                     let values = [];
                     // Get all input selected
-                    const inputChecked = $('input:checked.category-filter');
+                    const inputChecked = $($event.currentTarget);
                     inputChecked.each(function (index, el) {
                         values.push($(el).val());
                     });

@@ -42,7 +42,7 @@
                                     showLoginModal();
                                 } else {
                                     this.loading = true;
-                                    jobapiAxiosInstance.post(`apply/${apiSettings.jobId}`, {}).then(function(response) {
+                                    jobapiAxiosInstance.post(`/${apiSettings.jobId}/apply`, {}).then(function(response) {
                                         const dataResponse = lodash.clone(response.data);
                                         self.message = dataResponse;
                                         self.loading = false;

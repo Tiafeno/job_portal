@@ -318,7 +318,6 @@ add_action('init', function () {
             wp_send_json_error('Error login information');
         }
     });
-
     // Modifier le mot de passe d'un utilisateur
     add_action('wp_ajax_change_my_pwd', function () {
         check_ajax_referer('ajax-client-form', 'pwd_nonce');
@@ -329,6 +328,21 @@ add_action('init', function () {
         $user_id = get_current_user_id();
         wp_set_password($password, $user_id);
         wp_send_json_success("Mot de passe modifier avec succès");
+    });
+    add_action('wp_ajax_ad_handler_apply', function () {
+        global $wpdb;
+        $candidate_id = $_GET['cid'];
+        $candidate_id = intval($candidate_id);
+        $table_apply = APPLY_TABLE;
+        $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_apply WHERE candidate_id = %d", $candidate_id));
+        $jobs = [];
+        $request = new WP_REST_Request();
+        $request->set_param('context', 'edit');
+        foreach ($results as $result) {
+            $job_controller = new WP_REST_Posts_Controller('jp-jobs');
+            $jobs[] = $job_controller->prepare_item_for_response(get_post($result->job_id), $request)->data;
+        }
+        wp_send_json($jobs);
     });
 });
 

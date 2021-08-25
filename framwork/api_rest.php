@@ -127,7 +127,6 @@ add_action('rest_api_init', function () {
             }
         ]);
     }
-
     // Add custom field in job post type
     register_rest_field( ['jp-jobs'], 'company', array(
         'get_callback' => function( $job_arr ) {
@@ -184,6 +183,17 @@ add_action('rest_api_init', function () {
 });
 
 add_action('rest_api_init', function () {
+    function rest_get_user(WP_REST_Request $request) {
+        $user_id = intval($request['user_id']);
+        // Create request
+        $request = new WP_REST_Request();
+        $request->set_param('context', 'edit');
+        // Create REST API user controller
+        $user_controller = new WP_REST_Users_Controller();
+        $candidate = $user_controller->prepare_item_for_response(new WP_User($user_id), $request)->data;
+        // Send response data
+        wp_send_json_success($candidate);
+    }
     /**
      * Récuperer la liste des candidates
      */
@@ -198,14 +208,22 @@ add_action('rest_api_init', function () {
                     return;
                 }
                 $current_user_id = get_current_user_id();
-                $user = new WP_User($current_user_id);
+                $user = new \JP\Framwork\Elements\jpCandidate($current_user_id);
                 // Only candidate access for this endpoint
                 if (!in_array('candidate', (array)$user->roles)) {
                     //The user haven't the "candidate" role
                     wp_send_json_error("Seul un candidate peut postuler pour cette annonce");
                     return;
                 }
-                $job_id = intval($request['id']);
+                if (!$user->hasCV()) {
+                    wp_send_json_error("Vous n'avez pas encore un CV. Veuillez remplir votre CV dans l'espace client");
+                    return;
+                }
+                if (!$user->isPublic()) {
+                    wp_send_json_error("Votre CV est en attente de validation. Veuillez ressayer plutard");
+                    return;
+                }
+                $job_id = intval($request['job_id']);
                 $table = $wpdb->prefix . 'job_apply';
                 // Verify if user has apply this job
                 $sql = "SELECT * FROM $table WHERE job_id = %d AND candidate_id = %d";
@@ -305,13 +323,23 @@ add_action('rest_api_init', function () {
                     'cart_hash'     => null,
                     'order_id'      => 0,
                 );
+                $post_id = wp_insert_post( array(
+                    'post_title' => $title,
+                    'post_type' => 'product',
+                    'post_status' => 'publish',
+                    'post_content' => $body,
+                ));
+                $product = wc_get_product( $post_id );
+                $product->set_sku( $sku );
+                $product->set_price( $price );
+                $product->set_regular_price( $regular_price );
+                $product->save();
+
                 $order = wc_create_order($args);
                 $order->add_product();
 
                 WC()->cart->empty_cart(); // Clear empty cart
-
-
-
+                
             },
             'permission_callback' => function ($data) {
                 return current_user_can('edit_posts');
@@ -325,21 +353,26 @@ add_action('rest_api_init', function () {
             ]
         ]
     ]);
+    register_rest_route('job/v2', '/companies', [
+        array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $company_query = new WP_User_Query( array(
+                    'role' => 'company',
+                    'role__not_in' => 'Administrator'
+                ) );
+
+            },
+            'permission_callback' => function ($data) {
+                return true;
+            }
+        ),
+    ]);
     // Get user for not restriction by wordpress
     register_rest_route('job-portal', '/users/(?P<user_id>\d+)', [
         array(
             'methods' => WP_REST_Server::READABLE,
-            'callback' => function (WP_REST_Request $request) {
-                $user_id = intval($request['user_id']);
-                // Create request
-                $request = new WP_REST_Request();
-                $request->set_param('context', 'edit');
-                // Create REST API user controller
-                $user_controller = new WP_REST_Users_Controller();
-                $candidate = $user_controller->prepare_item_for_response(new WP_User($user_id), $request)->data;
-                // Send response data
-                wp_send_json_success($candidate);
-            },
+            'callback' => 'rest_get_user',
             'permission_callback' => function ($data) {
                 return true;
             },
@@ -352,7 +385,6 @@ add_action('rest_api_init', function () {
             ]
         ),
     ]);
-
 });
 
 add_action('rest_api_init', function() {

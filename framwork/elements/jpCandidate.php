@@ -50,8 +50,7 @@ class jpCandidate extends \WP_User
     public $branch_activity;
     //public $activated = 1;
 
-    public function __construct($id = 0, $name = '', $site_id = '')
-    {
+    public function __construct($id = 0, $name = '', $site_id = ''){
         parent::__construct($id, $name, $site_id);
     }
 
@@ -61,6 +60,16 @@ class jpCandidate extends \WP_User
                 update_user_meta($this->ID, $arg_key, $value);
             }
         }
+    }
+
+    public function hasCV() {
+        $has_cv = get_user_meta($this->ID, 'has_cv', true);
+        return (bool) $has_cv;
+    }
+
+    public function isPublic() {
+        $is_public = get_user_meta($this->ID, 'public_cv', true);
+        return (bool) $is_public;
     }
 
 }

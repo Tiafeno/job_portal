@@ -2,6 +2,8 @@
 
 
 namespace JP\Framwork\Elements;
+use function _\indexOf;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -45,12 +47,9 @@ final class jpCompany extends \WP_User
     public $city;
     public $nif;
     public $stat;
-    public $phone_numbers = [];
     public $activated = 1;
-    public $newsletter = 0; // bool
 
-    public function __construct($id = 0, $name = '', $site_id = '')
-    {
+    public function __construct($id = 0, $name = '', $site_id = '') {
         parent::__construct($id, $name, $site_id);
     }
 
@@ -61,24 +60,13 @@ final class jpCompany extends \WP_User
             }
         }
     }
-}
 
-class CompanyHelper {
-    public function __construct() {
-        add_action('wp_ajax_nopriv_new_company', [$this, 'new_company']);
-        add_action('wp_ajax_new_company', [$this, 'new_company']);
+    public static function is_company($id_object) {
+        $user = get_user_by('ID', $id_object);
+        if (!$user) return false;
+        if ($user instanceof \WP_User) {
+            return indexOf($user->roles, 'company') >= 0;
+        }
+        return false;
     }
-
-    public static function getInstance() {
-        return new self();
-    }
-
-    /**
-     *
-     */
-    public function new_company() {
-        return wp_send_json_success();
-    }
-
-
 }

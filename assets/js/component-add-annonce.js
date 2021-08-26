@@ -187,6 +187,7 @@
                             nif: item.nif,
                             stat: item.stat,
                             newsletter: 0, // bool value to subscribe or not
+                            employer_id: job_handler_api.current_user_id,
                         }
                     }).then(function (user) {
                         // Add this company for the employee

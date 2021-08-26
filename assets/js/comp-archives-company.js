@@ -12,9 +12,8 @@
             data: function () {
                 return {
                     loading: false,
-                    per_page: 10, // default
+                    totals: 0,
                     page: 1, //default
-                    paging: null,
                     companies: [],
                     companyCollections: null,
                 }
@@ -27,15 +26,16 @@
                     this.loading = true;
                     try {
                         // Initialise collection api
-                        this.companyCollections = new wp.api.collections.Users;
-                        this.companyCollections.fetch({
-                            data: {
-                                per_page: 8,
-                                roles: 'employer',
-                                context: 'view'
+                        this.companyCollections = axios.create({
+                            baseURL: apiSettings.root + 'job/v2',
+                            headers: {'X-WP-Nonce': apiSettings.nonce }
+                        });
+                        this.companyCollections.get(`/companies`).then(resp => {
+                            if (resp.status === 200) {
+                                const results = resp.data;
+                                this.totals = results.total;
+                                this.companies = lodash.clone(results.data);
                             }
-                        }).then(resp => {
-                            this.companies = _.clone(resp);
                             this.loading = false;
                         });
                     } catch (e) {
@@ -45,15 +45,75 @@
                 },
             }
         };
-        const SingleCompany = {
-            template: '#company-details',
+        const JobsCompany = {
+            props: ['employerid'],
+            template: "#company-jobs",
             data: function () {
                 return {
                     loading: false,
+                    jobs: [],
                 }
             },
-            mounted: async function () {
-
+            created: function() {
+                this.initComponent();
+            },
+            methods: {
+                initComponent: function() {
+                    const employerCollection = new wp.api.collections.Emploi();
+                    this.loading = true;
+                    employerCollection.fetch({
+                        data: {
+                            per_page: 8,
+                            meta_key: 'employer_id',
+                            meta_value: this.employerid
+                        }
+                    }).then(resp => {
+                        try {
+                            this.jobs = lodash.clone(resp);
+                            this.loading = false;
+                        } catch (e) {
+                            console.warn(e);
+                            this.loading = false;
+                        }
+                    })
+                }
+            }
+        };
+        const SingleCompany = {
+            template: '#company-details',
+            components: {
+                'comp-company-jobs': JobsCompany
+            },
+            data: function () {
+                return {
+                    companyId: 0,
+                    loading: false,
+                    company: null
+                }
+            },
+            mounted: function () {
+                try {
+                    this.companyId = parseInt(this.$route.params.id, 10);
+                    // Initialise collection api
+                    const companyModel = axios.create({
+                        baseURL: apiSettings.root + 'job/v2',
+                        headers: {'X-WP-Nonce': apiSettings.nonce }
+                    });
+                    // TODO: Recuperer l'employer de cette entreprise
+                    // Recuperer l'entreprise
+                    companyModel.get(`/companies/${this.companyId}`).then(resp => {
+                        if (resp.status === 200) {
+                            const responseHTTP = resp.data;
+                            if (responseHTTP.success) {
+                                this.company = lodash.clone(responseHTTP.data);
+                            }
+                        }
+                        this.loading = false;
+                    });
+                } catch (e) {
+                    this.loading = false;
+                    console.warn(e);
+                }
             }
         };
         const routes = [
@@ -68,7 +128,7 @@
                         component: ArchivesCompanies
                     },
                     {
-                        path: 'company/:id',
+                        path: 'companies/:id',
                         name: 'SingleCompany',
                         component: SingleCompany,
                     }

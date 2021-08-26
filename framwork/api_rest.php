@@ -170,7 +170,28 @@ add_action('rest_api_init', function () {
             return true;
         }
     ) );
-
+    register_rest_field( ['jp-jobs'], 'employer', array(
+        'get_callback' => function( $job_arr ) {
+            $employer_id = get_post_meta($job_arr['id'], 'employer_id', true);
+            return intval($employer_id);
+        },
+        // Pour modifier, cette function reçois la valeur entier (company_id)
+        'update_callback' => function( $value, $job_obj ) {
+            $employer_id = intval($value);
+            if (0 === $employer_id)
+                return new WP_Error('rest_integer_failer',
+                    "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
+            $ret = update_post_meta($job_obj->ID, 'employer_id', $employer_id);
+            if ( false === $ret ) {
+                return new WP_Error(
+                    'rest_updated_failed',
+                    __( 'Failed to update employer id.' ),
+                    array( 'status' => 500 )
+                );
+            }
+            return true;
+        }
+    ) );
     register_rest_field('user', 'avatar', [
         'get_callback' => function($user_arr) {
             $avatar_id = get_user_meta($user_arr['id'], 'avatar_id', true);
@@ -183,14 +204,14 @@ add_action('rest_api_init', function () {
 });
 
 add_action('rest_api_init', function () {
-    function rest_get_user(WP_REST_Request $request) {
-        $user_id = intval($request['user_id']);
+    function send_rest_user(WP_REST_Request $request) {
+        $user_id = intval($request->get_param('user_id'));
         // Create request
-        $request = new WP_REST_Request();
-        $request->set_param('context', 'edit');
+        $req = new WP_REST_Request();
+        $req->set_param('context', 'edit');
         // Create REST API user controller
         $user_controller = new WP_REST_Users_Controller();
-        $candidate = $user_controller->prepare_item_for_response(new WP_User($user_id), $request)->data;
+        $candidate = $user_controller->prepare_item_for_response(new WP_User($user_id), $req)->data;
         // Send response data
         wp_send_json_success($candidate);
     }
@@ -253,7 +274,7 @@ add_action('rest_api_init', function () {
                 return current_user_can('edit_posts');
             },
             'args' => [
-                'id' => array(
+                'job_id' => array(
                     'validate_callback' => function ($param, $request, $key) {
                         return is_numeric($param);
                     }
@@ -350,6 +371,11 @@ add_action('rest_api_init', function () {
                         return is_numeric($param);
                     }
                 ),
+                'id_candidate' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
             ]
         ]
     ]);
@@ -357,22 +383,88 @@ add_action('rest_api_init', function () {
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
+                $page = isset($_GET['paged']) ? intval($_GET['paged']) : 0;
+                $companies = [];
                 $company_query = new WP_User_Query( array(
+                    'number' => 10,
                     'role' => 'company',
                     'role__not_in' => 'Administrator'
                 ) );
-
+                $rest_request = new WP_REST_Request();
+                $rest_request->set_param('context', 'view');
+                foreach ($company_query->get_results() as $company) {
+                    $comp_controller = new WP_REST_Users_Controller();
+                    $companies[] = $comp_controller->prepare_item_for_response(new WP_User($company->ID), $rest_request)->data;
+                }
+                wp_send_json([
+                    'total' => $company_query->get_total(),
+                    'data' => $companies
+                ]);
             },
             'permission_callback' => function ($data) {
                 return true;
             }
         ),
     ]);
+    register_rest_route('job/v2', '/companies/(?P<company_id>\d+)', [
+        array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $object_id = $request->get_param('company_id');
+                $object_id = intval($object_id);
+                if (\JP\Framwork\Elements\jpCompany::is_company($object_id)) {
+                    $request = new WP_REST_Request();
+                    $request->set_param('user_id', $object_id);
+                    send_rest_user($request);
+                    return false;
+                } else {
+                    wp_send_json_error("L'indentifiant n'est pas une entreprise ou une société existante");
+                }
+            },
+            'permission_callback' => function ($data) {
+                return true;
+            },
+            'args' => [
+                'company_id' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
+            ]
+        ),
+    ]);
+    register_rest_route('job/v2', '/companies/(?P<company_id>\d+)/employer', [
+        array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $object_id = $request->get_param('company_id');
+                $object_id = intval($object_id);
+                if (\JP\Framwork\Elements\jpCompany::is_company($object_id)) {
+                    global $wpdb;
+                    // TODO: Recuperer l'employer de cette entreprise, pour être utiliser dans la page entreprise (
+                    // Afficher les offres publier par cette entreprise ou l'employer)
+                    return false;
+                } else {
+                    wp_send_json_error("L'indentifiant n'est pas une entreprise ou une société existante");
+                }
+            },
+            'permission_callback' => function ($data) {
+                return true;
+            },
+            'args' => [
+                'company_id' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
+            ]
+        ),
+    ]);
     // Get user for not restriction by wordpress
     register_rest_route('job-portal', '/users/(?P<user_id>\d+)', [
         array(
             'methods' => WP_REST_Server::READABLE,
-            'callback' => 'rest_get_user',
+            'callback' => 'send_rest_user',
             'permission_callback' => function ($data) {
                 return true;
             },
@@ -445,6 +537,14 @@ add_action('rest_api_init', function() {
         'show_in_rest' => true,
         'auth_callback' => function() {
             return is_user_logged_in(  );
+        }
+    ]);
+    register_meta('user', 'employer_id', [
+        'type' =>  'integer',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
         }
     ]);
     // Employer

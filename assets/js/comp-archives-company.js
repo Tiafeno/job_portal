@@ -28,7 +28,7 @@
                         // Initialise collection api
                         this.companyCollections = axios.create({
                             baseURL: apiSettings.root + 'job/v2',
-                            headers: {'X-WP-Nonce': apiSettings.nonce }
+                            headers: {'X-WP-Nonce': apiSettings.nonce}
                         });
                         this.companyCollections.get(`/companies`).then(resp => {
                             if (resp.status === 200) {
@@ -54,11 +54,11 @@
                     jobs: [],
                 }
             },
-            created: function() {
+            created: function () {
                 this.initComponent();
             },
             methods: {
-                initComponent: function() {
+                initComponent: function () {
                     const employerCollection = new wp.api.collections.Emploi();
                     this.loading = true;
                     employerCollection.fetch({
@@ -87,32 +87,40 @@
             data: function () {
                 return {
                     companyId: 0,
+                    employerId: 0,
                     loading: false,
                     company: null
                 }
             },
             mounted: function () {
-                try {
-                    this.companyId = parseInt(this.$route.params.id, 10);
-                    // Initialise collection api
-                    const companyModel = axios.create({
-                        baseURL: apiSettings.root + 'job/v2',
-                        headers: {'X-WP-Nonce': apiSettings.nonce }
-                    });
-                    // TODO: Recuperer l'employer de cette entreprise
-                    // Recuperer l'entreprise
-                    companyModel.get(`/companies/${this.companyId}`).then(resp => {
-                        if (resp.status === 200) {
-                            const responseHTTP = resp.data;
-                            if (responseHTTP.success) {
-                                this.company = lodash.clone(responseHTTP.data);
+                this.initComponent();
+            },
+            methods: {
+                initComponent: async function () {
+                    try {
+                        this.companyId = parseInt(this.$route.params.id, 10);
+                        // Initialise collection api
+                        const InstanceAxios = axios.create({
+                            baseURL: apiSettings.root + 'job/v2',
+                            headers: {'X-WP-Nonce': apiSettings.nonce}
+                        });
+                        // TODO: Recuperer l'employer de cette entreprise
+                        // Recuperer l'entreprise
+                        const employer = await InstanceAxios.get(`/companies/${this.companyId}/employer`);
+                        console.log(employer);
+                        InstanceAxios.get(`/companies/${this.companyId}`).then(resp => {
+                            if (resp.status === 200) {
+                                const responseHTTP = resp.data;
+                                if (responseHTTP.success) {
+                                    this.company = lodash.clone(responseHTTP.data);
+                                }
                             }
-                        }
+                            this.loading = false;
+                        });
+                    } catch (e) {
                         this.loading = false;
-                    });
-                } catch (e) {
-                    this.loading = false;
-                    console.warn(e);
+                        console.warn(e);
+                    }
                 }
             }
         };

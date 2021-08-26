@@ -441,9 +441,18 @@ add_action('rest_api_init', function () {
                 $object_id = intval($object_id);
                 if (\JP\Framwork\Elements\jpCompany::is_company($object_id)) {
                     global $wpdb;
-                    // TODO: Recuperer l'employer de cette entreprise, pour être utiliser dans la page entreprise (
-                    // Afficher les offres publier par cette entreprise ou l'employer)
-                    return false;
+                    /**
+                     * Recuperer l'employer de cette entreprise, pour être utiliser dans la page entreprise
+                     * (Afficher les offres publier par cette entreprise ou l'employer)
+                     **/
+                    $req = "SELECT umeta.user_id as employer_id FROM $wpdb->usermeta as umeta WHERE umeta.meta_key = %s AND umeta.meta_value LIKE %s ";
+                    $query_result = $wpdb->get_var($wpdb->prepare($req, 'company_id', $object_id));
+                    if (is_null($query_result)) wp_send_json_error("Compte employer introuvable");
+                    $employer_id = intval($query_result);
+                    $user_controller = new WP_REST_Users_Controller();
+                    $_request = new WP_REST_Request();
+                    $_request->set_param('context', 'view');
+                    wp_send_json_success($user_controller->prepare_item_for_response(new WP_User($employer_id), $_request)->data);
                 } else {
                     wp_send_json_error("L'indentifiant n'est pas une entreprise ou une société existante");
                 }

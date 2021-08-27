@@ -14,22 +14,25 @@ wp_localize_script('comp-company', 'apiSettings', [
 get_header();
 ?>
     <script  id="company-jobs" type="text/x-template">
-        <div class="col-md-3 col-sm-6" v-for="item in jobs" :key="item.id">
-            <div class="utf_grid_job_widget_area">
-                <div class="u-content">
-                    <div class="avatar box-80">
-                        <a v-bind:href="item.link" target="_blank">
-                            <img class="img-responsive" :src="item.company.avatar_urls[96]" alt="">
-                        </a>
+        <div class="jobs-container">
+            <div class="col-md-3 col-sm-6" v-for="item in jobs" :key="item.id">
+                <div class="utf_grid_job_widget_area">
+                    <div class="u-content">
+                        <div class="avatar box-80">
+                            <a v-bind:href="item.link" target="_blank">
+                                <img class="img-responsive" :src="item.company.avatar_urls[96]" alt="">
+                            </a>
+                        </div>
+                        <h5><a v-bind:href="item.link">${item.title.rendered}</a></h5>
+                        <p class="text-muted">lorem upsum</p>
                     </div>
-                    <h5><a v-bind:href="item.link">${item.title.rendered}</a></h5>
-                    <p class="text-muted">lorem upsum</p>
-                </div>
-                <div class="utf_apply_job_btn_item">
-                    <a v-bind:href="item.link" target="_blank" class="btn job-browse-btn btn-radius br-light">Voir l'offre</a>
+                    <div class="utf_apply_job_btn_item">
+                        <a v-bind:href="item.link" target="_blank" class="btn job-browse-btn btn-radius br-light">Voir l'offre</a>
+                    </div>
                 </div>
             </div>
         </div>
+
     </script>
     <!-- jobs company template-->
     <script type="text/x-template" id="company-archive-item">
@@ -120,7 +123,7 @@ get_header();
                 </div>
             </section>
             <!-- ================ End Employer Profile ======================= -->
-            <comp-company-jobs :employerid="0"></comp-company-jobs>
+            <comp-company-jobs :employerid="employerId" v-if="employerId !== 0"></comp-company-jobs>
         </div>
 
     </script>

@@ -104,19 +104,27 @@
                             baseURL: apiSettings.root + 'job/v2',
                             headers: {'X-WP-Nonce': apiSettings.nonce}
                         });
-                        // TODO: Recuperer l'employer de cette entreprise
+                        this.loading = true;
+                        // Recuperer l'employer de cette entreprise
+                        const employerResponse = await InstanceAxios.get(`/companies/${this.companyId}/employer`);
                         // Recuperer l'entreprise
-                        const employer = await InstanceAxios.get(`/companies/${this.companyId}/employer`);
-                        console.log(employer);
-                        InstanceAxios.get(`/companies/${this.companyId}`).then(resp => {
-                            if (resp.status === 200) {
-                                const responseHTTP = resp.data;
-                                if (responseHTTP.success) {
-                                    this.company = lodash.clone(responseHTTP.data);
+                        if (employerResponse.status === 200) {
+                            InstanceAxios.get(`/companies/${this.companyId}`).then(resp => {
+                                const employer = employerResponse.data;
+                                this.employerId = employer.id;
+                                if (resp.status === 200) {
+                                    const responseHTTP = resp.data;
+                                    if (responseHTTP.success) {
+                                        this.company = lodash.clone(responseHTTP.data);
+                                    }
                                 }
-                            }
+                                this.loading = false;
+                            });
+                        } else {
+                            console.log(employerResponse.data);
                             this.loading = false;
-                        });
+                        }
+
                     } catch (e) {
                         this.loading = false;
                         console.warn(e);

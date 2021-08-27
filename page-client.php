@@ -89,7 +89,7 @@ get_header();
         <!-- ================ End Profile Settings ======================= -->
     </script>
 
-    <script type="text/x-template" , id="edit-password-template">
+    <script type="text/x-template" id="edit-password-template">
         <div class="widget-boxed">
             <div class="widget-boxed-header">
                 <h4>Changer de mot de passe</h4>

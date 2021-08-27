@@ -144,8 +144,8 @@
                     validators: [],
                     isCandidate: false,
                     isEmployer: false,
-                    currentUser: null,
-                    currentUserCompany: null,
+                    user: null,
+                    userCompany: null,
                 }
             },
             mounted: function () {
@@ -155,28 +155,63 @@
                 submitProfil: function (ev) {
                     ev.preventDefault();
                 },
-                init: async function () {
-                    const self = this;
-                    this.loading = true;
-                    var currentUsr = await this.$parent.$parent.Wordpress.users().context('edit').me().get();
-                    self.currentUser = lodash.clone(currentUsr);
-                    // Check if is company
-                    if (lodash.indexOf(currentUsr.roles, 'employer') >= 0) {
-                        this.isEmployer = true;
-                        var companyId = currentUsr.meta.company_id;
-                        var CompanyModel = new wp.api.models.User({id: parseInt(companyId)});
-                        CompanyModel.fetch({data: {context: 'edit'}}).done(function (companyResponse) {
-                            self.currentUserCompany = lodash.clone(companyResponse);
-                            self.loading = false;
-                        });
+                setSession: function (user) {
+                    let Storage = {
+                        session_date: new Date().getTime(),
+                        user_id: 0,
+                        user_role: null,
+                        user_object: {},
+                    };
+                    // Verifier s'il y a une enregistrement
+                    let currentSession = sessionStorage.getItem('job_session');
+                    if (lodash.isNull(currentSession)) {
+                        let role = lodash.indexOf(user.roles, 'employer') >= 0 ? 'employer' : 'candidate';
+                        Storage.user_id = user.id;
+                        Storage.user_role = role;
+                        Storage.user_object[ role ] = lodash.clone(user);
+                        Storage.setItem('job_session', window.btoa(Storage));
                     } else {
-                        this.isCandidate = true;
+                        currentSession = window.atob(currentSession);
+                        sessionDate = new Date(currentSession.session_date);
+                        // Verifier la date d'expiration
+                        let dateNow = new Date();
+                        if (sessionDate.getDay() < dateNow.getDay()) {
+                            sessionStorage.removeItem('job_session');
+                        }
                     }
-                    self.profilHandler();
                 },
-                profilHandler: function () {
+                init: async function () {
+                    this.loading = true;
+                    const cUser = new wp.api.models.User({id: clientApiSettings.current_user_id});
+                    cUser.fetch({data: {context: 'edit'}}).done(user => {
+                        if (lodash.indexOf(user.roles, 'employer') >= 0) {
+                            this.isEmployer = true;
+                            const companyId = parseInt(user.meta.company_id, 10);
+                            if (0 === companyId) return;
+                            const companyModel = new wp.api.models.User({id: companyId});
+                            companyModel.fetch({data: {context: 'edit'}}).done(companyResponse => {
+                                this.userCompany = lodash.clone(companyResponse);
+                                Storage.user_object.company = lodash.clone(this.userCompany);
+                                this.loading = false;
+                            });
+                        }
+                    });
 
-                }
+
+                    // var currentUsr = await this.$parent.$parent.Wordpress.users().context('edit').me().get();
+                    // self.currentUser = lodash.clone(currentUsr);
+                    // if (lodash.indexOf(currentUsr.roles, 'employer') >= 0) {
+                    //     this.isEmployer = true;
+                    //     var companyId = currentUsr.meta.company_id;
+                    //     var CompanyModel = new wp.api.models.User({id: parseInt(companyId)});
+                    //     CompanyModel.fetch({data: {context: 'edit'}}).done(function (companyResponse) {
+                    //         self.currentUserCompany = lodash.clone(companyResponse);
+                    //         self.loading = false;
+                    //     });
+                    // } else {
+                    //     this.isCandidate = true;
+                    // }
+                },
             }
         };
         const Home = {

@@ -195,7 +195,10 @@ add_action('rest_api_init', function () {
     register_rest_field('user', 'avatar', [
         'get_callback' => function($user_arr) {
             $avatar_id = get_user_meta($user_arr['id'], 'avatar_id', true);
-            return $avatar_id ? $avatar_id : '';
+            $id = $avatar_id ? $avatar_id : '';
+            if (empty($id)) return '';
+            $media = get_attached_media('image', $id);
+            return $media;
         },
         'update_callback' => function($value, $user_obj) {
             return update_user_meta($user_obj->ID, 'avatar_id', intval($value));;

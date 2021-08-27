@@ -70,8 +70,8 @@ class JobRegistration_Widget extends Widget_Base {
         do_action('action_jobportal_register');
         if (isset($_GET['register']) && boolval($_GET['register'])) {
             // Register successfully
-            $msg = "<p><strong>Inscription réussie</strong>, cliquez sur le bouton ci-dessous pour vous connecter</p> <p>
-            <span class='btn btn-success' onClick='showLoginModal()'>Connexion</span></p>";
+            $msg = "<p style='text-align: center'><strong>Inscription réussie</strong>, cliquez sur le bouton ci-dessous pour vous connecter</p> 
+<p style='text-align: center'><span class='btn btn-success' onClick='showLoginModal()'>Connexion</span></p>";
             echo $msg;
             return;
         }

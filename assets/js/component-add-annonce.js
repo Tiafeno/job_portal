@@ -109,7 +109,7 @@
                     if (lodash.isEmpty(data.name)) {
                         this.errors.push('Le titre est requis');
                     }
-                    if (lodash.isEmpty(data.category)) {
+                    if (data.category === "" || data.category === " ") {
                         this.errors.push('Champ categorie est requis');
                     }
                     if (lodash.isEmpty(data.email) || !data.email.match(validRegex)) {
@@ -124,7 +124,7 @@
                     if (lodash.isEmpty(data.address)) {
                         this.errors.push('Votre adresse est requis');
                     }
-                    if (lodash.isEmpty(data.country)) {
+                    if (data.country === "" || data.country === " ") {
                         this.errors.push('Champ pays est requis');
                     }
                     if (lodash.isEmpty(data.city)) {
@@ -182,10 +182,15 @@
                         avatar: fileId,
                         meta: {
                             country: item.country,
+                            category: item.category,
                             city: item.city,
                             address: item.address,
+                            phone: item.phone,
                             nif: item.nif,
                             stat: item.stat,
+                            website: item.website,
+                            zipcode: item.zipcode,
+                            employees: item.employees,
                             newsletter: 0, // bool value to subscribe or not
                             employer_id: job_handler_api.current_user_id,
                         }
@@ -340,9 +345,6 @@
                     }
                     if (this.inputs.region === 0) {
                         this.errorHandler('Region');
-                    }
-                    if (this.inputs.experience === 0) {
-                        this.errorHandler('Experience');
                     }
                     if (lodash.isEmpty(this.inputs.address)) {
                         this.errorHandler('Adresse');

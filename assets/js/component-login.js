@@ -81,23 +81,12 @@ const CompLogin = {
                 if (!responseData.success) {
                     if (responseData.data.code === 406) {
                         alertify.alert("Information", responseData.data.message);
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 500);
                         return;
                     }
                     alertify.alert('Erreur', "Adresse email ou mot de passe incorrect.");
                     return;
                 } else {
-                    this.setSession(responseData.data).then(storage => {
-                        sessionStorage.setItem('job_session', JSON.stringify(storage));
-                        this.loading = false;
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 500);
-                    }).catch(er => {
-                        this.loading = false;
-                    });
+                    window.location.reload();
                 }
             }).catch((err) => {
                 this.loading = false;

@@ -112,12 +112,7 @@ $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
             ?>
 
             <ul class="nav navbar-nav navbar-right">
-                    <li class="br-right">
-                        <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
-                            <i class="login-icon ti-archive"></i>
-                            Publier une offre
-                        </a>
-                    </li>
+
                 <?php if (!is_user_logged_in()): ?>
                     <li class="br-right">
                         <a class="btn-signup red-btn" onclick="renderLoginModel()" data-toggle="modal"
@@ -127,18 +122,27 @@ $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
                         </a>
                     </li>
                 <?php else:
+                        $user_id = get_current_user_id();
+                        $user = new WP_User($user_id);
+                        if (in_array('employer', $user->roles) ) :
                     ?>
-
+                    <li class="br-right">
+                        <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
+                            <i class="login-icon ti-archive"></i>
+                            Publier une offre
+                        </a>
+                    </li>
+                    <?php endif; ?>
                     <li class="sign-up">
                         <a class=" btn-signup red-btn" href="<?= home_url('/espace-client') ?>" >
                            Espace client
                         </a>
                     </li>
-                <li>
-                    <a class="btn-danger btn red-btn" title="Déconnexion" href="<?= wp_logout_url(home_url('/')) ?>" style="font-size: 20px">
-                        <i class="fa fa-sign-out"></i>
-                    </a>
-                </li>
+                    <li>
+                        <a class="btn-danger btn red-btn" title="Déconnexion" href="<?= wp_logout_url(home_url('/')) ?>" style="font-size: 20px">
+                            <i class="fa fa-sign-out"></i>
+                        </a>
+                    </li>
 
                 <?php endif; ?>
             </ul>

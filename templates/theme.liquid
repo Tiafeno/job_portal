@@ -42,6 +42,9 @@
     .utf_main_banner_area .ui.selection.dropdown > .search.icon {
         line-height: 1.61428571em;
     }
+    .alertify-notifier.ajs-right .ajs-message {
+        color: white;
+    }
 </style>
 <script id="component-login-template" type="text/x-template">
     <div class="login-body">
@@ -77,9 +80,22 @@
 
     </div>
 </script>
+{% comment %}Denial access service{% endcomment %}
 <script id="denial-access" type="text/x-template">
     <div class="denial-access">
         Acces non autorise
+    </div>
+</script>
+<!--Upload avatar-->
+<script type="text/x-template" id="upload-avatar-template">
+    <div class="col-md-4 col-sm-4 col-xs-12" >
+        <div id="leftcol_item">
+            <img class="ui small centered circular image" :src="previewUrl">
+            <input type="file" id="upload-avatar" @change="previewFiles" style="display: none">
+            <button class="btn text-uppercase text-center light-gray-btn" @click="eventClickHandler" style="margin: auto;display: block;margin-top: 10px;">
+                Ajouter un logo
+            </button>
+        </div>
     </div>
 </script>
 

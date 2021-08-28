@@ -192,18 +192,6 @@ add_action('rest_api_init', function () {
             return true;
         }
     ) );
-    register_rest_field('user', 'avatar', [
-        'get_callback' => function($user_arr) {
-            $avatar_id = get_user_meta($user_arr['id'], 'avatar_id', true);
-            $id = $avatar_id ? $avatar_id : '';
-            if (empty($id)) return '';
-            $media = get_attached_media('image', $id);
-            return $media;
-        },
-        'update_callback' => function($value, $user_obj) {
-            return update_user_meta($user_obj->ID, 'avatar_id', intval($value));;
-        }
-    ]);
 });
 
 add_action('rest_api_init', function () {
@@ -492,7 +480,19 @@ add_action('rest_api_init', function () {
 });
 
 add_action('rest_api_init', function() {
-    //Annonce
+    register_rest_field('user', 'avatar', [
+        'get_callback' => function($user_arr) {
+            $avatar_id = get_user_meta($user_arr['id'], 'avatar_id', true);
+            if ('' === $avatar_id || !$avatar_id) return '';
+            $avatar_id = intval($avatar_id);
+            $attach = wp_get_attachment_metadata($avatar_id);
+            return ['attach_id' => $avatar_id ,'image' => $attach, 'upload_dir' => wp_upload_dir()];
+        },
+        'update_callback' => function($value, $user_obj) {
+            return update_user_meta($user_obj->ID, 'avatar_id', intval($value));
+        }
+    ]);
+    // Annonce
     // Additional params at api_rest line 104
     register_meta('user', 'experience', [ // sans 's'
         'type' =>  'integer',
@@ -504,6 +504,14 @@ add_action('rest_api_init', function() {
     ]);
     //Entreprise
     register_meta('user', 'country', [
+        'type' =>  'integer',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function() {
+            return true;
+        }
+    ]);
+    register_meta('user', 'category', [
         'type' =>  'integer',
         'single' => true,
         'show_in_rest' => true,

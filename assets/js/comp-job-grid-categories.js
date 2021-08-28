@@ -22,7 +22,7 @@
                 items: []
             }
         },
-        mounted: function () {
+        created: function () {
             this.init();
         },
         methods: {

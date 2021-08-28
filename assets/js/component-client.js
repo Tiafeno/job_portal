@@ -1,3 +1,69 @@
+const fileFilter = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i;
+const getRandomPassword = () => {
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    const string_length = 8;
+    let randomstring = '';
+    for (var i = 0; i < string_length; i++) {
+        var rnum = Math.floor(Math.random() * chars.length);
+        randomstring += chars.substring(rnum, rnum + 1);
+    }
+    return randomstring;
+};
+/**
+ * Cette fonction permet de redimensionner une image
+ *
+ * @param imgObj - the image element
+ * @param newWidth - the new width
+ * @param newHeight - the new height
+ * @param startX - the x point we start taking pixels
+ * @param startY - the y point we start taking pixels
+ * @param ratio - the ratio
+ * @returns {string}
+ */
+const drawImage = (imgObj, newWidth, newHeight, startX, startY, ratio) => {
+    //set up canvas for thumbnail
+    const tnCanvas = document.createElement('canvas');
+    const tnCanvasContext = tnCanvas.getContext('2d');
+    tnCanvas.width = newWidth;
+    tnCanvas.height = newHeight;
+
+    /* use the sourceCanvas to duplicate the entire image. This step was crucial for iOS4 and under devices. Follow the link at the end of this post to see what happens when you don’t do this */
+    const bufferCanvas = document.createElement('canvas');
+    const bufferContext = bufferCanvas.getContext('2d');
+    bufferCanvas.width = imgObj.width;
+    bufferCanvas.height = imgObj.height;
+    bufferContext.drawImage(imgObj, 0, 0);
+
+    /* now we use the drawImage method to take the pixels from our bufferCanvas and draw them into our thumbnail canvas */
+    tnCanvasContext.drawImage(bufferCanvas, startX, startY, newWidth * ratio, newHeight * ratio, 0, 0, newWidth, newHeight);
+    return tnCanvas.toDataURL();
+};
+/**
+ * Récuperer les valeurs dispensable pour une image pré-upload
+ * @param {File} file
+ * @returns {Promise<any>}
+ */
+const getFileReader = (file) => {
+    return new Promise((resolve, reject) => {
+        const byteLimite = 2097152; // 2Mb
+        if (file && file.size <= byteLimite) {
+            let fileReader = new FileReader();
+            fileReader.onload = (Event) => {
+                const img = new Image();
+                img.src = Event.target.result;
+                img.onload = () => {
+                    const imgCrop = drawImage(img, img.width, img.height, 0, 0, 1);
+                    resolve({
+                        src: imgCrop
+                    });
+                };
+            };
+            fileReader.readAsDataURL(file);
+        } else {
+            reject('Le fichier sélectionné est trop volumineux. La taille maximale est 2Mo.');
+        }
+    });
+};
 (function ($) {
     $().ready(function () {
         Vue.component('v-select', VueSelect.VueSelect);
@@ -24,6 +90,62 @@
                 randomstring += chars.substring(rnum, rnum + 1);
             }
             return randomstring;
+        };
+        const _componentUploadAvatar = {
+            props: ['userid', 'wpapi'],
+            template: "#upload-avatar-template",
+            data: function () {
+                return {
+                    wpUploadUrl: null,
+                    loading: false,
+                    defaultPreviewLogo: '//semantic-ui.com/images/wireframe/square-image.png',
+                    logoReadUrl: null,
+                    avatarFile: null,
+                }
+            },
+            computed: {
+                previewUrl: function () {
+                    return lodash.isNull(this.logoReadUrl) ? this.defaultPreviewLogo : this.logoReadUrl;
+                }
+            },
+            methods: {
+                previewFiles: function (event) {
+                    const files = event.target.files;
+                    this.avatarFile = files.item(0);
+                    getFileReader(this.avatarFile).then(draw => {
+                        this.logoReadUrl = draw.src;
+                        this.upload();
+                    });
+                },
+                eventClickHandler: function (event) {
+                    event.preventDefault();
+                    $('input#upload-avatar').trigger('click');
+                },
+                upload: async function () {
+                    await this.wpapi.media()
+                        // Specify a path to the file you want to upload, or a Buffer
+                        .file(this.avatarFile).create({
+                            title: "",
+                            alt_text: "",
+                            description: this.userid,
+                        }).then(uploadMedia => {
+                            // Your media is now uploaded: let's associate it with a post
+                            this.wpapi.users().id(this.userid).update({avatar: uploadMedia.id}).then(resp => {
+                                alertify.notify("Photo de profil mis a jour avec succes", 'success');
+                            });
+                        });
+                }
+            },
+            created: function () {
+                // build url
+                const ABS = '/';
+                const wpUserModel = new wp.api.models.User({id: this.userid});
+                wpUserModel.fetch().done(u => {
+                    const avatar = u.avatar;
+                    if (lodash.isEmpty(avatar)) return;
+                    this.defaultPreviewLogo = avatar.upload_dir.baseurl + ABS + avatar.image.file;
+                });
+            }
         };
         const Layout = {
             template: '#client-layout',
@@ -141,6 +263,7 @@
             template: "#profil-client-template",
             data: function () {
                 return {
+                    loading: false,
                     validators: [],
                     isCandidate: false,
                     isEmployer: false,
@@ -159,6 +282,7 @@
                     this.loading = true;
                     const cUser = new wp.api.models.User({id: clientApiSettings.current_user_id});
                     cUser.fetch({data: {context: 'edit'}}).done(user => {
+                        this.user = lodash.clone(user);
                         if (lodash.indexOf(user.roles, 'employer') >= 0) {
                             this.isEmployer = true;
                             const companyId = parseInt(user.meta.company_id, 10);
@@ -170,21 +294,6 @@
                             });
                         }
                     });
-
-
-                    // var currentUsr = await this.$parent.$parent.Wordpress.users().context('edit').me().get();
-                    // self.currentUser = lodash.clone(currentUsr);
-                    // if (lodash.indexOf(currentUsr.roles, 'employer') >= 0) {
-                    //     this.isEmployer = true;
-                    //     var companyId = currentUsr.meta.company_id;
-                    //     var CompanyModel = new wp.api.models.User({id: parseInt(companyId)});
-                    //     CompanyModel.fetch({data: {context: 'edit'}}).done(function (companyResponse) {
-                    //         self.currentUserCompany = lodash.clone(companyResponse);
-                    //         self.loading = false;
-                    //     });
-                    // } else {
-                    //     this.isCandidate = true;
-                    // }
                 },
             }
         };
@@ -215,7 +324,8 @@
             template: '#client-cv',
             components: {
                 'comp-education': CVComponents.education,
-                'comp-experience': CVComponents.experience
+                'comp-experience': CVComponents.experience,
+                'upload-avatar': _componentUploadAvatar
             },
             beforeRouteLeave(to, from, next) {
                 const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
@@ -660,6 +770,209 @@
                 }
             }
         };
+        const CompanyComp = {
+            template: '#create-company',
+            components: {
+                'upload-avatar': _componentUploadAvatar
+            },
+            data: function () {
+                return {
+                    loading: false,
+                    sectionClass: 'utf_create_company_area padd-bot-80',
+                    wpapi: new WPAPI({
+                        endpoint: clientApiSettings.root,
+                        nonce: clientApiSettings.nonce
+                    }),
+                    account_id: 0,
+                    company_account: {},
+                    isUpdate: false,
+                    categories: [],
+                    countries: [],
+                    errors: [],
+                    formData: {
+                        name: '',
+                        logo: '',
+                        category: '',
+                        email: '',
+                        address: '',
+                        nif: '',
+                        stat: '',
+                        phone: '',
+                        country: '',
+                        city: '',
+                        zipcode: '',
+                        website: '',
+                        employees: 0,
+                        description: ''
+                    }
+                }
+            },
+            methods: {
+                initComponent: async function () {
+                    this.loading = true;
+                    this.account_id = clientApiSettings.current_user_id;
+                    const wpCatsModel = new wp.api.collections.Categories();
+                    const wpCountryModel = new wp.api.collections.Country();
+                    const categories = await wpCatsModel.fetch();
+                    const countries = await wpCountryModel.fetch();
+                    axios.all([categories, countries]).then(axios.spread(
+                        (...wpapiAll) => {
+                            this.categories = lodash.clone(wpapiAll[0]);
+                            this.countries = lodash.clone(wpapiAll[1]);
+                        }
+                    )).catch(errors => {
+                    });
+                    this.wpapi.users().me().context('edit').then((response) => {
+                        const me = lodash.cloneDeep(response);
+                        const hasCompany = me.meta.company_id !== 0;
+                        if (hasCompany) {
+                            // S'il possede deja une entreprise
+                            const wpCompanyModel = new wp.api.models.User({id: me.meta.company_id});
+                            wpCompanyModel.fetch({data: {context: 'edit'}}).done(company => {
+                                this.isUpdate = true;
+                                this.company_account = lodash.clone(company);
+                                // Ajouter les valeurs dans le formulaires
+                                this.formData = {
+                                    name: company.username,
+                                    category: company.meta.category,
+                                    email: company.email,
+                                    address: company.meta.address,
+                                    nif: company.meta.nif,
+                                    stat: company.meta.stat,
+                                    phone: company.meta.phone,
+                                    country: company.meta.country,
+                                    city: company.meta.city,
+                                    zipcode: company.meta.zipcode,
+                                    website: company.meta.website,
+                                    employees: company.meta.employees,
+                                    description: company.description
+                                }
+                                this.loading = false;
+                            });
+                        } else {
+                            this.loading = false;
+                        }
+                    }).catch((err) => {
+                        this.loading = false;
+                    });
+                },
+                checkForm: function (e) {
+                    e.preventDefault();
+                    this.errors = [];
+                    const data = this.formData;
+                    var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+                    if (lodash.isEmpty(data.name)) {
+                        this.errors.push('Le titre est requis');
+                    }
+                    if (data.category === "" || data.category === " ") {
+                        this.errors.push('Champ categorie est requis');
+                    }
+                    if (lodash.isEmpty(data.email) || !data.email.match(validRegex)) {
+                        this.errors.push('Le champ email est requis ou verifier que c\'est une adresse email valide');
+                    }
+                    if (lodash.isEmpty(data.nif)) {
+                        this.errors.push('Champ "NIF" est requis');
+                    }
+                    if (lodash.isEmpty(data.stat)) {
+                        this.errors.push('Champ "Numéro statistique" est requis');
+                    }
+                    if (lodash.isEmpty(data.address)) {
+                        this.errors.push('Votre adresse est requis');
+                    }
+                    if (data.country === "" || data.country === " ") {
+                        this.errors.push('Champ pays est requis');
+                    }
+                    if (lodash.isEmpty(data.city)) {
+                        this.errors.push('Champ ville est requis');
+                    }
+                    if (lodash.isEmpty(data.description)) {
+                        this.errors.push('Champ à propos est requis');
+                    }
+                    if (lodash.isEmpty(this.errors)) {
+                        this.updateCompany(data);
+                    }
+                },
+                updateCompany: async function (item) {
+                    const _email = item.email;
+                    const _name = item.name;
+                    // Upload avatar
+                    this.loading = true;
+                    let request = null;
+                    if (this.isUpdate) {
+                        request = this.wpapi.users().id(this.company_account.id).update({
+                            description: item.description,
+                            meta: {
+                                country: item.country,
+                                category: item.category,
+                                city: item.city,
+                                address: item.address,
+                                phone: item.phone,
+                                nif: item.nif,
+                                stat: item.stat,
+                                website: item.website,
+                                zipcode: item.zipcode,
+                                employees: item.employees,
+                                newsletter: 0, // bool value to subscribe or not
+                                employer_id: clientApiSettings.current_user_id,
+                            }
+                        });
+                    } else {
+                        request = this.wpapi.users().create({
+                            name: _name,
+                            nickname: _email,
+                            username: _name,
+                            password: getRandomPassword(),
+                            email: _email,
+                            first_name: "",
+                            last_name: "",
+                            roles: ['company'],
+                            description: item.description,
+                            meta: {
+                                country: item.country,
+                                category: item.category,
+                                city: item.city,
+                                address: item.address,
+                                phone: item.phone,
+                                nif: item.nif,
+                                stat: item.stat,
+                                website: item.website,
+                                zipcode: item.zipcode,
+                                employees: item.employees,
+                                newsletter: 0, // bool value to subscribe or not
+                                employer_id: clientApiSettings.current_user_id,
+                            }
+                        });
+                    }
+                    request.then(user => {
+                        // Add this company for the employee
+                        this.wpapi.users().me().update({
+                            meta: {company_id: user.id}
+                        }).then(() => {
+                            alertify.notify("Donnee mis a jour avec succes", 'success');
+                            this.loading = false;
+                        });
+                    }).catch(err => {
+                        this.loading = false;
+                        this.errorHandler(err);
+                    });
+                },
+                errorHandler: function (response) {
+                    alertify.alert(response.code, response.message);
+                },
+                formatHTML: function (str) {
+                    return str.replace(/(<([^>]+)>)/ig, "");
+                }
+            },
+            created: function () {
+                this.initComponent();
+            },
+            mounted: function () {
+                $('select').dropdown({
+                    clearable: true,
+                    placeholder: ''
+                });
+            },
+        };
         const AnnonceComp = {
             template: "#client-annonce",
             data: function () {
@@ -674,30 +987,26 @@
             methods: {
                 trashAnnonce: function (ev, jobId) {
                     ev.preventDefault();
-                    var self = this;
-                    alertify.confirm("Voulez vous vraiment supprimer cette annonce. ID: " + jobId, function () {
-                            self.loading = true;
-                            self.$parent.Wordpress.jobs().id(jobId).update({
-                                status: 'private'
-                            }).then(function () {
-                                self.Populate();
-                            });
-                        },
-                        function () {
-
+                    alertify.confirm("Voulez vous vraiment supprimer cette annonce. ID: " + jobId, () => {
+                        this.loading = true;
+                        this.$parent.Wordpress.jobs().id(jobId).update({
+                            status: 'private'
+                        }).then(() => {
+                            this.Populate();
                         });
+                    }, () => {
+                    });
                 },
                 Populate: function () {
-                    const self = this;
                     this.loading = true;
                     this.$parent.Wordpress.jobs()
                         .status(['pending', 'publish', 'private'])
                         .param('meta_key', 'employer_id')
                         .param('meta_value', clientApiSettings.current_user_id)
                         .per_page(10)
-                        .then(function (response) {
-                            self.annonces = lodash.clone(response);
-                            self.loading = false;
+                        .then((response) => {
+                            this.annonces = lodash.clone(response);
+                            this.loading = false;
                         });
                 }
             }
@@ -767,7 +1076,11 @@
                         }
                     }).then((resp) => {
                         if (resp.status === 200) {
-                            this.jobs = lodash.clone(resp.data);
+                            let jobs = lodash.clone(resp.data);
+                            jobs = lodash.map(jobs, job => {
+                                return lodash.isNull(job.id) ? null : job;
+                            });
+                            this.jobs = lodash.compact(jobs);
                         }
                         this.loading = false;
                     });
@@ -794,6 +1107,11 @@
                     path: 'jobs',
                     name: 'Annonce',
                     component: AnnonceComp,
+                },
+                {
+                    path: 'company',
+                    name: 'Company',
+                    component: CompanyComp,
                 },
                 {
                     path: 'job/:id/details',

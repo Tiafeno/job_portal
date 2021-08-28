@@ -84,7 +84,9 @@
     }
 }
 
-
 .utf_category_box_area .utf_category_desc .category-detail h4 {
     min-height: 45px !important;
+}
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+    background-color: #e4e4e4 !important;
 }

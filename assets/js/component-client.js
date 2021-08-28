@@ -155,31 +155,6 @@
                 submitProfil: function (ev) {
                     ev.preventDefault();
                 },
-                setSession: function (user) {
-                    let Storage = {
-                        session_date: new Date().getTime(),
-                        user_id: 0,
-                        user_role: null,
-                        user_object: {},
-                    };
-                    // Verifier s'il y a une enregistrement
-                    let currentSession = sessionStorage.getItem('job_session');
-                    if (lodash.isNull(currentSession)) {
-                        let role = lodash.indexOf(user.roles, 'employer') >= 0 ? 'employer' : 'candidate';
-                        Storage.user_id = user.id;
-                        Storage.user_role = role;
-                        Storage.user_object[ role ] = lodash.clone(user);
-                        Storage.setItem('job_session', window.btoa(Storage));
-                    } else {
-                        currentSession = window.atob(currentSession);
-                        sessionDate = new Date(currentSession.session_date);
-                        // Verifier la date d'expiration
-                        let dateNow = new Date();
-                        if (sessionDate.getDay() < dateNow.getDay()) {
-                            sessionStorage.removeItem('job_session');
-                        }
-                    }
-                },
                 init: async function () {
                     this.loading = true;
                     const cUser = new wp.api.models.User({id: clientApiSettings.current_user_id});
@@ -191,7 +166,6 @@
                             const companyModel = new wp.api.models.User({id: companyId});
                             companyModel.fetch({data: {context: 'edit'}}).done(companyResponse => {
                                 this.userCompany = lodash.clone(companyResponse);
-                                Storage.user_object.company = lodash.clone(this.userCompany);
                                 this.loading = false;
                             });
                         }

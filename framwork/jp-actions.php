@@ -121,10 +121,8 @@ add_action('helper_register_jp_post_types', function () {
         'supports' => ['title', 'editor', 'excerpt', 'thumbnail', 'custom-fields'],
         'show_in_rest' => true
     ]);
-
     // Ajouter category pour le 'jp-jobs'
     register_taxonomy_for_object_type('category', 'jp-jobs');
-
     // Logiciel maitrisés
     register_taxonomy('tech_mastery', ['post'], [
         'hierarchical' => true,
@@ -147,7 +145,6 @@ add_action('helper_register_jp_post_types', function () {
         'show_in_rest' => true,
         'rewrite' => array('slug' => 'mastered_technology'),
     ]);
-
     //  Drive licence
     register_taxonomy('drive_licence', ['jp-jobs'], [
         'hierarchical' => true,
@@ -168,7 +165,6 @@ add_action('helper_register_jp_post_types', function () {
         'show_in_rest' => true,
         'rewrite' => array('slug' => 'drive_licence'),
     ]);
-
     //  Salaires
     register_taxonomy('salaries', ['jp-jobs'], [
         'hierarchical' => true,
@@ -191,7 +187,6 @@ add_action('helper_register_jp_post_types', function () {
         'show_in_rest' => true,
         'rewrite' => array('slug' => 'salaries'),
     ]);
-
     //  Qualification
     register_taxonomy('qualification', ['jp-jobs'], [
         'hierarchical' => true,
@@ -212,7 +207,6 @@ add_action('helper_register_jp_post_types', function () {
         'show_in_rest' => true,
         'rewrite' => array('slug' => 'qualification'),
     ]);
-
     //  Language
     register_taxonomy('language', ['post'], [
         'hierarchical' => true,
@@ -233,7 +227,6 @@ add_action('helper_register_jp_post_types', function () {
         'show_in_rest' => true,
         'rewrite' => array('slug' => 'language'),
     ]);
-
     //  Type de travail
     register_taxonomy('job_type', ['jp-jobs'], [
         'hierarchical' => true,
@@ -256,7 +249,6 @@ add_action('helper_register_jp_post_types', function () {
         'show_in_rest' => true,
         'rewrite' => array('slug' => 'job_type'),
     ]);
-
     // Pays
     register_taxonomy('country', ['post'], [
         'hierarchical' => true,
@@ -277,7 +269,6 @@ add_action('helper_register_jp_post_types', function () {
         'show_in_rest' => true,
         'rewrite' => array('slug' => 'country'),
     ]);
-
     // Region
     register_taxonomy('region', ['jp-jobs'], [
         'hierarchical' => true,
@@ -301,7 +292,12 @@ add_action('helper_register_jp_post_types', function () {
 });
 add_action('init', function () {
     // Permet de se connecter avec AJAX
-    add_action('wp_ajax_nopriv_ajax_login', function () {
+    add_action('wp_ajax_ajax_login', 'login');
+    add_action('wp_ajax_nopriv_ajax_login', 'login');
+    function login() {
+        if (is_user_logged_in(  )) {
+            wp_send_json_error( 800 );
+        }
         // First check the nonce, if it fails the function will break
         check_ajax_referer('ajax-login-nonce', 'security');
         // Nonce is checked, get the POST data and sign user on
@@ -313,11 +309,20 @@ add_action('init', function () {
         if (!is_wp_error($user_signon)) {
             wp_set_current_user($user_signon->ID);
             wp_set_auth_cookie($user_signon->ID);
-            wp_send_json_success('Login successful, redirecting...');
+            // Envoyer le REST API controller pour l'utilisateur
+            $req = new WP_REST_Request();
+            $req->set_param('context', 'edit'); // set context edit 
+
+            $user_controller = new WP_REST_Users_Controller();
+            $user = new WP_USER((int)$user_signon->ID);
+            $response = $user_controller->prepare_item_for_response($user, $req)->data;
+
+            wp_send_json_success($response);
         } else {
-            wp_send_json_error('Error login information');
+            // Envoyer l'objet WP_Error
+            wp_send_json_error($user_signon);
         }
-    });
+    }
     // Modifier le mot de passe d'un utilisateur
     add_action('wp_ajax_change_my_pwd', function () {
         check_ajax_referer('ajax-client-form', 'pwd_nonce');

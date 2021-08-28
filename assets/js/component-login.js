@@ -38,29 +38,73 @@ const CompLogin = {
             }
             this.submitLogin();
         },
+        setSession: function (user) {
+            return new Promise((resolve, reject) => {
+                let Storage = {
+                    session_date: new Date().getTime(),
+                    user_id: 0,
+                    user_role: null,
+                    user_object: {},
+                };
+                // Verifier s'il y a une enregistrement
+                let currentSession = sessionStorage.getItem('job_session');
+                if (!lodash.isNull(currentSession)) {
+                    currentSession = window.atob(currentSession);
+                    sessionDate = new Date(currentSession.session_date);
+                    // Verifier la date d'expiration
+                    let dateNow = new Date();
+                    if (sessionDate.getDay() < dateNow.getDay()) {
+                        sessionStorage.removeItem('job_session');
+                    }
+                }
+                let role = lodash.indexOf(user.roles, 'employer') >= 0 ? 'employer' : 'candidate';
+                Storage.user_id = user.id;
+                Storage.user_role = role;
+                Storage.user_object[ role ] = lodash.clone(user);
+
+                if ('employer' === role) {
+                    const apiGetCompany = new wp.api.models.User( {id: user.meta.company_id });
+                    apiGetCompany.fetch({data: {context: 'view'}}).done(response => {
+                        const data = response.data;
+                        Storage.user_object.company = data;
+                        resolve(window.btoa(Storage));
+                    })
+                    
+                } else {
+                    resolve(window.btoa(Storage));
+                }
+                
+                
+            });   
+        },
         submitLogin: function() {
-            const self = this;
             this.loading = true;
             let data = new FormData();
-            data.append('username', self.user_login);
-            data.append('password', self.user_password);
+            data.append('username', this.user_login);
+            data.append('password', this.user_password);
             data.append('remember', true);
-            data.append('security', self.security);
+            data.append('security', this.security);
             data.append('action', 'ajax_login');
-            axios.post(com_login_params.ajax_url, data).then(function(response) {
+            axios.post(com_login_params.ajax_url, data).then((response) => {
                 var responseData = response.data;
+                this.loading = false;
                 if (!responseData.success){
-                    self.loading = false;
-                    alertify.alert('Notification', responseData.data, function () {});
+                    if (responseData.data === 800) {
+                        window.location.reload();
+                        return;
+                    }
+                    alertify.alert('Erreur', "Adresse email ou mot de passe incorrect.", function () {});
                     return;
+                } else  {
+                    console.warn('Emit event: login-success');
+                    this.setSession(responseData.data).then(storage => {
+                        sessionStorage.setItem('job_session', storage);
+                        this.loading = false;
+                        window.location.reaload();
+                    });
                 }
-                console.warn('Emit event: login-success');
-                setTimeout(()=> {
-                    self.loading = false;
-                    window.location.reload();
-                }, 1500);
-            }).catch(function(err) {
-                self.loading = false;
+            }).catch((err) => {
+                this.loading = false;
             });
         }
     },

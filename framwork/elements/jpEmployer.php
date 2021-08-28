@@ -28,7 +28,6 @@ class jpEmployer extends \WP_User
         $company_id = intval($company_id);
         return get_user_by('ID', $company_id);
     }
-
 }
 
 class EmployerHelper {

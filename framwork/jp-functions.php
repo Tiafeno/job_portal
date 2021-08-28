@@ -80,7 +80,7 @@ add_action('wp_enqueue_scripts', function() {
         'axios',
         'bluebird'
     ], '1.0.1', true);
-    wp_register_script('comp-login', get_stylesheet_directory_uri() . '/assets/js/component-login.js', ['vuejs', 'wpapi', 'axios', 'lodash'], null, true);
+    wp_register_script('comp-login', get_stylesheet_directory_uri() . '/assets/js/component-login.js', ['vuejs', 'wpapi', 'axios', 'lodash', 'alertify'], null, true);
     wp_localize_script('comp-login', 'com_login_params', [
         'ajax_url' => admin_url( 'admin-ajax.php' ),
         'nonce_field' => wp_create_nonce('ajax-login-nonce')

@@ -296,7 +296,8 @@ add_action('init', function () {
     add_action('wp_ajax_nopriv_ajax_login', 'login');
     function login() {
         if (is_user_logged_in(  )) {
-            wp_send_json_error( 800 );
+            wp_logout();
+            wp_send_json_error( new WP_Error(406, "La ressource demandée n'est pas disponible") );
         }
         // First check the nonce, if it fails the function will break
         check_ajax_referer('ajax-login-nonce', 'security');
@@ -313,10 +314,15 @@ add_action('init', function () {
             $req = new WP_REST_Request();
             $req->set_param('context', 'edit'); // set context edit 
 
-            $user_controller = new WP_REST_Users_Controller();
             $user = new WP_USER((int)$user_signon->ID);
-            $response = $user_controller->prepare_item_for_response($user, $req)->data;
-
+            $response = new stdClass();
+            $response->id = $user->ID;
+            $response->roles = $user->roles;
+            $response->meta = new stdClass();
+            if (in_array('employer', $response->roles)) {
+                $company_id = get_user_meta($user->ID, 'company_id', true);
+                $response->meta->company_id = intval($company_id);
+            }
             wp_send_json_success($response);
         } else {
             // Envoyer l'objet WP_Error

@@ -13,8 +13,13 @@
             </div>
             <form name="search" role="search" action="" method="get" novalidate>
                 <fieldset class="utf_home_form_one">
-                    <div class="col-md-3 col-sm-3 padd-0">
-                        <input type="text" class="form-control br-1" name="s" placeholder="Rechercher des mots-clés..." />
+                    <div class="col-md-4 col-sm-4 padd-0">
+                        <select name="cat" class="wide form-control">
+                            <option value="" data-display="Category">Tous les secteurs d'activité</option>
+                            {% for categorie in categories %}
+                                <option value="{{ categorie.term_id }}">{{ categorie.name }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="col-md-3 col-sm-3 padd-0">
                         <select name="region" class="wide form-control br-1">
@@ -25,13 +30,8 @@
 
                         </select>
                     </div>
-                    <div class="col-md-4 col-sm-4 padd-0">
-                        <select name="cat" class="wide form-control">
-                            <option value="" data-display="Category">Tous les secteurs d'activité</option>
-                            {% for categorie in categories %}
-                                <option value="{{ categorie.term_id }}">{{ categorie.name }}</option>
-                            {% endfor %}
-                        </select>
+                    <div class="col-md-3 col-sm-3 padd-0">
+                        <input type="text" class="form-control br-1" name="s" placeholder="Rechercher des mots-clés..." />
                     </div>
                     <div class="col-md-2 col-sm-2 padd-0 m-clear">
                         <input type="hidden"  name="post_type" value="jp-jobs">

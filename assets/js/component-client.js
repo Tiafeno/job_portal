@@ -92,11 +92,12 @@ const getFileReader = (file) => {
             return randomstring;
         };
         const _componentUploadAvatar = {
-            props: ['userid', 'wpapi'],
+            props: ['userid', 'wpapi', 'title'],
             template: "#upload-avatar-template",
             data: function () {
                 return {
                     wpUploadUrl: null,
+                    btnTitle: 'Ajouter',
                     loading: false,
                     defaultPreviewLogo: '//semantic-ui.com/images/wireframe/square-image.png',
                     logoReadUrl: null,
@@ -137,6 +138,7 @@ const getFileReader = (file) => {
                 }
             },
             created: function () {
+                this.btnTitle = this.title;
                 // build url
                 const ABS = '/';
                 const wpUserModel = new wp.api.models.User({id: this.userid});
@@ -145,7 +147,8 @@ const getFileReader = (file) => {
                     if (lodash.isEmpty(avatar)) return;
                     this.defaultPreviewLogo = avatar.upload_dir.baseurl + ABS + avatar.image.file;
                 });
-            }
+            },
+            delimiters: ['${', '}'],
         };
         const Layout = {
             template: '#client-layout',
@@ -401,13 +404,6 @@ const getFileReader = (file) => {
             mounted: async function () {
                 const self = this;
                 this.Loading = true;
-                // this.WPApiModel = new wp.api.models.User({
-                //     id: clientApiSettings.current_user_id
-                // });
-                // this.WPApiModel.fetch().done(function (response) {
-                //     self.currentUser = lodash.cloneDeep(response);
-                //     self.Loading = false;
-                // });
                 await this.$parent.Wordpress.users().me().context('edit').then(function (response) {
                     self.currentUser = lodash.cloneDeep(response);
                     //Populate data value
@@ -434,7 +430,6 @@ const getFileReader = (file) => {
 
                     self.Loading = false;
                 });
-
                 // Education sortable list
                 new Sortable(document.getElementById('education-list'), {
                     handle: '.edu-history', // handle's class
@@ -453,23 +448,18 @@ const getFileReader = (file) => {
                         console.log(evt);
                     },
                 });
-
                 // Recuperer les langues
                 fetch(clientApiSettings.root + 'wp/v2/language?per_page=50').then(res => {
                     res.json().then(json => (self.optLanguages = json));
                 });
-
                 // Recuperer les categories
                 fetch(clientApiSettings.root + 'wp/v2/categories?per_page=50').then(res => {
                     res.json().then(json => (self.optCategories = json));
                 });
-
                 // Recuperer les items de region
                 fetch(clientApiSettings.root + 'wp/v2/region?per_page=50').then(res => {
                     res.json().then(json => (self.optRegions = json));
                 });
-
-
             },
             computed: {
                 getExperiences() {

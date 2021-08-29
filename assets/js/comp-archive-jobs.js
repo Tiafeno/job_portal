@@ -174,6 +174,21 @@ const paramKeys = Object.keys(params); // return array of keys
                 'comp-apply': CompApply
             },
             template: "#job-vertical-lists",
+            data: function() {
+                return {
+                    defaultAvatarSrc: ''
+                }
+            },
+            created: function () {
+                this.defaultAvatarSrc = this.item.company.avatar_urls[96];
+            },
+            computed: {
+                avatarSrc: function() {
+                    const company = this.item.company;
+                    const avatar = company.avatar;
+                    return _.isEmpty(avatar) ? this.defaultAvatarSrc : avatar.upload_dir.baseurl + '/' + avatar.image.file;
+                }
+            }
         };
         const Pagination = {
             template: '#pagination-jobs-template',

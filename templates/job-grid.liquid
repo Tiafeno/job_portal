@@ -13,7 +13,7 @@
             <div class="u-content">
                 <div class="avatar box-80">
                     <a v-bind:href="item.link" v-if="!item.company.hasOwnProperty('errors')" target="_blank">
-                        <img class="img-responsive" :src="item.company.avatar_urls[96]" alt="">
+                        <img class="img-responsive" :src="avatarSrc" alt="">
                     </a>
                 </div>
                 <h5><a v-bind:href="item.link">${item.title.rendered}</a></h5>

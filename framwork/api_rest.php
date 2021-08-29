@@ -38,27 +38,8 @@ add_action('rest_api_init', function () {
     }
 });
 
-// Add has_cv, public_cv api rest parameter
 add_action('rest_api_init', function () {
-    // Cette valeur est pour identifier s'il a déja rempli son CV
-    register_meta('user', 'has_cv', [
-        'type' => 'boolean',
-        'single' => true,
-        'show_in_rest' => true,
-        'auth_callback' => function () {
-            return true;
-        }
-    ]);
-    // Cette valeur est pour savoir si le profil est public ou pas
-    register_meta('user', 'public_cv', [
-        'type' => 'boolean',
-        'single' => true,
-        'show_in_rest' => true,
-        'auth_callback' => function () {
-            return true;
-        }
-    ]);
-    // Add two (2) variable in user meta_query (has_cv, public_cv)
+// Add two (2) variable in user meta_query (has_cv, public_cv)
     add_filter('rest_user_query', function ($args, $request) {
         $meta_query = ['relation' => 'AND'];
         if (isset($request['has_cv']) && !empty($request['has_cv'])) {
@@ -99,10 +80,7 @@ add_action('rest_api_init', function () {
         //wp_die(print_r($args));
         return $args;
     }, 10, 2);
-});
 
-// Annonce API
-add_action('rest_api_init', function () {
     $job_meta = [
         [
             'name' => 'experience',
@@ -132,29 +110,24 @@ add_action('rest_api_init', function () {
         'get_callback' => function( $job_arr ) {
             $employer_id = get_post_meta($job_arr['id'], 'employer_id', true);
             $employer_id = intval($employer_id);
-
             $request = new WP_REST_Request();
             $request->set_param('context', 'view');
-
             $company_id = get_user_meta($employer_id, 'company_id', true);
             $company_id = intval($company_id);
             if (0 === $company_id) {
                 return new WP_Error('rest_user_not_find',
                     "L'utilisateur est introuvable ou n'existe pas", ['status' => 500]);
             }
-
             $company_controller = new WP_REST_Users_Controller();
             $Company = new WP_User($company_id);
-
             return $company_controller->prepare_item_for_response($Company, $request)->data;
-
         },
         // Pour modifier, cette function reçois la valeur entier (company_id)
         'update_callback' => function( $value, $job_obj ) {
             $company_id = intval($value);
             if (0 === $company_id)
                 return new WP_Error('rest_integer_failer',
-                "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
+                    "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
 
             $employer_id = get_post_meta($job_obj->ID, 'employer_id', true);
             $employer_id = intval($employer_id);
@@ -192,9 +165,6 @@ add_action('rest_api_init', function () {
             return true;
         }
     ) );
-});
-
-add_action('rest_api_init', function () {
     function send_rest_user(WP_REST_Request $request) {
         $user_id = intval($request->get_param('user_id'));
         // Create request
@@ -370,6 +340,34 @@ add_action('rest_api_init', function () {
             ]
         ]
     ]);
+    register_rest_route('job/v2', '/candidate/(?P<id_candidate>\d+)', [
+        [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $candidate_id = intval($request->get_param('id_candidate'));
+
+                // Create request
+                $req = new WP_REST_Request();
+                $req->set_param('context', 'edit');
+                // Create REST API user controller
+                $user_controller = new WP_REST_Users_Controller();
+                $candidate = $user_controller->prepare_item_for_response(new WP_User($candidate_id), $req)->data;
+                // Send response data
+                $encode = json_encode($candidate);
+                wp_send_json(base64_encode($encode));
+            },
+            'permission_callback' => function ($data) {
+                return true;
+            },
+            'args' => [
+                'id_candidate' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
+            ]
+        ]
+    ]);
     register_rest_route('job/v2', '/companies', [
         array(
             'methods' => WP_REST_Server::READABLE,
@@ -480,16 +478,37 @@ add_action('rest_api_init', function () {
 });
 
 add_action('rest_api_init', function() {
+    // Avatar
     register_rest_field('user', 'avatar', [
         'get_callback' => function($user_arr) {
-            $avatar_id = get_user_meta($user_arr['id'], 'avatar_id', true);
-            if ('' === $avatar_id || !$avatar_id) return '';
-            $avatar_id = intval($avatar_id);
-            $attach = wp_get_attachment_metadata($avatar_id);
-            return ['attach_id' => $avatar_id ,'image' => $attach, 'upload_dir' => wp_upload_dir()];
+            $user_id = intval($user_arr['id']);
+            $id = get_metadata('user', $user_id, 'avatar_id', true);
+            $id = intval($id);
+            if (0 === $id) return '';
+            $attach = wp_get_attachment_metadata($id);
+            return ['attach_id' => $id ,'image' => $attach, 'upload_dir' => wp_upload_dir()];
         },
         'update_callback' => function($value, $user_obj) {
             return update_user_meta($user_obj->ID, 'avatar_id', intval($value));
+        }
+    ]);
+    // Add has_cv, public_cv api rest parameter
+    // Cette valeur est pour identifier s'il a déja rempli son CV
+    register_meta('user', 'has_cv', [
+        'type' => 'boolean',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function () {
+            return true;
+        }
+    ]);
+    // Cette valeur est pour savoir si le profil est public ou pas
+    register_meta('user', 'public_cv', [
+        'type' => 'boolean',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function () {
+            return true;
         }
     ]);
     // Annonce
@@ -605,9 +624,6 @@ add_action('rest_api_init', function() {
         'type' =>  'string',
         'single' => true,
         'show_in_rest' => true,
-        'auth_callback' => function() {
-            return is_user_logged_in();
-        }
     ]);
     register_meta('user', 'address', [
         'type' =>  'string',

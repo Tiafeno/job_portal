@@ -29,7 +29,7 @@
         width: calc(100% + 3px);
     }
 
-    .utf_main_banner_area fieldset div:first-child input {
+    .utf_main_banner_area fieldset div:first-child div.selection {
         border-radius: 30px 0 0 30px;
     }
 
@@ -93,7 +93,7 @@
             <img class="ui small centered circular image" :src="previewUrl">
             <input type="file" id="upload-avatar" @change="previewFiles" style="display: none">
             <button class="btn text-uppercase text-center light-gray-btn" @click="eventClickHandler" style="margin: auto;display: block;margin-top: 10px;">
-                Ajouter un logo
+                ${btnTitle}
             </button>
         </div>
     </div>

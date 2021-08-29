@@ -173,14 +173,16 @@
                 const self = this;
                 this.loading = true;
                 this.userId = parseInt(this.$route.params.id);
-                const candidateInstance = axios.create({baseURL: apiSettings.root + 'job-portal'});
-                let responseCandidate = await candidateInstance.get(`/users/${this.userId}`);
+                const candidateInstance = axios.create({baseURL: apiSettings.root + 'job/v2'});
+                let responseCandidate = await candidateInstance.get(`/candidate/${this.userId}`);
                 responseCandidate = responseCandidate.data;
-                if (!responseCandidate.success) {
+                if (!responseCandidate) {
                     alertify.error("Une erreur s'est produit");
                     return;
                 }
-                let Candidate = lodash.cloneDeep(responseCandidate.data);
+                let $encodeValue = lodash.cloneDeep(responseCandidate);
+                let $decodeValue = window.atob($encodeValue);
+                const Candidate = JSON.parse($decodeValue);
                 let axiosInstance = axios.create({
                     baseURL: apiSettings.root + 'wp/v2',
                     headers: {

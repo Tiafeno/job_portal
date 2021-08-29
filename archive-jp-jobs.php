@@ -109,7 +109,9 @@ get_header();
             <div class="vertical-job-card">
                 <div class="vertical-job-header">
                     <div class="vrt-job-cmp-logo">
-                        <a :href="item.link"><img :src="item.company.avatar_urls[96]" class="img-responsive" alt=""></a>
+                        <a :href="item.link">
+                            <img :src="avatarSrc" class="img-responsive" alt="">
+                        </a>
                     </div>
                     <h4><a href="job-detail.html"></a>{{ item.company.name }}</h4>
                     <span class="com-tagline">{{item.title.rendered}}</span> <span
@@ -149,21 +151,23 @@ get_header();
                             <button type="button" @click="resetFilter" class="btn light-gray">Reset filter</button>
                         </div>
                         <filter-search v-on:changed="applyFilter"></filter-search>
-                        <filter-salary
-                                v-bind:salaries="taxonomies.Salaries"
-                                v-if="typeof taxonomies.Salaries === 'object'"
-                                v-on:changed="applyFilter">
-                        </filter-salary>
-                        <filter-region
-                                v-bind:regions="taxonomies.Regions"
-                                v-if="typeof taxonomies.Regions === 'object'"
-                                v-on:changed="applyFilter">
-                        </filter-region>
                         <filter-category
                                 v-bind:categories="taxonomies.Categories"
                                 v-if="typeof taxonomies.Categories === 'object'"
                                 v-on:changed="applyFilter">
                         </filter-category>
+                        <filter-region
+                                v-bind:regions="taxonomies.Regions"
+                                v-if="typeof taxonomies.Regions === 'object'"
+                                v-on:changed="applyFilter">
+                        </filter-region>
+                        <filter-salary
+                                v-bind:salaries="taxonomies.Salaries"
+                                v-if="typeof taxonomies.Salaries === 'object'"
+                                v-on:changed="applyFilter">
+                        </filter-salary>
+
+
                     </div>
                     <!-- Start Job List -->
                     <div class="col-md-7 col-sm-12">

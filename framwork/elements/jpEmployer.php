@@ -34,7 +34,6 @@ class EmployerHelper {
     public function __construct() {
 
     }
-
     public static function getInstance() {
         return new self();
     }

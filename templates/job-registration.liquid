@@ -2,63 +2,67 @@
 <section class="padd-top-80 padd-bot-80">
     <div class="container">
         <div class="log-box">
-            <form class="log-form" id="register-form" action="" method="post">
+            <h3>Crée votre compte</h3>
+            <p>Accédez à nos services</p>
+            <form class="log-form mrg-top-40" id="register-form" action="{{ action }}" method="post">
                 <div class="row">
-                    <div class="col-md-3 col-sm-6 col-xs-12" style="margin-bottom: 10px">
+                    <div class="col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="role" id="role_candidate" value="candidate">
-                            <label class="form-check-label" for="role_candidate">Candidate</label>
+                            <label class="form-check-label" for="role_candidate"><b>Candidate</b></label>
                         </div>
                     </div>
-                    <div class="col-md-3 col-sm-6 col-xs-12" style="margin-bottom: 10px">
+                    <div class="col-md-6 col-sm-6 col-xs-12" style="margin-bottom: 10px">
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="role" id="role_employer" value="employer" required>
-                            <label class="form-check-label" for="role_employer">Employer</label>
+                            <label class="form-check-label" for="role_employer"><b>Employeur</b> ou <b>Recruteur</b></label>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Name</label>
+                            <label>Nom et prénom</label>
                             <input type="text" id="first_name" autocomplete="false" name="first_name" class="form-control" placeholder="Name" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Email</label>
+                            <label>Adresse email</label>
                             <input type="email" name="email" class="form-control" value="" placeholder="Email" required>
                         </div>
                     </div>
                 </div>
-
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label>Password</label>
+                            <label>Mot de passe</label>
                             <input type="password" id="password" name="password" autocomplete="false" minlength="5" class="form-control" value="" placeholder="********" required>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-group">
-                            <label>Confirm Password</label>
+                            <label>Confirmer votre mot de passe</label>
                             <input type="password"  name="confirm_password" autocomplete="false" minlength="5" class="form-control" value="" placeholder="********" required>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Phone</label>
-                            <input type="text" name="phone" id="phone" class="form-control" placeholder="Phone Number">
+                            <label>Numéro de téléphone</label>
+                            <input type="text" name="phone" id="phone" class="form-control" onkeypress="if(event.keyCode === 32)
+                           return false;" placeholder="Exp: 03X XX XXX XX">
                         </div>
                     </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="form-group text-center mrg-top-15">
-                        <button type="submit" class="btn theme-btn btn-m full-width">Sign Up</button>
-                        {{ nonce }}
+                    <div class="clearfix"></div>
+                    <div class="col-md-12">
+                        <p class="text-muted">En créant mon compte je reconnais avoir lu et accepté les Conditions Générales de Vente et les Conditions Générales d‘Utilisation,</p>
+                        <div class="form-group text-left mrg-top-15">
+                            <button type="submit" class="btn light-gray-btn btn-m">Créer mon compte</button>
+                            {{ nonce }}
+                        </div>
                     </div>
+
                 </div>
-                <div class="clearfix"></div>
             </form>
         </div>
     </div>
@@ -83,34 +87,4 @@
         border: 2px solid red;
     }
 </style>
-<script type="text/javascript">
-    (function ($) {
-        $().ready(function() {
-            $("#register-form").validate({
-                rules: {
-                    role: {
-                        required: true
-                    },
-                    first_name: {
-                        required: true,
-                        minlength: 4
-                    },
-                    password: {
-                        required:true,
-                        minlength: 5
-                    },
-                    confirm_password: {
-                        required: true,
-                        minlength: 5,
-                        equalTo: "#password"
-                    },
-                    email: {
-                        required: true,
-                        email: true
-                    }
-                }
-            });
-        });
-    })(jQuery);
-</script>
 <!-- ====================== End Signup Form ============= -->

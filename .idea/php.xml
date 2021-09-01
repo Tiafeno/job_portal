@@ -2,7 +2,6 @@
 <project version="4">
   <component name="PhpIncludePathManager">
     <include_path>
-      <path value="$PROJECT_DIR$/../../../../../../CREA/WORDPRESS" />
       <path value="$PROJECT_DIR$/vendor/sebastian/comparator" />
       <path value="$PROJECT_DIR$/vendor/sebastian/diff" />
       <path value="$PROJECT_DIR$/vendor/sebastian/exporter" />
@@ -21,6 +20,8 @@
       <path value="$PROJECT_DIR$/vendor/symfony/string" />
       <path value="$PROJECT_DIR$/../../plugins/elementor" />
       <path value="$USER_HOME$/Documents/wordpress_sources" />
+      <path value="$PROJECT_DIR$/../../plugins/advanced-custom-fields" />
+      <path value="$PROJECT_DIR$/../../plugins/woocommerce" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.4">

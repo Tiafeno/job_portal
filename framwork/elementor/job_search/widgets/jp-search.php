@@ -45,27 +45,14 @@ class JobSearch_Widget extends Widget_Base
                 'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
             ]
         );
-
         $this->add_control(
-            'widget_value',
+            'description',
             [
-                'label' => __('value', self::$slug),
-                'type' => \Elementor\Controls_Manager::TEXT,
-                'default' => __('value', self::$slug),
-                'placeholder' => __('Value Attribute', self::$slug),
+                'label' => __('Description', self::$slug),
+                'type' => \Elementor\Controls_Manager::TEXTAREA,
+                'default' => 'Dites-nous ce que vous recherchez et nous travaillerons pour vous.',
             ]
         );
-
-        $this->add_control(
-            'widget_contents',
-            [
-                'label' => __('contents', self::$slug),
-                'type' => \Elementor\Controls_Manager::TEXT,
-                'default' => __('contents', self::$slug),
-                'placeholder' => __('Option Contents', self::$slug),
-            ]
-        );
-
         $this->end_controls_section();
     }
 
@@ -79,7 +66,17 @@ class JobSearch_Widget extends Widget_Base
     protected function render()
     {
         global $Liquid_engine;
-        echo $Liquid_engine->parseFile('job-search')->render([]);
+        $settings = $this->get_settings_for_display(); // return array
+        // Region
+        $regions = get_terms(['taxonomy' => 'region', 'hide_empty' => false, 'number' => 80]);
+        // Secteur d'activité ou la categorie de l'annonce
+        $categories = get_terms(['taxonomy' => 'category', 'hide_empty' => false, 'number' => 80]);
+        echo $Liquid_engine->parseFile('job-search')->render(
+            [
+                'regions' => $regions,
+                'categories' => $categories,
+                'description' => $settings['description']
+            ]);
     }
 
 

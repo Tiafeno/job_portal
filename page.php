@@ -2,7 +2,7 @@
 get_header();
 ?>
     <?php if ( ! is_front_page()): ?>
-    <div class="page-title">
+    <div class="page-title hidden">
         <div class="container">
             <div class="page-caption">
                 <h2><?= get_the_title() ?></h2>

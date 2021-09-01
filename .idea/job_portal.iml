@@ -8,5 +8,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="lodash.js" level="project" />
+    <orderEntry type="library" name="Lodash" level="project" />
   </component>
 </module>

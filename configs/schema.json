@@ -1,0 +1,15 @@
+{
+    "pricing": {
+        "account": [
+            {
+                "_id": 1,
+                "title": "Medium",
+                "regular_price": 50000,
+                "validity": 1,
+                "count": 4,
+                "activated": 1,
+                "desc": ""
+            }
+        ]
+    }
+}

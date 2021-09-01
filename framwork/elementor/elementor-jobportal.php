@@ -16,10 +16,14 @@ include 'job_search/widgets/jp-search.php';
 include 'job_grid/widgets/jp-job-grid.php';
 include 'job_registration/widgets/jp-registration.php';
 include 'job_add_annonce/widgets/jp-add-annonce.php';
+include 'job_login/widgets/jp-login.php';
+include 'job_grid_categories/widgets/job_grid_categories.php';
 
 use Elementor\Plugin;
 use JobAddAnnonce\Widgets\JobAddAnnonce_Widget;
 use JobGrid\Widgets\JobGrid_Widget;
+use JobGridCategories\Widgets\JobGridCategories_Widget;
+use jobLogin\Widgets\jobLogin_Widget;
 use JobRegistration\Widgets\JobRegistration_Widget;
 use JobSearch\Widgets\JobSearch_Widget;
 
@@ -32,4 +36,6 @@ add_action('elementor/widgets/widgets_registered', function () {
     Plugin::instance()->widgets_manager->register_widget_type(new JobGrid_Widget());
     Plugin::instance()->widgets_manager->register_widget_type(new JobRegistration_Widget());
     Plugin::instance()->widgets_manager->register_widget_type(new JobAddAnnonce_Widget());
+    Plugin::instance()->widgets_manager->register_widget_type(new jobLogin_Widget());
+    Plugin::instance()->widgets_manager->register_widget_type(new JobGridCategories_Widget());
 });

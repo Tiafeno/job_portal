@@ -2,7 +2,6 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-
 // Create user role
 add_action('helper_register_jp_user_role', function () {
     // for employer
@@ -15,6 +14,7 @@ add_action('helper_register_jp_user_role', function () {
         'edit_pages' => true,
         'edit_posts' => true,
         'edit_users' => true,
+        'list_users' => true,
 
         'manage_options' => false,
         'remove_users' => false,
@@ -33,14 +33,10 @@ add_action('helper_register_jp_user_role', function () {
         'install_plugins' => false, // User cant add new plugins
         'update_plugin' => false, // User can’t update any plugins
         'update_core' => false, // user cant perform core updates
-        'create_users' => false,
+        'create_users' => true,
         'install_themes' => false,
     );
-    add_role(
-        'employer',
-        'Employer',
-        $employer_capabilities
-    );
+    add_role('employer', 'Employer', $employer_capabilities);
 
     // for candidate
     $candidate_capabilities = array(
@@ -48,6 +44,7 @@ add_action('helper_register_jp_user_role', function () {
         'upload_files' => true,
         'edit_posts' => true,
         'edit_users' => true,
+        'list_users' => true,
         'manage_options' => false,
         'remove_users' => false,
         'delete_others_pages' => true,
@@ -65,11 +62,7 @@ add_action('helper_register_jp_user_role', function () {
         'delete_themes' => false,
         'install_themes' => false,
     );
-    add_role(
-        'candidate',
-        'Candidate',
-        $candidate_capabilities
-    );
+    add_role('candidate', 'Candidate', $candidate_capabilities);
 
     // for company
     $company_capabilities = array(
@@ -77,6 +70,7 @@ add_action('helper_register_jp_user_role', function () {
         'upload_files' => true,
         'edit_posts' => true,
         'edit_users' => true,
+        'list_users' => true,
         'manage_options' => false,
         'remove_users' => false,
         'delete_others_pages' => true,
@@ -94,14 +88,9 @@ add_action('helper_register_jp_user_role', function () {
         'delete_themes' => false,
         'install_themes' => false,
     );
-    add_role(
-        'company',
-        'Company',
-        $company_capabilities
-    );
+    add_role('company', 'Company', $company_capabilities);
 
 });
-
 // Create post type
 add_action('helper_register_jp_post_types', function () {
     // Emploi post type
@@ -125,153 +114,247 @@ add_action('helper_register_jp_post_types', function () {
         'show_ui' => true,
         'has_archive' => true,
         'rewrite' => ['slug' => 'emploi'],
-        'rest_base'       => 'emploi',
+        'rest_base' => 'emploi',
         'capability_type' => 'post',
         'map_meta_cap' => true,
         'menu_icon' => 'dashicons-media-interactive',
         'supports' => ['title', 'editor', 'excerpt', 'thumbnail', 'custom-fields'],
         'show_in_rest' => true
     ]);
+    // Ajouter category pour le 'jp-jobs'
+    register_taxonomy_for_object_type('category', 'jp-jobs');
     // Logiciel maitrisés
-    register_taxonomy( 'tech_mastery', [ 'post' ], [
-        'hierarchical'      => true,
-        'labels'            => array(
-            'name'              => 'Mastered Technology',
-            'singular_name'     => 'Mastered Tech.',
-            'search_items'      => 'Trouver',
-            'all_items'         => 'Trouver des tech.',
-            'parent_item'       => 'Tech. parent',
+    register_taxonomy('tech_mastery', ['post'], [
+        'hierarchical' => true,
+        'labels' => array(
+            'name' => 'Logiciels',
+            'singular_name' => 'Logiciel',
+            'search_items' => 'Trouver',
+            'all_items' => 'Trouver des tech.',
+            'parent_item' => 'Tech. parent',
             'parent_item_colon' => 'Tech. parent:',
-            'edit_item'         => 'Modifier la technologie',
-            'update_item'       => 'Mettre à jour',
-            'add_new_item'      => 'Ajouter',
-            'menu_name'         => 'Mastered Technology',
+            'edit_item' => 'Modifier la technologie',
+            'update_item' => 'Mettre à jour',
+            'add_new_item' => 'Ajouter',
+            'menu_name' => 'Logiciels',
         ),
-        'show_ui'           => true,
+        'show_ui' => true,
         'show_admin_column' => false,
-        'query_var'         => true,
-        'public'            => true,
-        'show_in_rest'      => true,
-        'rewrite'           => array( 'slug' => 'mastered_technology' ),
-    ] );
-
+        'query_var' => true,
+        'public' => true,
+        'show_in_rest' => true,
+        'rewrite' => array('slug' => 'mastered_technology'),
+    ]);
+    //  Drive licence
+    register_taxonomy('drive_licence', ['jp-jobs'], [
+        'hierarchical' => true,
+        'labels' => array(
+            'name' => 'Permis de conduire',
+            'singular_name' => 'Permis de conduire',
+            'search_items' => 'Trouver',
+            'all_items' => 'Trouver des permis',
+            'edit_item' => 'Modifier le permis',
+            'update_item' => 'Mettre à jour',
+            'add_new_item' => 'Ajouter',
+            'menu_name' => 'Permis de conduire',
+        ),
+        'show_ui' => true,
+        'show_admin_column' => false,
+        'query_var' => true,
+        'public' => true,
+        'show_in_rest' => true,
+        'rewrite' => array('slug' => 'drive_licence'),
+    ]);
+    //  Salaires
+    register_taxonomy('salaries', ['jp-jobs'], [
+        'hierarchical' => true,
+        'labels' => array(
+            'name' => 'Salaires',
+            'singular_name' => 'Salaire',
+            'search_items' => 'Trouver',
+            'all_items' => 'Trouver des salaires.',
+            'parent_item' => 'Tech. parent',
+            'parent_item_colon' => 'Tech. parent:',
+            'edit_item' => 'Modifier le salaire',
+            'update_item' => 'Mettre à jour',
+            'add_new_item' => 'Ajouter',
+            'menu_name' => 'Salaires',
+        ),
+        'show_ui' => true,
+        'show_admin_column' => false,
+        'query_var' => true,
+        'public' => true,
+        'show_in_rest' => true,
+        'rewrite' => array('slug' => 'salaries'),
+    ]);
+    //  Qualification
+    register_taxonomy('qualification', ['jp-jobs'], [
+        'hierarchical' => true,
+        'labels' => array(
+            'name' => 'Qualifications',
+            'singular_name' => 'Qualification',
+            'search_items' => 'Trouver',
+            'all_items' => 'Trouver des qualifications',
+            'edit_item' => 'Modifier la qualification',
+            'update_item' => 'Mettre à jour',
+            'add_new_item' => 'Ajouter',
+            'menu_name' => 'Qualifications',
+        ),
+        'show_ui' => true,
+        'show_admin_column' => false,
+        'query_var' => true,
+        'public' => true,
+        'show_in_rest' => true,
+        'rewrite' => array('slug' => 'qualification'),
+    ]);
+    //  Language
+    register_taxonomy('language', ['post'], [
+        'hierarchical' => true,
+        'labels' => array(
+            'name' => 'Langages',
+            'singular_name' => 'Langage',
+            'search_items' => 'Trouver',
+            'all_items' => 'Trouver des langues',
+            'edit_item' => 'Modifier la langue',
+            'update_item' => 'Mettre à jour',
+            'add_new_item' => 'Ajouter',
+            'menu_name' => 'Languages',
+        ),
+        'show_ui' => true,
+        'show_admin_column' => false,
+        'query_var' => true,
+        'public' => true,
+        'show_in_rest' => true,
+        'rewrite' => array('slug' => 'language'),
+    ]);
+    //  Type de travail
+    register_taxonomy('job_type', ['jp-jobs'], [
+        'hierarchical' => true,
+        'labels' => array(
+            'name' => 'Type de contract',
+            'singular_name' => 'Type de contract',
+            'search_items' => 'Trouver',
+            'all_items' => 'Trouver des types',
+            'parent_item' => 'Tech. parent',
+            'parent_item_colon' => 'Tech. parent:',
+            'edit_item' => 'Modifier le type',
+            'update_item' => 'Mettre à jour',
+            'add_new_item' => 'Ajouter',
+            'menu_name' => 'Type de contract',
+        ),
+        'show_ui' => true,
+        'show_admin_column' => false,
+        'query_var' => true,
+        'public' => true,
+        'show_in_rest' => true,
+        'rewrite' => array('slug' => 'job_type'),
+    ]);
     // Pays
-    register_taxonomy( 'country', [ 'post' ], [
-        'hierarchical'      => true,
-        'labels'            => array(
-            'name'              => 'Pays',
-            'singular_name'     => 'Pays',
-            'search_items'      => 'Trouver',
-            'all_items'         => 'Trouver des pays',
-            'edit_item'         => 'Modifier',
-            'update_item'       => 'Mettre à jour',
-            'add_new_item'      => 'Ajouter',
-            'menu_name'         => 'Pays',
+    register_taxonomy('country', ['post'], [
+        'hierarchical' => true,
+        'labels' => array(
+            'name' => 'Pays',
+            'singular_name' => 'Pays',
+            'search_items' => 'Trouver',
+            'all_items' => 'Trouver des pays',
+            'edit_item' => 'Modifier',
+            'update_item' => 'Mettre à jour',
+            'add_new_item' => 'Ajouter',
+            'menu_name' => 'Pays',
         ),
-        'show_ui'           => true,
+        'show_ui' => true,
         'show_admin_column' => false,
-        'query_var'         => true,
-        'public'            => true,
-        'show_in_rest'      => true,
-        'rewrite'           => array( 'slug' => 'country' ),
-    ] );
-
-    // Categorie company
-    register_taxonomy( 'category_company', [ 'post' ], [
-        'hierarchical'      => true,
-        'labels'            => array(
-            'name'              => 'Categorie entreprise',
-            'singular_name'     => 'Categorie entreprise',
-            'search_items'      => 'Trouver',
-            'all_items'         => 'Trouver des categories d\'entreprise',
-            'edit_item'         => 'Modifier',
-            'update_item'       => 'Mettre à jour',
-            'add_new_item'      => 'Ajouter',
-            'menu_name'         => "Categorie d'entreprise",
+        'query_var' => true,
+        'public' => true,
+        'show_in_rest' => true,
+        'rewrite' => array('slug' => 'country'),
+    ]);
+    // Region
+    register_taxonomy('region', ['jp-jobs'], [
+        'hierarchical' => true,
+        'labels' => array(
+            'name' => 'Regions',
+            'singular_name' => 'Region',
+            'search_items' => 'Trouver',
+            'all_items' => 'Trouver des regions',
+            'edit_item' => 'Modifier',
+            'update_item' => 'Mettre à jour',
+            'add_new_item' => 'Ajouter',
+            'menu_name' => 'Regions',
         ),
-        'show_ui'           => true,
+        'show_ui' => true,
         'show_admin_column' => false,
-        'query_var'         => true,
-        'public'            => true,
-        'show_in_rest'      => true,
-        'rewrite'           => array( 'slug' => 'category-company' ),
-    ] );
-
-
+        'query_var' => true,
+        'public' => true,
+        'show_in_rest' => true,
+        'rewrite' => array('slug' => 'region'),
+    ]);
 });
-
-/**
- * Permet d'enregistrer un utilisateur (Employer ou Candidat)
- */
-add_action('action_jobportal_register', function() {
-    if ( ! isset($_POST['_wpnonce']) ) return;
-    if (wp_verify_nonce($_POST['_wpnonce'], 'portaljob-register')) {
-        $email = is_email($_POST['email']) ? $_POST['email'] : null;
-        if (is_null($email) || empty($_POST['role'])) {
-            return false;
-        }
-        $role = esc_attr($_POST['role']); //candidate or employer
-        $args = [
-            'user_pass' => $_POST['password'],
-            'nickname' => $email,
-            'first_name' => trim($_POST['first_name']),
-            'last_name' => '',
-            'user_login' => $email,
-            'user_email' => $email,
-            'role' => $role
-        ];
-
-        // Check if user exist
-        if (email_exists($email) || username_exists($email)) {
-            // User exist in bdd
-            $response = email_exists($email);
-        } else {
-            $response = wp_insert_user($args);
-            if (is_wp_error($response)) {
-                return false;
-            }
-        }
-
-        if (!is_numeric($response)) {
-            echo "Value isn't numeric";
-            return false;
-        }
-
-        $user_id = $response;
-        $candidate = new \JP\Framwork\Elements\jpCandidate($user_id);
-        $phone_number = $_POST['phone'];
-        $candidate->phones = [ $phone_number ];
-
-        do_action('send_email_new_user', $user_id); // Envoyer le mail
-    }
-});
-
-add_action('init', function() {
+add_action('init', function () {
     // Permet de se connecter avec AJAX
-    add_action('wp_ajax_nopriv_ajax_login', 'ajax_login');
-
-    function ajax_login() {
+    add_action('wp_ajax_ajax_login', 'login');
+    add_action('wp_ajax_nopriv_ajax_login', 'login');
+    function login() {
+        if (is_user_logged_in(  )) {
+            wp_logout();
+            wp_send_json_error( new WP_Error(406, "La ressource demandée n'est pas disponible") );
+        }
         // First check the nonce, if it fails the function will break
-        //check_ajax_referer( 'ajax-login-nonce', 'security' );
-
+        check_ajax_referer('ajax-login-nonce', 'security');
         // Nonce is checked, get the POST data and sign user on
         $info = array();
         $info['user_login'] = $_POST['username'];
         $info['user_password'] = $_POST['password'];
         $info['remember'] = true;
-
-        $user_signon = wp_signon( $info, false );
-        if ( !is_wp_error($user_signon) ){
+        $user_signon = wp_signon($info, false);
+        if (!is_wp_error($user_signon)) {
             wp_set_current_user($user_signon->ID);
             wp_set_auth_cookie($user_signon->ID);
-            wp_send_json_success('Login successful, redirecting...');
+            // Envoyer le REST API controller pour l'utilisateur
+            $req = new WP_REST_Request();
+            $req->set_param('context', 'edit'); // set context edit 
+
+            $user = new WP_USER((int)$user_signon->ID);
+            $response = new stdClass();
+            $response->id = $user->ID;
+            $response->roles = $user->roles;
+            $response->meta = new stdClass();
+            if (in_array('employer', $response->roles)) {
+                $company_id = get_user_meta($user->ID, 'company_id', true);
+                $response->meta->company_id = intval($company_id);
+            }
+            wp_send_json_success($response);
         } else {
-            wp_send_json_error('Error login information');
+            // Envoyer l'objet WP_Error
+            wp_send_json_error($user_signon);
         }
     }
+    // Modifier le mot de passe d'un utilisateur
+    add_action('wp_ajax_change_my_pwd', function () {
+        check_ajax_referer('ajax-client-form', 'pwd_nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error("Vous ne pouvez pas changer de mot de passe. Veuillez vous connecter");
+        }
+        $password = $_POST['pwd'];
+        $user_id = get_current_user_id();
+        wp_set_password($password, $user_id);
+        wp_send_json_success("Mot de passe modifier avec succès");
+    });
+    add_action('wp_ajax_ad_handler_apply', function () {
+        global $wpdb;
+        $candidate_id = $_GET['cid'];
+        $candidate_id = intval($candidate_id);
+        $table_apply = APPLY_TABLE;
+        $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_apply WHERE candidate_id = %d", $candidate_id));
+        $jobs = [];
+        $request = new WP_REST_Request();
+        $request->set_param('context', 'edit');
+        foreach ($results as $result) {
+            $job_controller = new WP_REST_Posts_Controller('jp-jobs');
+            $jobs[] = $job_controller->prepare_item_for_response(get_post($result->job_id), $request)->data;
+        }
+        wp_send_json($jobs);
+    });
 });
 
 
-add_action('new_job', function() {
-
-});

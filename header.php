@@ -24,7 +24,7 @@
 <!DOCTYPE html>
 <html class="no-js" <?= language_attributes(); ?>>
 <head>
-    <meta charset="<?php bloginfo( 'charset' ); ?>">
+    <meta charset="<?php bloginfo('charset'); ?>">
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -33,7 +33,7 @@
     <meta name="msapplication-TileImage" content="<?= get_template_directory_uri() ?>/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
     <!--[if lt IE 9]>
-      <script src="<?php echo esc_url( get_template_directory_uri() ); ?>/assets/js/html5.js"></script>
+      <script src="<?php echo esc_url(get_template_directory_uri()); ?>/assets/js/html5.js"></script>
     <![endif]-->
 
     <?php wp_head(); ?>
@@ -41,119 +41,129 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600&display=swap" rel="stylesheet">
+    <script type="text/javascript">
+        function RestrictSpace(event) {
+            if (event.keyCode == 32) {
+                return false;
+            }
+        }
+        function renderLoginModel() {
+            // Application
+            if (typeof CompLogin === 'undefined') {
+                console.warn('Commposant login non definie');
+                return false;
+            }
+            ;
+            new Vue({
+                el: '#signin',
+                components: {'comp-login': CompLogin},
+                data: function () {
+                    return {}
+                },
+                methods: {
+                    loggedIn: function (data) {
+                        window.location.reload();
+                    }
+                },
+                delimiters: ['${', '}']
+            });
+            return true;
+        }
+
+        function showLoginModal() {
+            var renderResult = renderLoginModel();
+            if (renderResult) jQuery('#signin').modal('show');
+        }
+    </script>
 </head>
 <body <?php body_class(); ?> >
-    <div class="page_preloader"></div>
-    <!-- ======================= Start Navigation ===================== -->
-    <?php
-    $navClass = is_front_page() ? 'white no-background' : 'light';
-    $custom_logo_id = get_theme_mod( 'custom_logo' );
-    $logo = wp_get_attachment_image_src( $custom_logo_id , 'full' );
-    ?>
-    <nav class="navbar navbar-default navbar-mobile navbar-fixed <?= $navClass ?> bootsnav">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu"> <i class="fa fa-bars"></i> </button>
-                <a class="navbar-brand" href="<?= home_url('/') ?>">
-                    <?php if ( has_custom_logo() ): ?>
-                    <img src="<?= esc_url( $logo[0] ) ?>" class="logo logo-display" alt="<?= get_bloginfo( 'name' ) ?>">
-                    <img src="<?= esc_url( $logo[0] ) ?>" class="logo logo-scrolled" alt="<?= get_bloginfo( 'name' ) ?>">
-                    <?php endif; ?>
-                </a>
-            </div>
-            <div class="collapse navbar-collapse" id="navbar-menu">
-                <?php
-                wp_nav_menu(
-                    array(
-                        'theme_location'  => 'primary',
-                        'menu_class'      => 'nav navbar-nav navbar-left',
-                        'menu_id'         => 'navbar-menu',
-                        'container'       => false,
-                        //'container_class' => 'collapse navbar-collapse',
-                        'items_wrap'      => '<ul  class="%2$s" data-in="" data-out="">%3$s</ul>',
-                        'walker'          => new JP_Primary_Walker()
-                    )
-                );
-                ?>
-
-
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="br-right"><a class="btn-signup red-btn" href="javascript:void(0)" data-toggle="modal" data-target="#signin"><i class="login-icon ti-user"></i>Login</a></li>
-                    <li class="sign-up"><a class="btn-signup red-btn" href="<?= home_url('/register') ?>"><span class="ti-briefcase"></span>Register</a></li>
-                </ul>
-            </div>
+<div class="page_preloader"></div>
+<!-- ======================= Start Navigation ===================== -->
+<?php
+$navClass = is_front_page() ? 'white no-background' : 'light';
+$custom_logo_id = get_theme_mod('custom_logo');
+$logo = wp_get_attachment_image_src($custom_logo_id, 'full');
+?>
+<nav class="navbar navbar-default navbar-mobile navbar-fixed <?= $navClass ?> bootsnav">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu"><i
+                        class="fa fa-bars"></i></button>
+            <a class="navbar-brand" href="<?= home_url('/') ?>">
+                <?php if (has_custom_logo()): ?>
+                    <img src="<?= esc_url($logo[0]) ?>" class="logo logo-display" alt="<?= get_bloginfo('name') ?>">
+                    <img src="<?= esc_url($logo[0]) ?>" class="logo logo-scrolled" alt="<?= get_bloginfo('name') ?>">
+                <?php endif; ?>
+            </a>
         </div>
-    </nav>
+        <div class="collapse navbar-collapse" id="navbar-menu">
+            <?php
+            wp_nav_menu(
+                array(
+                    'theme_location' => 'primary',
+                    'menu_class' => 'nav navbar-nav navbar-left',
+                    'menu_id' => 'navbar-menu',
+                    'container' => false,
+                    //'container_class' => 'collapse navbar-collapse',
+                    'items_wrap' => '<ul  class="%2$s" data-in="" data-out="">%3$s</ul>',
+                    'walker' => new JP_Primary_Walker()
+                )
+            );
+            ?>
 
+            <ul class="nav navbar-nav navbar-right">
+
+                <?php if (!is_user_logged_in()): ?>
+                    <li class="br-right">
+                        <a class="btn-signup red-btn" onclick="renderLoginModel()" data-toggle="modal"
+                           data-target="#signin">
+                            <i class="login-icon ti-user"></i>
+                            Connexion
+                        </a>
+                    </li>
+                <?php else:
+                        $user_id = get_current_user_id();
+                        $user = new WP_User($user_id);
+                        if (in_array('employer', $user->roles) ) :
+                    ?>
+                    <li class="br-right">
+                        <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
+                            <i class="login-icon ti-archive"></i>
+                            Publier une offre
+                        </a>
+                    </li>
+                    <?php endif; ?>
+                    <li class="sign-up">
+                        <a class=" btn-signup red-btn" href="<?= home_url('/espace-client') ?>" >
+                           Espace client
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btn-danger btn red-btn" title="Déconnexion" href="<?= wp_logout_url(home_url('/')) ?>" style="font-size: 20px">
+                            <i class="fa fa-sign-out"></i>
+                        </a>
+                    </li>
+
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<?php if (!is_user_logged_in()): ?>
     <!-- Signup Code -->
     <div class="modal fade" id="signin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content" id="myModalLabel1">
                 <div class="modal-body">
-                    <!-- Nav tabs -->
-                    <ul class="nav nav-tabs nav-advance theme-bg" role="tablist">
-                        <li class="nav-item active"> <a class="nav-link" data-toggle="tab" href="#employer" role="tab"> <i class="ti-user"></i> Job Seeker</a> </li>
-                        <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#candidate" role="tab"> <i class="ti-user"></i> Job Provider</a> </li>
-                    </ul>
-                    <!-- Nav tabs -->
-                    <!-- Tab panels -->
-                    <div class="tab-content">
-                        <!-- Employer Panel 1-->
-                        <div class="tab-pane fade in show active" id="employer" role="tabpanel">
-                            <form>
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Email Address">
-                                </div>
-                                <div class="form-group">
-                                    <input type="password" class="form-control" placeholder="Password">
-                                </div>
-                                <div class="form-group"> <span class="custom-checkbox">
-                <input type="checkbox" id="4">
-                <label for="4"></label>
-                Remember Me </span> <a href="#" title="Forget" class="fl-right">Forgot Password?</a>
-                                </div>
-                                <div class="form-group text-center">
-                                    <button type="button" class="btn theme-btn full-width btn-m">LogIn</button>
-                                </div>
-                            </form>
-                            <div class="log-option"><span>OR</span></div>
-                            <div class="row">
-                                <div class="col-md-6"> <a href="#" title="" class="fb-log-btn log-btn"><i class="fa fa-facebook"></i> Facebook</a> </div>
-                                <div class="col-md-6"> <a href="#" title="" class="gplus-log-btn log-btn"><i class="fa fa-google"></i> Google</a> </div>
-                            </div>
-                        </div>
-                        <!--/.Panel 1-->
-
-                        <!-- Candidate Panel 2-->
-                        <div class="tab-pane fade" id="candidate" role="tabpanel">
-                            <form>
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="Email Address">
-                                </div>
-                                <div class="form-group">
-                                    <input type="password" class="form-control" placeholder="Password">
-                                </div>
-                                <div class="form-group"> <span class="custom-checkbox">
-                <input type="checkbox" id="44">
-                <label for="44"></label>
-                Remember Me </span> <a href="#" title="Forget" class="fl-right">Forgot Password?</a>
-                                </div>
-                                <div class="form-group text-center">
-                                    <button type="button" class="btn theme-btn full-width btn-m">LogIn</button>
-                                </div>
-                            </form>
-                            <div class="log-option"><span>OR</span></div>
-                            <div class="row">
-                                <div class="col-md-6"> <a href="#" title="" class="fb-log-btn log-btn"><i class="fa fa-facebook"></i> Facebook</a> </div>
-                                <div class="col-md-6"> <a href="#" title="" class="gplus-log-btn log-btn"><i class="fa fa-google"></i> Google</a> </div>
-                            </div>
-                        </div>
+                    <div class="tab-pane fade in show active" id="employer" role="tabpanel">
+                        <comp-login v-on:login-success="loggedIn"></comp-login>
                     </div>
-                    <!-- Tab panels -->
                 </div>
             </div>
         </div>
     </div>
     <!-- End Signup -->
-    <!-- ======================= End Navigation ===================== -->
+<?php endif; ?>
+<!-- ======================= End Navigation ===================== -->
 

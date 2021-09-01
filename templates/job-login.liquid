@@ -1,0 +1,37 @@
+<div class="login-body">
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <h2>Connexion</h2>
+            <p>Accédez à nos services avec un seul compte</p>
+            {% if msg != '' %}
+            <div class="alert alert-info">
+                {{ msg }}
+            </div>
+            {% endif %}
+            <!-- Nav tabs -->
+            <form method="post" action="">
+                <div class="form-group">
+                    <input type="text" name="log" class="form-control" value=""
+                           placeholder="Votre adresse email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="pwd" value="" class="form-control"
+                           placeholder="Mot de passe" required>
+                </div>
+                <div class="form-group"> <span class="custom-checkbox">
+                    <input type="checkbox" name="remember" value="true" id="4">
+                    <label for="4"></label>Se souvenir de moi </span>
+                    {% comment %}<a href="#" title="Forget" class="fl-right">Mot de passe publié?</a>{% endcomment %}
+                </div>
+                <div class="form-group text-center">
+                    <input type="hidden" name="jp-login-nonce" value="{{ nonce }}" />
+                    <button type="submit" class="btn theme-btn full-width btn-m">Se connecter</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+
+
+</div>

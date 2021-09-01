@@ -342,8 +342,7 @@ add_action('init', function () {
     });
     add_action('wp_ajax_ad_handler_apply', function () {
         global $wpdb;
-        $candidate_id = $_GET['cid'];
-        $candidate_id = intval($candidate_id);
+        $candidate_id = intval($_GET['cid']);
         $table_apply = APPLY_TABLE;
         $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_apply WHERE candidate_id = %d", $candidate_id));
         $jobs = [];

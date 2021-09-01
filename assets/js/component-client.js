@@ -798,53 +798,56 @@ const getFileReader = (file) => {
                 }
             },
             methods: {
-                initComponent: async function () {
-                    this.loading = true;
-                    this.account_id = clientApiSettings.current_user_id;
-                    const wpCatsModel = new wp.api.collections.Categories();
-                    const wpCountryModel = new wp.api.collections.Country();
-                    const categories = await wpCatsModel.fetch();
-                    const countries = await wpCountryModel.fetch();
-                    axios.all([categories, countries]).then(axios.spread(
-                        (...wpapiAll) => {
-                            this.categories = lodash.clone(wpapiAll[0]);
-                            this.countries = lodash.clone(wpapiAll[1]);
-                        }
-                    )).catch(errors => {
-                    });
-                    this.wpapi.users().me().context('edit').then((response) => {
-                        const me = lodash.cloneDeep(response);
-                        const hasCompany = me.meta.company_id !== 0;
-                        if (hasCompany) {
-                            // S'il possede deja une entreprise
-                            const wpCompanyModel = new wp.api.models.User({id: me.meta.company_id});
-                            wpCompanyModel.fetch({data: {context: 'edit'}}).done(company => {
-                                this.isUpdate = true;
-                                this.company_account = lodash.clone(company);
-                                // Ajouter les valeurs dans le formulaires
-                                this.formData = {
-                                    name: company.username,
-                                    category: company.meta.category,
-                                    email: company.email,
-                                    address: company.meta.address,
-                                    nif: company.meta.nif,
-                                    stat: company.meta.stat,
-                                    phone: company.meta.phone,
-                                    country: company.meta.country,
-                                    city: company.meta.city,
-                                    zipcode: company.meta.zipcode,
-                                    website: company.meta.website,
-                                    employees: company.meta.employees,
-                                    description: company.description
-                                }
+                initComponent: function () {
+                    wp.api.loadPromise.done( async () => {
+                        this.loading = true;
+                        this.account_id = clientApiSettings.current_user_id;
+                        const wpCatsModel = new wp.api.collections.Categories();
+                        const wpCountryModel = new wp.api.collections.Country();
+                        const categories = await wpCatsModel.fetch();
+                        const countries = await wpCountryModel.fetch();
+                        axios.all([categories, countries]).then(axios.spread(
+                            (...wpapiAll) => {
+                                this.categories = lodash.clone(wpapiAll[0]);
+                                this.countries = lodash.clone(wpapiAll[1]);
+                            }
+                        )).catch(errors => {
+                        });
+                        this.wpapi.users().me().context('edit').then((response) => {
+                            const me = lodash.cloneDeep(response);
+                            const hasCompany = me.meta.company_id !== 0;
+                            if (hasCompany) {
+                                // S'il possede deja une entreprise
+                                const wpCompanyModel = new wp.api.models.User({id: me.meta.company_id});
+                                wpCompanyModel.fetch({data: {context: 'edit'}}).done(company => {
+                                    this.isUpdate = true;
+                                    this.company_account = lodash.clone(company);
+                                    // Ajouter les valeurs dans le formulaires
+                                    this.formData = {
+                                        name: company.username,
+                                        category: company.meta.category,
+                                        email: company.email,
+                                        address: company.meta.address,
+                                        nif: company.meta.nif,
+                                        stat: company.meta.stat,
+                                        phone: company.meta.phone,
+                                        country: company.meta.country,
+                                        city: company.meta.city,
+                                        zipcode: company.meta.zipcode,
+                                        website: company.meta.website,
+                                        employees: company.meta.employees,
+                                        description: company.description
+                                    }
+                                    this.loading = false;
+                                });
+                            } else {
                                 this.loading = false;
-                            });
-                        } else {
+                            }
+                        }).catch((err) => {
                             this.loading = false;
-                        }
-                    }).catch((err) => {
-                        this.loading = false;
+                        });
                     });
+
                 },
                 checkForm: function (e) {
                     e.preventDefault();

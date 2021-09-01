@@ -73,6 +73,25 @@ add_action('after_setup_theme', function () {
         'primary' => 'Menu Principal',
         'social-network' => 'Réseaux social',
     ));
+    /**
+     * Register sidebar for footer and ads
+     */
+    register_sidebar( array(
+        'id' => 'footer_social',
+        'name' => 'Footer Réseaux sociaux',
+        'before_widget'  => '<div class="%2$s">',
+        'after_widget'  => '</div>',
+        'before_title' => '<h4 >',
+        'after_title' => '</h4>',
+    ) );
+    register_sidebar( array(
+        'id' => 'footer_menu',
+        'name' => 'Footer Menu',
+        'before_widget'  => '<div class="col-md-3 col-sm-6 %2$s">',
+        'after_widget'  => '</div>',
+        'before_title' => '<h4 >',
+        'after_title' => '</h4>',
+    ) );
 });
 
 add_action('init', function() {

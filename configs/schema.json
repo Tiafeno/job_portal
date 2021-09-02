@@ -9,6 +9,27 @@
                 "count": 4,
                 "activated": 1,
                 "desc": ""
+            },
+            {
+                "_id": 1,
+                "title": "Premium",
+                "regular_price": 485000,
+                "validity": 1,
+                "count": 4,
+                "activated": 1,
+                "desc": ""
+            }
+        ],
+        "buy" : [
+            {
+                "_id" : 1,
+                "type" : "ad-candidate",
+                "price" : 1500
+            },
+            {
+                "_id" : 2,
+                "type" : "cv",
+                "price" : 4500
             }
         ]
     }

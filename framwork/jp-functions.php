@@ -12,7 +12,7 @@ add_filter('rest_jp-jobs_query', function($args, $request) {
 
 add_action('wp_enqueue_scripts', function() {
     // style
-    wp_register_style('job-portal', get_stylesheet_directory_uri() . '/assets/css/job-portal.css', [], '1.1.1');
+
     wp_register_style('medium-editor', get_stylesheet_directory_uri() . '/assets/js/vuejs/medium-editor.min.css');
     wp_register_style('jp-bootstrap', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/css/bootstrap.min.css');
     wp_register_style('jp-bootstrap-select', get_stylesheet_directory_uri() . '/assets/plugins/bootstrap/css/bootstrap-select.min.css');
@@ -25,8 +25,10 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_style('semantic-dropdown', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/dropdown.min.css');
     wp_register_style('semantic-transition', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/transition.min.css');
     wp_register_style('semantic-image', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/image.min.css');
+    wp_register_style('semantic-ui', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/semantic.css');
     wp_enqueue_style('v-select', get_stylesheet_directory_uri() . '/assets/js/vuejs/vue-select.css');
     wp_enqueue_style('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/css/alertify.css');
+    wp_register_style('job-portal', get_stylesheet_directory_uri() . '/assets/css/job-portal.css', ['semantic-ui'], '1.1.1');
     wp_enqueue_style('style-name', get_stylesheet_uri(), [
         'elementor-frontend',
         'job-portal',
@@ -36,9 +38,9 @@ add_action('wp_enqueue_scripts', function() {
         'jp-animate',
         'jp-bootnav',
         //'jp-nice-select',
-        'semantic-dropdown',
-        'semantic-transition',
-        'semantic-image',
+        //'semantic-dropdown',
+        //'semantic-transition',
+        //'semantic-image',
         'jp-aos',
     ]);
     wp_enqueue_style('jp-responsive');
@@ -60,6 +62,7 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_script('bluebird', get_stylesheet_directory_uri() . '/assets/js/bluebird/bluebird.min.js', [], null, true); // dev
     wp_register_script('semantic-dropdown', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/dropdown.min.js', ['jquery'], null, true);
     wp_register_script('semantic-transition', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/transition.min.js', ['jquery'], null, true);
+    wp_register_script('semantic-ui', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/semantic.min.js', ['jquery'], null, true);
     wp_register_script('paginationjs', get_stylesheet_directory_uri() . '/assets/js/pagination.js', ['jquery'], null, true);
     wp_register_script('sortable', get_stylesheet_directory_uri() . '/assets/js/Sortable.js', [], null, true);
     wp_register_script('jp-custom', get_stylesheet_directory_uri() . '/assets/js/custom.js', [
@@ -71,8 +74,9 @@ add_action('wp_enqueue_scripts', function() {
         'jp-wysihtml',
         'jp-bootstrap-wysihtml5',
         'jp-aos',
-        'semantic-dropdown',
-        'semantic-transition',
+        //'semantic-dropdown',
+        //'semantic-transition',
+        'semantic-ui',
         'jquery-validate',
         'wpapi',
         'wp-api',

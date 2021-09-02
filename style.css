@@ -3760,17 +3760,6 @@ Job Detail Page Styles
     padding-left: 5px;
     list-style: none;
 }
-.buttons {
-    font-size: 13px;
-    font-weight: 400;
-    padding: 15px 30px;
-    display: inline-block;
-    transition: all .2s ease;
-    overflow: hidden;
-    border-radius: 2px;
-    line-height: 16px;
-    transition: all .2s ease;
-}
 .cover-buttons {
     float: right;
 }

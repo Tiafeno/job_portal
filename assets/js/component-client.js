@@ -150,6 +150,12 @@ const getFileReader = (file) => {
             },
             delimiters: ['${', '}'],
         };
+        const _componentPricing = {
+            template: "#pricing_account",
+            data: function () {
+                return {}
+            },
+        };
         const Layout = {
             template: '#client-layout',
             data: function () {
@@ -799,7 +805,7 @@ const getFileReader = (file) => {
             },
             methods: {
                 initComponent: function () {
-                    wp.api.loadPromise.done( async () => {
+                    wp.api.loadPromise.done(async () => {
                         this.loading = true;
                         this.account_id = clientApiSettings.current_user_id;
                         const wpCatsModel = new wp.api.collections.Categories();
@@ -1080,6 +1086,35 @@ const getFileReader = (file) => {
                 }
             }
         };
+        const PricingLayout = {
+            template: "<div><router-view></router-view></div>",
+        };
+        const PricingTable = {
+            template: "#pricing-table",
+            components: {
+                'comp-pricing': _componentPricing
+            },
+            data: function () {
+                return {};
+            },
+            created: function () {
+                // axios.get(clientApiSettings.root + 'wc/v2/pricing').then((resp) => {
+                //     console.log(resp);
+                // });
+
+                /**
+                 * Effectuer un paiement direct
+                 */
+                // const jWCHTTPInstance = axios.create({
+                //     baseURL: clientApiSettings.root + 'wc/v2',
+                //     headers: {'X-WP-Nonce': clientApiSettings.nonce}
+                // });
+                // jWCHTTPInstance.get(clientApiSettings.root + 'wc/v2/pricing/176/11').then((resp) => {
+                //     console.log(resp);
+                // });
+            }
+        };
+        const PricingPurchase = {};
         const routes = [{
             path: '/',
             component: Layout,
@@ -1115,7 +1150,25 @@ const getFileReader = (file) => {
                     path: 'ad_applied',
                     name: 'AdApplied',
                     component: AdApplied
-                }
+                },
+                {
+                    path: 'pricing',
+                    name: 'Pricing',
+                    component: PricingLayout,
+                    redirect: '/pricing/items',
+                    children: [
+                        {
+                            path: 'items',
+                            name: 'PricingTable',
+                            component: PricingTable
+                        },
+                        {
+                            path: ':id/purchase',
+                            name: 'PricingPurchase',
+                            component: PricingPurchase,
+                        }
+                    ]
+                },
             ],
             beforeEnter: (to, from, next) => {
                 let isAuth = parseInt(clientApiSettings.current_user_id) !== 0;

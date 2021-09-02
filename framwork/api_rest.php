@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-
+include_once 'api-rest-action.php'; // tous les actions dans l'API REST
 // @source: https://github.com/WP-API/rest-filte
 add_action('rest_api_init', function () {
     foreach (get_post_types(array('show_in_rest' => true), 'objects') as $post_type) {
@@ -453,6 +453,215 @@ add_action('rest_api_init', function () {
                 'company_id' => array(
                     'validate_callback' => function ($param, $request, $key) {
                         return is_numeric($param);
+                    }
+                ),
+            ]
+        ),
+    ]);
+    register_rest_route('wc/v2', '/pricing', [
+        array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $response = [];
+                $rsp_request = new WP_REST_Request();
+                $rsp_request->set_param('context', 'view');
+                $category_pricing_slug = 'pricing';
+                $args = array(
+                    'posts_per_page' => '5',
+                    //'product_cat' => $category_pricing_slug,
+                    'post_type' => 'product',
+                );
+                $qresp = new WP_Query( $args );
+                $posts = $qresp->posts;
+                foreach ($posts as $post) {
+                    $controller = new WC_REST_Products_V2_Controller();
+                    $data = $controller->prepare_object_for_response( new WC_Product((int)$post->ID), $rsp_request)->data;
+                    $response[] = $data;
+                }
+                wp_send_json($response);
+            },
+            'permission_callback' => function ($data) {
+                return true;
+            },
+        ),
+    ]);
+    register_rest_route('wc/v2', '/pricing/(?P<product_id>\d+)/(?P<employer_id>\d+)/(?P<ref>\w+)', [
+        array(
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $resp = null;
+                /**
+                 * ref:
+                 *  - follow: Le paiement suras effectuer dans le front office
+                 *  - through: Paiement directement effectuer (Administrateur seulement)
+                 */
+                $ref = esc_attr($request->get_param('ref'));
+
+                $employer_id = intval($request->get_param('employer_id'));
+                $product_id = intval($request->get_param('product_id'));
+                $checkout_url = get_permalink(wc_get_page_id('cart'));
+                switch ($ref):
+                    case 'through':
+                        $args = array(
+                            'status'        => 'pending', // En attente
+                            'customer_id'   => $employer_id,
+                            'customer_note' => "",
+                            'parent'        => null,
+                            'created_via'   => null,
+                            'cart_hash'     => null,
+                        );
+                        $product = wc_get_product( $product_id );
+                        $order = wc_create_order($args);
+                        // Add address
+                        $billing_address = array(
+                            'country' => 'US',
+                            'first_name' => 'Jeroen',
+                            'last_name' => 'Sormani',
+                            'company' => 'WooCompany',
+                            'address_1' => 'WooAddress',
+                            'address_2' => '',
+                            'postcode' => '123456',
+                            'city' => 'WooCity',
+                            'state' => 'NY',
+                            'email' => 'admin@example.org',
+                            'phone' => '555-32123'
+                        );
+                        $order->set_address($billing_address, 'billing');
+                        // Add product
+                        $order->add_product($product, 1, []);
+                        // Set payment gateway
+                        $payment_gateways = WC()->payment_gateways->payment_gateways();
+                        $order->set_payment_method($payment_gateways['bacs']);
+
+                        $order->set_total(0, 'shipping');
+                        $order->set_total(0, 'cart_discount');
+                        $order->set_total(0, 'cart_discount_tax');
+                        $order->set_total(0, 'tax');
+                        $order->set_total(0, 'shipping_tax');
+
+                        // Tu doit specifier la valeur total du commande
+                        //$order->set_total(40, 'total');
+
+                        $req = new WP_REST_Request();
+                        $req->set_param('context', 'view');
+
+                        $order_controller = new WC_REST_Orders_V2_Controller();
+                        $data = $order_controller->prepare_object_for_response(wc_get_order($order->get_id()), $req)->data;
+                        $resp = [
+                            'type' => 'through',
+                            'response' => $data
+                        ];
+                        break;
+                    default:
+                        WC()->cart->empty_cart(); // Clear cart
+                        WC()->cart->add_to_cart($product_id, 1); // Add new product in cart
+                        // https://docs.woocommerce.com/wc-apidocs/function-wc_get_page_id.html
+                        $resp = [
+                            'type' => 'default',
+                            'redirect_url' => $checkout_url
+                        ];
+                    endswitch;
+
+                wp_send_json($resp);
+            },
+            'permission_callback' => function ($data) {
+                return is_user_logged_in() && current_user_can('edit_users');
+            },
+            'args' => [
+                'product_id' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
+                'user_id' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
+                'ref' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return !empty($param);
+                    }
+                ),
+            ]
+        ),
+    ]);
+    register_rest_route('wc/v2', '/pay/(?P<type>\w+)/(?P<object_id>\d+)/(?P<customer_id>\d+)', [
+        array(
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $response = null;
+                $price = 0;
+                /**
+                 * type:
+                 *  - ad-job: Acheter une position (pub) pour une annonce
+                 *  - ad-candidate: Acheter une position (pub) pour un CV
+                 *  - cv: Acheter un candidate qui a postuler dans une annonce
+                 */
+                $type = esc_attr($request->get_param('type'));
+                $customer_id = intval($request->get_param('customer_id'));
+                $object_id = intval($request->get_param('object_id'));
+                $product_title = null;
+
+                $configs = jpHelpers::getInstance()->get_app_configs();
+
+
+                switch ($type) {
+                    case 'ad-job':
+                        break;
+                    case 'ad-candidate':
+                        break;
+                    case 'cv':
+                        $candidate = new \JP\Framwork\Elements\jpCandidate($object_id);
+                        $product_title = "CV_". $candidate->display_name . "_" . $customer_id;
+                        break;
+                    default:
+                        wp_send_json_error("Type de demande non definie");
+                        break;
+                }
+
+                $result = wp_insert_post([
+                    'post_status' => 'publish',
+                    'post_type' => 'product',
+                    'post_title' => $product_title,
+                    'post_author' => $customer_id
+                ], true);
+
+                if (is_wp_error($result)) { return false; }
+                $product_id = $result;
+                $product = new \WC_Product($product_id);
+                $product->set_price($price);
+                $product->set_regular_price($price);
+                $product->set_sku("ACHAT-{$type}-{$product_id}");
+                // Ajouter des meta data
+                $product->add_meta_data('customer_id', $customer_id);
+                $product->add_meta_data('purchase_type', $type);
+                // Enregistrer
+                $product->save();
+                // Ajouter dans le panier
+                WC()->cart->empty_cart(); // Clear cart
+                WC()->cart->add_to_cart($product_id, 1); // Add new product in cart
+                // https://docs.woocommerce.com/wc-apidocs/function-wc_get_page_id.html
+                $checkout = get_permalink(wc_get_page_id('cart'));
+                wp_send_json(['type' => $type, 'redirect_url' => $checkout]);
+            },
+            'permission_callback' => function ($data) {
+                return is_user_logged_in() && current_user_can('edit_users');
+            },
+            'args' => [
+                'object_id' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
+                'customer_id' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    }
+                ),
+                'type' => array(
+                    'validate_callback' => function ($param, $request, $key) {
+                        return !empty($param);
                     }
                 ),
             ]

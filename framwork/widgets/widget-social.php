@@ -2,7 +2,6 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-
 class wtsocial_widget extends WP_Widget
 {
     function __construct()
@@ -40,7 +39,6 @@ class wtsocial_widget extends WP_Widget
         echo "</div>";
         echo $args['after_widget'];
     }
-
     public function generate_field($instance, $field, $title = " ", $type = 'input')
     {
         $value = isset($instance[$field]) ? $instance[$field] : '';
@@ -83,7 +81,6 @@ class wtsocial_widget extends WP_Widget
         return $instance;
     }
 }
-
 add_action('widgets_init', function () {
     register_widget('wtsocial_widget');
 });

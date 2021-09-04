@@ -68,48 +68,86 @@ get_header();
 
     </style>
     <script type="text/x-template" id="client-layout">
-        <!-- ================ Profile Settings ======================= -->
-        <section class="padd-top-80 padd-bot-80">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="dashboard_nav_item">
-                            <ul>
-                                <li>
-                                    <router-link :to="{ path: '/' }"><i class="login-icon ti-dashboard"></i>
-                                        Tableau de bord
-                                    </router-link>
-                                </li>
-                                <li v-if="isCandidate">
-                                    <router-link :to="{ path: '/cv' }"><i class="login-icon ti-dashboard"></i>
-                                        Mon CV
-                                    </router-link>
-                                </li>
-                                <li v-if="isCandidate">
-                                    <router-link :to="{ path: '/ad_applied' }"><i class="login-icon ti-dashboard"></i>
-                                        Offre postuler
-                                    </router-link>
-                                </li>
-                                <li v-if="isEmployer">
-                                    <router-link :to="{ path: '/jobs' }"><i class="login-icon ti-dashboard"></i>
-                                        Mes Annonces
-                                    </router-link>
-                                </li>
-                                <li v-if="isEmployer">
-                                    <router-link :to="{ path: '/company' }"><i class="login-icon ti-dashboard"></i>
-                                        Entreprise
-                                    </router-link>
-                                </li>
-                            </ul>
+        <div>
+            <!-- ================ Profile Settings ======================= -->
+            <section class="padd-top-80 padd-bot-80">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="dashboard_nav_item">
+                                <ul>
+                                    <li>
+                                        <router-link :to="{ path: '/' }"><i class="login-icon ti-dashboard"></i>
+                                            Tableau de bord
+                                        </router-link>
+                                    </li>
+                                    <li v-if="isCandidate">
+                                        <router-link :to="{ path: '/cv' }"><i class="login-icon ti-dashboard"></i>
+                                            Mon CV
+                                        </router-link>
+                                    </li>
+                                    <li v-if="isCandidate">
+                                        <router-link :to="{ path: '/ad_applied' }"><i class="login-icon ti-dashboard"></i>
+                                            Offre postuler
+                                        </router-link>
+                                    </li>
+                                    <li v-if="isEmployer">
+                                        <router-link :to="{ path: '/jobs' }"><i class="login-icon ti-dashboard"></i>
+                                            Mes Annonces
+                                        </router-link>
+                                    </li>
+                                    <li v-if="isEmployer">
+                                        <router-link :to="{ path: '/pricing' }"><i class="login-icon ti-dashboard"></i>
+                                            Pricing
+                                        </router-link>
+                                    </li>
+                                    <li v-if="isEmployer">
+                                        <router-link :to="{ path: '/company' }"><i class="login-icon ti-dashboard"></i>
+                                            Entreprise
+                                        </router-link>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <router-view></router-view>
                         </div>
                     </div>
-                    <div class="col-md-9">
-                        <router-view></router-view>
-                    </div>
+                </div>
+            </section>
+            <!-- ================ End Profile Settings ======================= -->
+        </div>
+
+    </script>
+    <script type="text/x-template" id="pricing-layout">
+        <router-view></router-view>
+    </script>
+    <script type="text/x-template" id="pricing_account">
+        <div class="card">
+            <div class="content">
+                <img class="right floated mini ui image" src="/images/avatar/large/elliot.jpg">
+                <div class="header">
+                    Elliot Fu
+                </div>
+                <div class="meta">
+                    Friends of Veronika
+                </div>
+                <div class="description">
+                    Elliot requested permission to view your contact details
                 </div>
             </div>
-        </section>
-        <!-- ================ End Profile Settings ======================= -->
+            <div class="extra content">
+                <div class="ui two buttons">
+                    <div class="ui basic green button">Approve</div>
+                    <div class="ui basic red button">Decline</div>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/x-template" id="pricing-table">
+        <div class="ui cards">
+            <comp-pricing></comp-pricing>
+        </div>
     </script>
 
     <!--Edit password-->

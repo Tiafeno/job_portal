@@ -289,13 +289,6 @@ add_action('rest_api_init', function () {
         [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function (WP_REST_Request $request) {
-                $not_access_msg = "Vous n'avez pas l'autorisation necessaire";
-                if (!is_user_logged_in()) wp_send_json(new WP_Error(500, $not_access_msg));
-
-                $current_user = get_user_by('ID', get_current_user_id());
-                if (! in_array('administrator', $current_user->roles))
-                    wp_send_json(new WP_Error(500, $not_access_msg));
-
                 $job_id = intval($request['job_id']);
                 $candidate_id =  intval($request['candidate_id']);
                 $job = get_post($job_id);
@@ -331,7 +324,7 @@ add_action('rest_api_init', function () {
                 
             },
             'permission_callback' => function ($data) {
-                return current_user_can('delete_users');
+                return current_user_can('edit_posts');
             },
             'args' => [
                 'id_apply' => array(
@@ -465,7 +458,6 @@ add_action('rest_api_init', function () {
             ]
         ),
     ]);
-    register_rest_route();
     // Get user for not restriction by wordpress
     register_rest_route('job-portal', '/users/(?P<user_id>\d+)', [
         array(

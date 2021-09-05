@@ -3,22 +3,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-trait Configs {
-    public function get_app_configs() {
-        $directory = trailingslashit( get_template_directory_uri() );
-        // Make the request
-        $request = wp_remote_get( $directory . 'configs/schema.json' );
-        // If the remote request fails, wp_remote_get() will return a WP_Error, so let’s check if the $request variable is an error:
-        if( is_wp_error( $request ) ) {
-            return false; // Bail early
-        }
-        // Retrieve the data
-        return json_decode( wp_remote_retrieve_body( $request ) );
-    }
-}
-
 class jpHelpers {
-    use Configs;
     public function __construct() {}
     public static function getInstance() {
         return new self();
@@ -37,7 +22,20 @@ class jpHelpers {
         $user_term_ids = empty($user_term) ? [] : json_decode($user_term, false);
         return  array_values($user_term_ids);
     }
-
+    public function get_app_configs() {
+        $directory = trailingslashit( get_template_directory_uri() );
+        $url = $directory . 'configs/schema.json';
+        // Make the request
+        $request = wp_remote_get( $url );
+        // If the remote request fails, wp_remote_get() will return a WP_Error, so let’s check if the $request variable is an error:
+        if( is_wp_error( $request ) ) {
+            return false; // Bail early
+        }
+        // Retrieve the data
+        $body = wp_remote_retrieve_body( $request );
+        $data = json_decode( $body );
+        return $data;
+    }
 }
 
 function save_profile_fields( $user_id ) {

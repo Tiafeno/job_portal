@@ -458,35 +458,34 @@ add_action('rest_api_init', function () {
             ]
         ),
     ]);
-    register_rest_route('job/v2', '/pricing', [
+    register_rest_route('wc/v2', '/pricing', [
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
                 $response = [];
-//                $rsp_request = new WP_REST_Request();
-//                $rsp_request->set_param('context', 'view');
-//                $category_pricing_slug = 'pricing';
-//                $args = array(
-//                    'posts_per_page' => '5',
-//                    'product_cat' => $category_pricing_slug,
-//                    'post_type' => 'product',
-//                );
-//                $qresp = new WP_Query( $args );
-//                $posts = $qresp->posts;
-//                foreach ($posts as $post) {
-//                    $controller = new WC_REST_Products_V2_Controller();
-//                    $data = $controller->prepare_object_for_response( new WC_Product((int)$post->ID), $rsp_request)->data;
-//                    $response[] = $data;
-//                }
-                $configs = jpHelpers::getInstance()->get_app_configs();
-                wp_send_json($configs->pricing->account);
+                $rsp_request = new WP_REST_Request();
+                $rsp_request->set_param('context', 'view');
+                $category_pricing_slug = 'pricing';
+                $args = array(
+                    'posts_per_page' => '5',
+                    //'product_cat' => $category_pricing_slug,
+                    'post_type' => 'product',
+                );
+                $qresp = new WP_Query( $args );
+                $posts = $qresp->posts;
+                foreach ($posts as $post) {
+                    $controller = new WC_REST_Products_V2_Controller();
+                    $data = $controller->prepare_object_for_response( new WC_Product((int)$post->ID), $rsp_request)->data;
+                    $response[] = $data;
+                }
+                wp_send_json($response);
             },
             'permission_callback' => function ($data) {
                 return true;
             },
         ),
     ]);
-    register_rest_route('job/v2', '/pricing/(?P<product_id>\d+)/(?P<customer_id>\d+)/(?P<ref>\w+)', [
+    register_rest_route('wc/v2', '/pricing/(?P<product_id>\d+)/(?P<employer_id>\d+)/(?P<ref>\w+)', [
         array(
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function (WP_REST_Request $request) {
@@ -498,7 +497,7 @@ add_action('rest_api_init', function () {
                  */
                 $ref = esc_attr($request->get_param('ref'));
 
-                $employer_id = intval($request->get_param('customer_id'));
+                $employer_id = intval($request->get_param('employer_id'));
                 $product_id = intval($request->get_param('product_id'));
                 $checkout_url = get_permalink(wc_get_page_id('cart'));
                 switch ($ref):
@@ -574,7 +573,7 @@ add_action('rest_api_init', function () {
                         return is_numeric($param);
                     }
                 ),
-                'customer_id' => array(
+                'user_id' => array(
                     'validate_callback' => function ($param, $request, $key) {
                         return is_numeric($param);
                     }
@@ -587,7 +586,7 @@ add_action('rest_api_init', function () {
             ]
         ),
     ]);
-    register_rest_route('job/v2', '/pay/(?P<type>\w+)/(?P<object_id>\d+)/(?P<customer_id>\d+)', [
+    register_rest_route('wc/v2', '/pay/(?P<type>\w+)/(?P<object_id>\d+)/(?P<customer_id>\d+)', [
         array(
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function (WP_REST_Request $request) {

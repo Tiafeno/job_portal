@@ -8,7 +8,7 @@
                 "validity": 1,
                 "count": 4,
                 "activated": 1,
-                "desc": ""
+                "desc": "Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?"
             },
             {
                 "_id": 1,
@@ -17,7 +17,7 @@
                 "validity": 1,
                 "count": 4,
                 "activated": 1,
-                "desc": ""
+                "desc": "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur"
             }
         ],
         "buy" : [

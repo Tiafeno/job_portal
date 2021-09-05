@@ -151,10 +151,16 @@ const getFileReader = (file) => {
             delimiters: ['${', '}'],
         };
         const _componentPricing = {
+            props: ['item'],
             template: "#pricing_account",
             data: function () {
                 return {}
             },
+            computed: {
+                getPurchaseLink: function () {
+                    return '#link';
+                }
+            }
         };
         const Layout = {
             template: '#client-layout',
@@ -280,7 +286,7 @@ const getFileReader = (file) => {
                     userCompany: null,
                 }
             },
-            mounted: function () {
+            created: function () {
                 this.init();
             },
             methods: {
@@ -288,20 +294,22 @@ const getFileReader = (file) => {
                     ev.preventDefault();
                 },
                 init: async function () {
-                    this.loading = true;
-                    const cUser = new wp.api.models.User({id: clientApiSettings.current_user_id});
-                    cUser.fetch({data: {context: 'edit'}}).done(user => {
-                        this.user = lodash.clone(user);
-                        if (lodash.indexOf(user.roles, 'employer') >= 0) {
-                            this.isEmployer = true;
-                            const companyId = parseInt(user.meta.company_id, 10);
-                            if (0 === companyId) return;
-                            const companyModel = new wp.api.models.User({id: companyId});
-                            companyModel.fetch({data: {context: 'edit'}}).done(companyResponse => {
-                                this.userCompany = lodash.clone(companyResponse);
-                                this.loading = false;
-                            });
-                        }
+                    wp.api.loadPromise.done(() => {
+                        this.loading = true;
+                        const cUser = new wp.api.models.User({id: clientApiSettings.current_user_id});
+                        cUser.fetch({data: {context: 'edit'}}).done(user => {
+                            this.user = lodash.clone(user);
+                            if (lodash.indexOf(user.roles, 'employer') >= 0) {
+                                this.isEmployer = true;
+                                const companyId = parseInt(user.meta.company_id, 10);
+                                if (0 === companyId) return;
+                                const companyModel = new wp.api.models.User({id: companyId});
+                                companyModel.fetch({data: {context: 'edit'}}).done(companyResponse => {
+                                    this.userCompany = lodash.clone(companyResponse);
+                                    this.loading = false;
+                                });
+                            }
+                        });
                     });
                 },
             }
@@ -1095,12 +1103,19 @@ const getFileReader = (file) => {
                 'comp-pricing': _componentPricing
             },
             data: function () {
-                return {};
+                return {
+                    loading: false,
+                    products: []
+                };
             },
             created: function () {
-                // axios.get(clientApiSettings.root + 'wc/v2/pricing').then((resp) => {
-                //     console.log(resp);
-                // });
+                this.loading = true;
+                axios.get(clientApiSettings.root + 'job/v2/pricing').then((resp) => {
+                    if (resp.status === 200) {
+                        this.products = lodash.clone(resp.data);
+                    }
+                    this.loading = false;
+                });
 
                 /**
                  * Effectuer un paiement direct

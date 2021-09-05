@@ -492,6 +492,37 @@ add_action('rest_api_init', function() {
             return update_user_meta($user_obj->ID, 'avatar_id', intval($value));
         }
     ]);
+    // Experiences du candidat
+    register_rest_field('user', 'experiences', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $roles = $user_arr['roles'];
+            if (!in_array('candidate', $roles)) return false;
+            $experiences = get_metadata('user', $user_id, 'experiences', true);
+            $experiences = empty($experiences) ? json_encode([]) : json_decode($experiences);
+            return $experiences;
+        },
+        'update_callback' => function($value, $user_obj) {
+            // $value - Cette valeur est déja encodé en JSON
+            return update_user_meta($user_obj->ID, 'experiences', $value);
+        }
+    ]);
+    // Parcours scolaire ou formations du candidat
+    register_rest_field('user', 'educations', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $roles = $user_arr['roles'];
+            if (!in_array('candidate', $roles)) return false;
+            $educations = get_metadata('user', $user_id, 'educations', true);
+            $educations = empty($educations) ? json_encode([]) : json_decode($educations);
+            return $educations;
+        },
+        'update_callback' => function($value, $user_obj) {
+            // $value - Cette valeur est déja encodé en JSON
+            return update_user_meta($user_obj->ID, 'educations', $value);
+        }
+    ]);
+
     // Add has_cv, public_cv api rest parameter
     // Cette valeur est pour identifier s'il a déja rempli son CV
     register_meta('user', 'has_cv', [

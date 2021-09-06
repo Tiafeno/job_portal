@@ -458,34 +458,20 @@ add_action('rest_api_init', function () {
             ]
         ),
     ]);
-    register_rest_route('wc/v2', '/pricing', [
+    register_rest_route('job/v2', '/pricing', [
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
-                $response = [];
-                $rsp_request = new WP_REST_Request();
-                $rsp_request->set_param('context', 'view');
-                $category_pricing_slug = 'pricing';
-                $args = array(
-                    'posts_per_page' => '5',
-                    //'product_cat' => $category_pricing_slug,
-                    'post_type' => 'product',
-                );
-                $qresp = new WP_Query( $args );
-                $posts = $qresp->posts;
-                foreach ($posts as $post) {
-                    $controller = new WC_REST_Products_V2_Controller();
-                    $data = $controller->prepare_object_for_response( new WC_Product((int)$post->ID), $rsp_request)->data;
-                    $response[] = $data;
-                }
-                wp_send_json($response);
+                $configs = jpHelpers::getInstance()->get_app_configs();
+                $account_pricing = $configs->pricing->account;
+                wp_send_json($account_pricing);
             },
             'permission_callback' => function ($data) {
                 return true;
             },
         ),
     ]);
-    register_rest_route('wc/v2', '/pricing/(?P<product_id>\d+)/(?P<employer_id>\d+)/(?P<ref>\w+)', [
+    register_rest_route('job/v2', '/pricing/(?P<product_id>\d+)/(?P<employer_id>\d+)/(?P<ref>\w+)', [
         array(
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function (WP_REST_Request $request) {
@@ -586,7 +572,7 @@ add_action('rest_api_init', function () {
             ]
         ),
     ]);
-    register_rest_route('wc/v2', '/pay/(?P<type>\w+)/(?P<object_id>\d+)/(?P<customer_id>\d+)', [
+    register_rest_route('job/v2', '/pay/(?P<type>\w+)/(?P<object_id>\d+)/(?P<customer_id>\d+)', [
         array(
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function (WP_REST_Request $request) {
@@ -604,9 +590,15 @@ add_action('rest_api_init', function () {
                 $product_title = null;
 
                 $configs = jpHelpers::getInstance()->get_app_configs();
-
-
+                $date = new DateTime();
                 switch ($type) {
+                    case 'account':
+                        $pricing_account = $configs->pricing->account;
+                        $abonnement = apiHelper::getAccountPricingByID($object_id, $pricing_account);
+                        if (!$abonnement) wp_send_json_error("Abonnnement introuvable");
+                        $price = $abonnement->regular_price;
+                        $product_title = "PRODUCT#{$date->getTimestamp()} - {$abonnement->title} - {$customer_id}";
+                        break;
                     case 'ad-job':
                         break;
                     case 'ad-candidate':
@@ -631,6 +623,7 @@ add_action('rest_api_init', function () {
                 $product_id = $result;
                 $product = new \WC_Product($product_id);
                 $product->set_price($price);
+                $product->set_sold_individually(true);
                 $product->set_regular_price($price);
                 $product->set_sku("ACHAT-{$type}-{$product_id}");
                 // Ajouter des meta data
@@ -639,11 +632,16 @@ add_action('rest_api_init', function () {
                 // Enregistrer
                 $product->save();
                 // Ajouter dans le panier
+                WC()->frontend_includes();
+                WC()->session = new WC_Session_Handler();
+                WC()->session->init();
+                WC()->customer = new WC_Customer( $customer_id, true );
+                WC()->cart = new WC_Cart();
                 WC()->cart->empty_cart(); // Clear cart
                 WC()->cart->add_to_cart($product_id, 1); // Add new product in cart
                 // https://docs.woocommerce.com/wc-apidocs/function-wc_get_page_id.html
                 $checkout = get_permalink(wc_get_page_id('cart'));
-                wp_send_json(['type' => $type, 'redirect_url' => $checkout]);
+                wp_send_json_success(['type' => $type, 'redirect_url' => $checkout]);
             },
             'permission_callback' => function ($data) {
                 return is_user_logged_in() && current_user_can('edit_users');
@@ -699,6 +697,36 @@ add_action('rest_api_init', function() {
         },
         'update_callback' => function($value, $user_obj) {
             return update_user_meta($user_obj->ID, 'avatar_id', intval($value));
+        }
+    ]);
+    // Experiences du candidat
+    register_rest_field('user', 'experiences', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $roles = $user_arr['roles'];
+            if (!in_array('candidate', $roles)) return false;
+            $experiences = get_metadata('user', $user_id, 'experiences', true);
+            $experiences = empty($experiences) ? json_encode([]) : json_decode($experiences);
+            return $experiences;
+        },
+        'update_callback' => function($value, $user_obj) {
+            // $value - Cette valeur est déja encodé en JSON
+            return update_user_meta($user_obj->ID, 'experiences', $value);
+        }
+    ]);
+    // Parcours scolaire ou formations du candidat
+    register_rest_field('user', 'educations', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $roles = $user_arr['roles'];
+            if (!in_array('candidate', $roles)) return false;
+            $educations = get_metadata('user', $user_id, 'educations', true);
+            $educations = empty($educations) ? json_encode([]) : json_decode($educations);
+            return $educations;
+        },
+        'update_callback' => function($value, $user_obj) {
+            // $value - Cette valeur est déja encodé en JSON
+            return update_user_meta($user_obj->ID, 'educations', $value);
         }
     ]);
     // Add has_cv, public_cv api rest parameter

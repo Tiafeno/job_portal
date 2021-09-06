@@ -16,7 +16,7 @@ wp_localize_script('comp-client', 'clientApiSettings', [
     'ajax_url' => admin_url('admin-ajax.php'),
     'nonce' => wp_create_nonce('wp_rest'),
     'nonce_form' => wp_create_nonce('ajax-client-form'),
-    'current_user_id' => get_current_user_id(),
+    'current_user_id' => intval(get_current_user_id()),
     'page_candidate' => home_url('/candidate/')
 ]);
 
@@ -95,7 +95,7 @@ get_header();
                                         Mes Annonces
                                     </router-link>
                                 </li>
-                                <li v-if="isEmployer">
+                                <li v-if="isEmployer && false">
                                     <router-link :to="{ path: '/pricing' }"><i class="login-icon ti-dashboard"></i>
                                         Pricing
                                     </router-link>
@@ -120,7 +120,6 @@ get_header();
     <script type="text/x-template" id="pricing_account">
         <div class="card">
             <div class="content">
-                <img class="right floated mini ui image" src="/images/avatar/large/elliot.jpg">
                 <div class="header">
                     {{item.title}}
                 </div>
@@ -133,7 +132,7 @@ get_header();
             </div>
             <div class="extra content">
                 <div class="ui two buttons">
-                    <div @click="goToPurchase($event)" class="ui basic green button">COMMANDER</div>
+                    <div @click="goToPurchase($event, item._id)" class="ui basic green button">COMMANDER</div>
                 </div>
             </div>
         </div>
@@ -332,7 +331,7 @@ get_header();
         <div class="mrg-top-20" v-if="user !== null">
             <div class="emp-des mrg-bot-20">
                 <h3>{{user.name}}</h3>
-                <span class="theme-cl">{{ isCandidate ? 'Candidat' : 'Employeur'}}</span>
+                <span class="theme-cl">{{ hisRole }}</span>
             </div>
             <div class="widget-boxed">
                 <div class="widget-boxed-header">

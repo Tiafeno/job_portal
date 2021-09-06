@@ -31,6 +31,30 @@ get_header();
         }
     </style>
     <!-- Template-->
+    <script id="filter-contract-template" type="text/x-template">
+        <div class="widget-boxed padd-bot-0" v-if="items.length > 0">
+            <div class="widget-boxed-header">
+                <h4>Type de contrat</h4>
+            </div>
+            <div class="widget-boxed-body">
+                <div class="side-list no-border">
+                    <ul>
+                        <li v-for="item in items">
+                            <span class="custom-checkbox">
+                                <input type="checkbox" class="contract-filter" :id="item.id" :name="'job_type'"
+                                       :value="item.id" v-on:change="selectedFilter">
+                                <label :for="item.id"></label>
+                            </span>
+                            {{ item.name }}
+                            <span class="pull-right">
+                                <span class="count-item">{{ item.count }} </span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </script>
     <script id="filter-salary-template" type="text/x-template">
         <div class="widget-boxed padd-bot-0" v-if="items.length > 0">
             <div class="widget-boxed-header">
@@ -40,13 +64,16 @@ get_header();
                 <div class="side-list no-border">
                     <ul>
                         <li v-for="item in items">
-                        <span class="custom-checkbox">
-                            <input type="checkbox" class="salary-filter" :id="item.id" :name="'salaries'"
+                            <span class="custom-checkbox">
+                                <input type="checkbox" class="salary-filter" :id="item.id" :name="'salaries'"
                                    :value="item.id" v-on:change="selectedFilter">
-                            <label :for="item.id"></label>
-                        </span> {{ item.filter_name }} <span class="pull-right"> <span class="count-item">{{ item.count }} </span></span>
+                                <label :for="item.id"></label>
+                            </span>
+                            {{ item.filter_name }}
+                            <span class="pull-right">
+                                <span class="count-item">{{ item.count }} </span>
+                            </span>
                         </li>
-
                     </ul>
                 </div>
             </div>
@@ -143,7 +170,7 @@ get_header();
         <div class="utf_flexbox_area padd-0" id="pagination-archive"></div>
     </script>
     <script id="job-archive-template" type="text/x-template">
-        <section class="padd-top-80 padd-bot-80" id="archive-jobs">
+        <section class="padd-bot-80" id="archive-jobs">
             <div class="container padd-top-40">
                 <div class="row">
                     <div class="col-md-3 col-sm-12 col-xs-12">
@@ -151,6 +178,11 @@ get_header();
                             <button type="button" @click="resetFilter" class="btn light-gray">Reset filter</button>
                         </div>
                         <filter-search v-on:changed="applyFilter"></filter-search>
+                        <filter-contract
+                                v-bind:contracts="taxonomies.Types"
+                                v-if="typeof taxonomies.Types === 'object'"
+                                v-on:changed="applyFilter">
+                        </filter-contract>
                         <filter-category
                                 v-bind:categories="taxonomies.Categories"
                                 v-if="typeof taxonomies.Categories === 'object'"
@@ -220,7 +252,7 @@ get_header();
         </section>
     </script>
     <!-- .end template-->
-    <div id="archive-jobs">
+    <div id="archive-jobs" style="padding-top: 70px">
         <div class="lds-roller" v-if="loading">
             <div></div>
             <div></div>

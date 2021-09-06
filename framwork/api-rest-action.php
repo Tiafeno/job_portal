@@ -11,3 +11,17 @@ class JOB_REST {
 }
 
 new JOB_REST();
+
+
+class apiHelper {
+    public function __construct() {}
+    public static function getAccountPricingByID($id, $array) {
+        foreach ( $array as $element ) {
+            if ( $id == $element->_id ) {
+                return $element;
+            }
+        }
+
+        return false;
+    }
+}

@@ -81,6 +81,10 @@ const getFileReader = (file) => {
 
         });
         // Return random password
+        const jobHTTPInstance = axios.create({
+            baseURL: clientApiSettings.root + 'job/v2',
+            headers: {'X-WP-Nonce': clientApiSettings.nonce}
+        });
         const getRandomId = () => {
             const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
             const string_length = 8;
@@ -154,11 +158,25 @@ const getFileReader = (file) => {
             props: ['item'],
             template: "#pricing_account",
             data: function () {
-                return {}
+                return {
+                    loading: false,
+                }
             },
-            computed: {
-                getPurchaseLink: function () {
-                    return '#link';
+            methods: {
+                goToPurchase: function (ev, _id) {
+                    ev.preventDefault();
+                    const uId = clientApiSettings.current_user_id;
+                    this.loading = true;
+                    jobHTTPInstance.post(`pay/account/${_id}/${uId}`, {}).then((resp) => {
+                        if (resp.status === 200) {
+                            const response = resp.data;
+                            if (response.success) {
+                                console.log(response)
+                            }
+                        }
+                        this.loading = false;
+                    });
+                    return;
                 }
             }
         };
@@ -289,6 +307,11 @@ const getFileReader = (file) => {
             created: function () {
                 this.init();
             },
+            computed: {
+                hisRole: function() {
+                    return this.isCandidate ? 'Candidat' : 'Employeur';
+                }
+            },
             methods: {
                 submitProfil: function (ev) {
                     ev.preventDefault();
@@ -299,8 +322,10 @@ const getFileReader = (file) => {
                         const cUser = new wp.api.models.User({id: clientApiSettings.current_user_id});
                         cUser.fetch({data: {context: 'edit'}}).done(user => {
                             this.user = lodash.clone(user);
-                            if (lodash.indexOf(user.roles, 'employer') >= 0) {
-                                this.isEmployer = true;
+                            this.isCandidate = lodash.indexOf(user.roles, 'candidate') >= 0;
+                            this.isEmployer = lodash.indexOf(user.roles, 'employer') >= 0;
+                            // If employer or company
+                            if (this.isEmployer) {
                                 const companyId = parseInt(user.meta.company_id, 10);
                                 if (0 === companyId) return;
                                 const companyModel = new wp.api.models.User({id: companyId});
@@ -309,6 +334,7 @@ const getFileReader = (file) => {
                                     this.loading = false;
                                 });
                             }
+
                         });
                     });
                 },
@@ -1110,7 +1136,7 @@ const getFileReader = (file) => {
             },
             created: function () {
                 this.loading = true;
-                axios.get(clientApiSettings.root + 'job/v2/pricing').then((resp) => {
+                jobHTTPInstance.get('pricing').then((resp) => {
                     if (resp.status === 200) {
                         this.products = lodash.clone(resp.data);
                     }

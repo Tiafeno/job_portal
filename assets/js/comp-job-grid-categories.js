@@ -46,7 +46,6 @@
                         this.loading = false;
                         console.warn(e);
                     }
-
                 },
                 // @event on click more categories button
                 moreCategories: function($event) {

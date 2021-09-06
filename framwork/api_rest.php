@@ -539,6 +539,11 @@ add_action('rest_api_init', function () {
                         ];
                         break;
                     default:
+                        WC()->frontend_includes();
+                        WC()->session = new WC_Session_Handler();
+                        WC()->session->init();
+                        WC()->customer = new WC_Customer( $employer_id, true );
+                        WC()->cart = new WC_Cart();
                         WC()->cart->empty_cart(); // Clear cart
                         WC()->cart->add_to_cart($product_id, 1); // Add new product in cart
                         // https://docs.woocommerce.com/wc-apidocs/function-wc_get_page_id.html
@@ -588,7 +593,6 @@ add_action('rest_api_init', function () {
                 $customer_id = intval($request->get_param('customer_id'));
                 $object_id = intval($request->get_param('object_id'));
                 $product_title = null;
-
                 $configs = jpHelpers::getInstance()->get_app_configs();
                 $date = new DateTime();
                 switch ($type) {

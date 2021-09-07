@@ -75,9 +75,7 @@ add_action('rest_api_init', function () {
             array_push($meta_query, $args);
             unset($args);
         }
-
         $args['meta_query'] = $meta_query;
-        //wp_die(print_r($args));
         return $args;
     }, 10, 2);
 
@@ -128,10 +126,8 @@ add_action('rest_api_init', function () {
             if (0 === $company_id)
                 return new WP_Error('rest_integer_failer',
                     "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
-
             $employer_id = get_post_meta($job_obj->ID, 'employer_id', true);
             $employer_id = intval($employer_id);
-
             $ret = update_post_meta($employer_id->ID, 'company_id', $company_id);
             if ( false === $ret ) {
                 return new WP_Error(

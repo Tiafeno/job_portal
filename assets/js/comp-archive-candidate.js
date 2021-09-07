@@ -98,8 +98,7 @@
                         (...responses) => {
                             self.categories = lodash.clone(responses[0].data);
                         }
-                    )).catch(errors => {
-                    })
+                    )).catch(errors => { })
                     this.request.then(resp => {
                         self._buildAnnonceHandler(resp);
                         self.loading = false;
@@ -137,13 +136,13 @@
                     this.page = page;
                     // Promise response
                     const archivesPromise = this.request
-                        .per_page(self.per_page)
-                        .page(self.page)
+                        .per_page(this.per_page)
+                        .page(this.page)
                         .get();
-                    self.loading = true;
+                    this.loading = true;
                     archivesPromise.then(response => {
-                        self._buildAnnonceHandler(response);
-                        self.loading = false;
+                        this._buildAnnonceHandler(response);
+                        this.loading = false;
                     });
                 },
             }
@@ -156,7 +155,6 @@
                     userId: 0,
                     candidate: null,
                     crtCandidateLanguages: [],
-
                     categories: [],
                     regions: [],
                     languages: [],
@@ -223,7 +221,6 @@
                 const meta = Candidate.meta;
                 self.experiences = JSON.parse(meta.experiences);
                 self.educations = JSON.parse(meta.educations);
-
                 self.candidate = lodash.clone(Candidate);
                 self.loading = false;
             }

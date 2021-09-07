@@ -27,6 +27,7 @@ get_header();
             <div class=" padd-bot-10 jov_search_block_inner">
                 <div class="row">
                     <div class="container">
+<!--                        Recherche -->
                         <form method="get" action="" @submit="filterHandler" novalidate>
                             <fieldset class="search-form">
                                 <div class="col-md-3 col-sm-3">
@@ -62,6 +63,7 @@ get_header();
                 </div>
             </div>
             <!-- Single candidate List -->
+            <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
             <div class="col-md-3 col-sm-6 col-xs-12" v-if="!loading" v-for="annonce in annonces" :key="annonce.id">
                 <div class="contact-box">
                     <div class="utf_flexbox_area mrg-l-10">
@@ -91,6 +93,7 @@ get_header();
 <!--Single candidate template-->
     <script type="text/x-template" id="candidate-details">
         <section class="padd-top-80 padd-bot-80">
+            <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
             <div class="container" v-if="!loading && candidate != null">
                 <div class="row">
                     <div class="col-md-8 col-sm-7">

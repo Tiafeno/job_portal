@@ -68,8 +68,12 @@ class jpCandidate extends \WP_User
     }
 
     public function isPublic() {
-        $is_public = get_user_meta($this->ID, 'public_cv', true);
-        return (bool) $is_public;
+        return $this->is_active();
+    }
+
+    public function is_active() {
+        $is_active = get_user_meta($this->ID, 'is_active', true);
+        return (bool) $is_active;
     }
 
     public function getExperiences() {

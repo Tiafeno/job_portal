@@ -1,11 +1,30 @@
 jQuery(function ($) {
     $().ready(() => {
         const __compCandidate = {
+            delimiters: ['${', '}'],
             template: "#comp-candidate-template",
             props: ['u'],
             data: function() {
                 return {
+                    loading: false,
                     candidate: null,
+                    wpapi: new WPAPI({
+                        endpoint: WPAPIUserSettings.root,
+                        nonce: WPAPIUserSettings.nonce
+                    }),
+                    ptLanguages: [],
+                    ptCategories: [],
+                    form: {
+                        address: '',
+                        city: '',
+                        hasCV: false,
+                        isActive: false,
+                        languages: [],
+                        categories: [],
+                        experiences: [],
+                        educations: [],
+                        profil: ''
+                    }
                 }
             },
             computed: {
@@ -22,9 +41,64 @@ jQuery(function ($) {
                 this.candidate = _.clone(this.u);
                 this._buildForm();
             },
+            mounted: function() {
+                $('.ui.dropdown')
+                    .dropdown({
+                        clearable: true,
+                        placeholder: 'any'
+                    });
+            },
             methods: {
                 _buildForm: function() {
                     // Create form with builder javascript library
+                    this.axiosInstance = axios.create({
+                        baseURL: WPAPIUserSettings.root + 'wp/v2',
+                        headers: {
+                            'X-WP-Nonce': WPAPIUserSettings.nonce
+                        }
+                    });
+                    const categoriesRequest = this.axiosInstance.get('categories?per_page=80&hide_empty=false');
+                    const languagesRequest = this.axiosInstance.get('language?per_page=50');
+                    const regionRequest = this.axiosInstance.get('region?per_page=50');
+                    this.loading = true;
+                    axios.all([languagesRequest, categoriesRequest, regionRequest]).then(axios.spread(
+                        (...responses) => {
+                            this.ptCategories = responses[1].data;
+                            this.ptLanguages = responses[0].data;
+                            this.loading = false;
+                        }
+                    )).catch(errors => { });
+                    // populate form
+                    this.form.address = this.u.meta.address;
+                    this.form.city = this.u.meta.city;
+                    this.form.hasCV = this.u.has_cv;
+                    this.form.isActive = this.u.is_active;
+
+                    let currentLanguages = this.u.meta.languages;
+                    currentLanguages = lodash.isEmpty(currentLanguages) ? [] : JSON.parse(currentLanguages);
+                    this.form.languages = lodash.map(currentLanguages, langue => parseInt(langue));
+
+                    let categories = this.u.meta.categories;
+                    categories = lodash.isEmpty(categories) ? [] : JSON.parse(categories);
+                    this.form.categories = lodash.map(categories, cat => parseInt(cat));
+
+                    this.form.profil = this.u.meta.profil;
+                },
+                submitForm: function(ev) {
+                    ev.preventDefault();
+                    this.loading = true;
+                    this.wpapi.users().id(WPAPIUserSettings.uId).update({
+                        is_active: this.form.isActive ? 1 : 0,
+                        meta: {
+                            city: this.form.city,
+                            address: this.form.address,
+                            languages: JSON.stringify(this.form.languages),
+                            categories: JSON.stringify(this.form.categories)
+                        }
+                    }).then(user => {
+                        console.log(user);
+                        this.loading = false;
+                    })
                 }
             }
         };
@@ -58,7 +132,7 @@ jQuery(function ($) {
                             this.userRole = _.first(resp.roles);
                             this.loading = false;
                         });
-                    }
+                    },
                 }
             });
         });

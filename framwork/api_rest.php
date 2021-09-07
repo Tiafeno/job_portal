@@ -42,13 +42,21 @@ add_action('rest_api_init', function () {
 // Add two (2) variable in user meta_query (has_cv, public_cv)
     add_filter('rest_user_query', function ($args, $request) {
         $meta_query = ['relation' => 'AND'];
+        // Rechercher si l'entreprise ou l'employer est actif
+        if (isset($request['is_active']) && !empty($request['is_active'])) {
+            $args = ['key' => 'is_active', 'value' => intval($request['is_active']), 'compare' => '='];
+            array_push($meta_query, $args);
+            unset($args);
+        }
+        // Rechercher si le CV existe
         if (isset($request['has_cv']) && !empty($request['has_cv'])) {
             $args = ['key' => 'has_cv', 'value' => intval($request['has_cv']), 'compare' => '='];
             array_push($meta_query, $args);
             unset($args);
         }
+        // also is_active
         if (isset($request['public_cv']) && !empty($request['public_cv'])) {
-            $args = ['key' => 'public_cv', 'value' => intval($request['public_cv']), 'compare' => '='];
+            $args = ['key' => 'is_active', 'value' => intval($request['public_cv']), 'compare' => '='];
             array_push($meta_query, $args);
             unset($args);
         }
@@ -58,6 +66,7 @@ add_action('rest_api_init', function () {
             array_push($meta_query, $args);
             unset($args);
         }
+        // Recherche de region
         if (isset($request['region']) && !empty($request['region'])) {
             $args = ['key' => 'region', 'value' => intval($request['region']), 'compare' => '='];
             array_push($meta_query, $args);
@@ -285,39 +294,7 @@ add_action('rest_api_init', function () {
         [
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function (WP_REST_Request $request) {
-                $job_id = intval($request['job_id']);
-                $candidate_id =  intval($request['candidate_id']);
-                $job = get_post($job_id);
-
-                $insertion = wp_insert_post( []);
-
-                // Crée une produit pour cette achat
-                $args = array(
-                    'status'        => null,
-                    'customer_id'   => get_current_user_id(),
-                    'customer_note' => "",
-                    'parent'        => null,
-                    'created_via'   => null,
-                    'cart_hash'     => null,
-                    'order_id'      => 0,
-                );
-                $post_id = wp_insert_post( array(
-                    'post_title' => $title,
-                    'post_type' => 'product',
-                    'post_status' => 'publish',
-                    'post_content' => $body,
-                ));
-                $product = wc_get_product( $post_id );
-                $product->set_sku( $sku );
-                $product->set_price( $price );
-                $product->set_regular_price( $regular_price );
-                $product->save();
-
-                $order = wc_create_order($args);
-                $order->add_product();
-
-                WC()->cart->empty_cart(); // Clear empty cart
-                
+                // TODO: Ajouter une fonctionnalité pour qu'un employeur achete un CV dans l'espace client
             },
             'permission_callback' => function ($data) {
                 return current_user_can('edit_posts');
@@ -699,11 +676,28 @@ add_action('rest_api_init', function() {
             return update_user_meta($user_obj->ID, 'avatar_id', intval($value));
         }
     ]);
+    /**
+     * Cette champ permet de verifier si l'employer ou l'entreprise est validé ou pas.
+     * Il est aussi utiliser poour activer ou désactiver un utilisateur (employer ou candidat)
+     */
+    register_rest_field('user', 'is_active', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $user_object = new WP_User($user_id);
+            $roles = $user_object->roles;
+            $is_active = get_metadata('user', $user_id, 'is_active', false);
+            return boolval($is_active);
+        },
+        'update_callback' => function($value, $user_obj) {
+            return update_user_meta($user_obj->ID, 'is_active', intval($value));
+        }
+    ]);
     // Experiences du candidat
     register_rest_field('user', 'experiences', [
         'get_callback' => function($user_arr) {
             $user_id = intval($user_arr['id']);
-            $roles = $user_arr['roles'];
+            $user_object = new WP_User($user_id);
+            $roles = $user_object->roles;
             if (!in_array('candidate', $roles)) return false;
             $experiences = get_metadata('user', $user_id, 'experiences', true);
             $experiences = empty($experiences) ? json_encode([]) : json_decode($experiences);
@@ -718,7 +712,8 @@ add_action('rest_api_init', function() {
     register_rest_field('user', 'educations', [
         'get_callback' => function($user_arr) {
             $user_id = intval($user_arr['id']);
-            $roles = $user_arr['roles'];
+            $user_object = new WP_User($user_id);
+            $roles = $user_object->roles;
             if (!in_array('candidate', $roles)) return false;
             $educations = get_metadata('user', $user_id, 'educations', true);
             $educations = empty($educations) ? json_encode([]) : json_decode($educations);
@@ -729,18 +724,22 @@ add_action('rest_api_init', function() {
             return update_user_meta($user_obj->ID, 'educations', $value);
         }
     ]);
-    // Add has_cv, public_cv api rest parameter
-    // Cette valeur est pour identifier s'il a déja rempli son CV
-    register_meta('user', 'has_cv', [
-        'type' => 'boolean',
-        'single' => true,
-        'show_in_rest' => true,
-        'auth_callback' => function () {
-            return true;
+    // Add has_cv, is_active api rest parameter
+    register_rest_field('user', 'has_cv', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $user_object = new WP_User($user_id);
+            $roles = $user_object->roles;
+            if (!in_array('candidate', $roles)) return false;
+            $has_cv = get_metadata('user', $user_id, 'has_cv');
+            return boolval($has_cv);
+        },
+        'update_callback' => function($value, $user_obj) {
+            return update_user_meta($user_obj->ID, 'has_cv', $value);
         }
     ]);
-    // Cette valeur est pour savoir si le profil est public ou pas
-    register_meta('user', 'public_cv', [
+    // Cette valeur est pour identifier s'il a déja rempli son CV
+    register_meta('user', 'has_cv', [
         'type' => 'boolean',
         'single' => true,
         'show_in_rest' => true,

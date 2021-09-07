@@ -1,17 +1,122 @@
 <h3>Extra profile information</h3>
+{% comment %} Entreprise or employer {% endcomment %}
 <script type="text/x-template" id="comp-employer-template">
-    <section>
+    <form class="ui four segment pilled form" @submit="submitForm">
+        <h4 class="ui dividing header">Information</h4>
+        <div class="field">
+            <label>Adresse du candidat</label>
+            <div class="two fields">
+                <div class="field">
+                    <input type="text" name="address" v-model="form.address" placeholder="Adresse">
+                </div>
+                <div class="field">
+                    <input type="text" name="city" v-model="form.city" placeholder="Ville">
+                </div>
+            </div>
+        </div>
 
-    </section>
+        <div class="field">
+            <label>Information légale</label>
+            <div class="two fields">
+                <div class="field">
+                    <input type="text" name="address" v-model="form.nif" placeholder="NIF">
+                </div>
+                <div class="field">
+                    <input type="text" name="city" v-model="form.stat" placeholder="STAT">
+                </div>
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="ui slider checkbox">
+                <input type="checkbox" name="isPublic" v-model="form.isActive" :checked="form.isActive">
+                <label>Activer le compte d'utilisateur</label>
+            </div>
+        </div>
+        <div class="lds-roller" v-if="loading">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <button type="submit" class="ui positive button" :disabled="loading" tabindex="0">Enregistrer</button>
+    </form>
 </script>
+{% comment %} Candidate {% endcomment %}
 <script type="text/x-template" id="comp-candidate-template">
-    <section>
+    <form class="ui four segment pilled form" @submit="submitForm">
+        <h4 class="ui dividing header">Information</h4>
+        <div class="field">
+            <div class="field">
+                <div class="ui slider checkbox">
+                    <input type="checkbox" disabled="disabled" :checked="form.hasCV" v-model="form.hasCV">
+                    <label>hasCV</label>
+                </div>
+            </div>
+        </div>
+        <div class="field">
+            <label>Adresse du candidat</label>
+            <div class="two fields">
+                <div class="field">
+                    <input type="text" name="address" v-model="form.address" placeholder="Adresse">
+                </div>
+                <div class="field">
+                    <input type="text" name="city" v-model="form.city" placeholder="Ville">
+                </div>
+            </div>
+        </div>
 
-    </section>
+        <div class="two fields">
+            <div class="field">
+                <label>Langues</label>
+                <select multiple="" name="languages" v-model="form.languages" class="ui normal fluid dropdown">
+                    <option :value="language.id" v-for="language in ptLanguages">${ language.name }</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Metier rechercher</label>
+                <select multiple="" name="categories" v-model="form.categories" class="ui normal search fluid dropdown">
+                    <option :value="cat.id" v-for="cat in ptCategories">${ cat.name }</option>
+                </select>
+            </div>
+        </div>
+
+            <div class="field">
+                <div class="ui slider checkbox">
+                    <input type="checkbox" name="isPublic" v-model="form.isActive" :checked="form.isActive">
+                    <label>Rendre le candidat visible dans le site</label>
+                </div>
+            </div>
+        <div class="lds-roller" v-if="loading">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <button type="submit" class="ui positive button" :disabled="loading" tabindex="0">Enregistrer</button>
+    </form>
 </script>
+
 <div id="user_app">
     <section>
-        <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        <div class="lds-roller" v-if="loading">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
         <comp-candidate v-if="userRole === 'candidate'" :u="user"></comp-candidate>
         <comp-employer v-if="userRole === 'employer'" :u="user"></comp-employer>
     </section>

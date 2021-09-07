@@ -124,8 +124,8 @@ add_action('action_jobportal_register', function() {
             $candidate = new jpCandidate($user_id);
             $candidate->profile_update([
                 'phones' => esc_sql($phone_number),
-                'hasCV' => false,
-                'public_cv' => false,
+                'is_active' => 0,
+                'has_cv' => 0,
 
             ]);
         } else {

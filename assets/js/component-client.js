@@ -74,7 +74,7 @@ const getFileReader = (file) => {
         });
         Vue.filter('cvStatus', function (user) {
             if (!user) return 'Inconnue';
-            const isPublic = user.meta.public_cv; // boolean
+            const isPublic = user.is_active; // boolean
             const hasCV = user.meta.has_cv; // boolean
             if (!hasCV) return "Indisponible";
             return isPublic ? "Publier" : "En attent de validation";
@@ -466,7 +466,7 @@ const getFileReader = (file) => {
                     self.categories = lodash.clone(categories);
 
                     self.hasCV = !!self.currentUser.meta.has_cv;
-                    self.publicCV = !!self.currentUser.meta.public_cv;
+                    self.publicCV = !!self.currentUser.is_active;
 
                     self.Loading = false;
                 });
@@ -772,6 +772,7 @@ const getFileReader = (file) => {
                         .update({
                             last_name: this.last_name,
                             first_name: this.first_name,
+                            is_active:  this.publicCV,
                             meta: {
                                 phone: this.phone,
                                 address: this.address,
@@ -785,7 +786,6 @@ const getFileReader = (file) => {
                                 profil: this.profil,
                                 // Render visible this CV
                                 has_cv: true,
-                                public_cv: this.publicCV
                             }
                         })
                         .then(function (resp) {

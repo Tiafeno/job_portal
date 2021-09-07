@@ -83,13 +83,13 @@ const paramKeys = Object.keys(params); // return array of keys
             created: function () {
                 if (_.isArray(this.salaries)) {
                     this.items = _.map(this.salaries, salary => {
-                        var valueFloat = parseFloat(salary.name);
-                        var amount = valueFloat.toLocaleString("en-GB", {
+                        const valueFloat = parseFloat(salary.name);
+                        const amount = valueFloat.toLocaleString("en-GB", {
                             style: "currency",
                             currency: "MGA",
                             minimumFractionDigits: 0
                         });
-                        salary.filter_name = 'Plus de ' + amount.toString();
+                        salary.filter_name = '+ ' + amount.toString();
                         return salary;
                     });
                 }
@@ -154,53 +154,8 @@ const paramKeys = Object.keys(params); // return array of keys
                 }
             }
         };
-        // Composant 'je postule'
-        const CompApply = {
-            template: "#apply-job",
-            props: ['jobid'],
-            data: function () {
-                return {
-                    loading: false,
-                    isLogged: false,
-                    buttonText: "Je postule",
-                    message: {success: null, data: ''},
-                }
-            },
-            mounted: function () {
-                this.isLogged = !!archiveApiSettings.isLogged;
-            },
-            watch: {
-                loading: function () {
-                    this.buttonText = this.loading ? "Chargement..." : "Je postule";
-                }
-            },
-            methods: {
-                apply: function () {
-                    const self = this;
-                    const jobId = this.jobid;
-                    if (!this.isLogged) {
-                        // Call login modal
-                        renderLoginModel().then(resp => {
-                            jQuery('#signin').modal('show');
-                        }).catch(err => {});
-                    } else {
-                        this.loading = true;
-                        jobapiAxiosInstance.post(`apply/${jobId}`, {}).then(function (response) {
-                            const dataResponse = response.data;
-                            self.message = _.clone(dataResponse);
-                            self.loading = false;
-                        }).catch(function () {
-                            self.loading = false;
-                        })
-                    }
-                }
-            }
-        };
         const jobVerticalLists = {
             props: ['item'],
-            components: {
-                'comp-apply': CompApply
-            },
             template: "#job-vertical-lists",
             data: function() {
                 return {
@@ -212,9 +167,11 @@ const paramKeys = Object.keys(params); // return array of keys
             },
             computed: {
                 avatarSrc: function() {
-                    const company = this.item.company;
-                    const avatar = company.avatar;
+                    const avatar = this.item.company.avatar;
                     return _.isEmpty(avatar) ? this.defaultAvatarSrc : avatar.upload_dir.baseurl + '/' + avatar.image.file;
+                },
+                getCompanyUrl: function() {
+                    return `${archiveApiSettings.company_archive_url}/#/companies/${this.item.company.id}`;
                 }
             }
         };

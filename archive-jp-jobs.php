@@ -1,11 +1,12 @@
 <?php
 
 wp_enqueue_script('comp-archive-jobs', get_stylesheet_directory_uri() . '/assets/js/comp-archive-jobs.js',
-    ['axios', 'wpapi', 'jquery', 'bluebird', 'lodash', 'paginationjs'], null, true);
+    ['axios', 'wpapi', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'comp-login'], null, true);
 wp_localize_script('comp-archive-jobs', 'archiveApiSettings', [
     'root' => esc_url_raw(rest_url()),
     'nonce' => wp_create_nonce('wp_rest'),
     'isLogged' => is_user_logged_in(),
+    'company_archive_url' => home_url('/companies'),
     'userId' => get_current_user_id(),
 ]);
 
@@ -70,9 +71,6 @@ get_header();
                                 <label :for="item.id"></label>
                             </span>
                             {{ item.filter_name }}
-                            <span class="pull-right">
-                                <span class="count-item">{{ item.count }} </span>
-                            </span>
                         </li>
                     </ul>
                 </div>
@@ -140,7 +138,7 @@ get_header();
                             <img :src="avatarSrc" class="img-responsive" alt="">
                         </a>
                     </div>
-                    <h4><a href="job-detail.html"></a>{{ item.company.name }}</h4>
+                    <h4><a :href="getCompanyUrl">{{ item.company.name }}</a></h4>
                     <span class="com-tagline">{{item.title.rendered}}</span> <span
                             class="pull-right vacancy-no">ID. <span class="v-count">{{item.id}}</span></span>
                 </div>
@@ -157,7 +155,6 @@ get_header();
                         </div>
                         <div class="col-md-3 col-sm-12 col-xs-12">
                             <div class="vrt-job-act" style="margin-top: 0px !important">
-                                <comp-apply :jobid="item.id"></comp-apply>
                                 <a :href="item.link" title="" class="btn-job btn-sm light-gray-btn">Voir offre</a>
                             </div>
                         </div>
@@ -198,8 +195,6 @@ get_header();
                                 v-if="typeof taxonomies.Salaries === 'object'"
                                 v-on:changed="applyFilter">
                         </filter-salary>
-
-
                     </div>
                     <!-- Start Job List -->
                     <div class="col-md-7 col-sm-12">

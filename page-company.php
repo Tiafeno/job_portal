@@ -1,7 +1,7 @@
 <?php
 /*
  * Template Name: Company Archive
- * description:
+ * description: /companies
  */
 
 wp_enqueue_script('comp-company', get_stylesheet_directory_uri() . '/assets/js/comp-archives-company.js',

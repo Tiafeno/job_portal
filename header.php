@@ -121,7 +121,7 @@ $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
                     <li class="br-right">
                         <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
                             <i class="login-icon ti-archive"></i>
-                            Publier une offre
+                            Publiez une offre
                         </a>
                     </li>
                     <li class="br-right">
@@ -139,7 +139,7 @@ $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
                     <li class="br-right">
                         <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
                             <i class="login-icon ti-archive"></i>
-                            Publier une offre
+                            Publiez une offre
                         </a>
                     </li>
                     <?php endif; ?>

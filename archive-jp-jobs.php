@@ -113,7 +113,7 @@ get_header();
                 <div class="search_widget_job">
                     <div class="field_w_search">
                         <input type="text" class="form-control" @keyup="searchKey($event)"
-                               placeholder="Rechercher des mot-clés">
+                               placeholder="Mot-clés">
                     </div>
                     <!--                    <div class="field_w_search">-->
                     <!--                        <input type="text" class="form-control" placeholder="All Locations">-->

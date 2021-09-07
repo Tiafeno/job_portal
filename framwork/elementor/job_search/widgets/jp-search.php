@@ -71,10 +71,11 @@ class JobSearch_Widget extends Widget_Base
         $regions = get_terms(['taxonomy' => 'region', 'hide_empty' => false, 'number' => 80]);
         // Secteur d'activité ou la categorie de l'annonce
         $categories = get_terms(['taxonomy' => 'category', 'hide_empty' => false, 'number' => 80]);
+        $type_job = get_terms(['taxonomy' => 'job_type', 'hide_empty' => false, 'number' => 80]);
         echo $Liquid_engine->parseFile('job-search')->render(
             [
-                'regions' => $regions,
                 'categories' => $categories,
+                'types' => $type_job, // Type de contract
                 'description' => $settings['description']
             ]);
     }

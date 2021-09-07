@@ -8,10 +8,6 @@ jQuery(function ($) {
                 return {
                     loading: false,
                     candidate: null,
-                    wpapi: new WPAPI({
-                        endpoint: WPAPIUserSettings.root,
-                        nonce: WPAPIUserSettings.nonce
-                    }),
                     ptLanguages: [],
                     ptCategories: [],
                     form: {
@@ -87,7 +83,7 @@ jQuery(function ($) {
                 submitForm: function(ev) {
                     ev.preventDefault();
                     this.loading = true;
-                    this.wpapi.users().id(WPAPIUserSettings.uId).update({
+                    this.$parent.wpapi.users().id(WPAPIUserSettings.uId).update({
                         is_active: this.form.isActive ? 1 : 0,
                         meta: {
                             city: this.form.city,
@@ -102,8 +98,60 @@ jQuery(function ($) {
                 }
             }
         };
-        const __compEmployer = {
-            template: "#comp-employer-template"
+        const __compCompany = {
+            props: ['u'],
+            template: "#comp-company-template",
+            data: function() {
+                return {
+                    loading: false,
+                    employer: null,
+                    form: {
+                        address: '',
+                        city: '',
+                        stat: '',
+                        nif: '',
+                        isActive: false,
+                    }
+                }
+            },
+            created: function() {
+                this.employer = _.clone(this.u);
+                this._buildForm();
+            },
+            mounted: function() {
+                $('.ui.dropdown')
+                    .dropdown({
+                        clearable: true,
+                        placeholder: 'any'
+                    });
+            },
+            methods: {
+                _buildForm: function() {
+                    // Create form with builder javascript library
+                    // populate form
+                    this.form.address = this.u.meta.address;
+                    this.form.city = this.u.meta.city;
+                    this.form.isActive = this.u.is_active;
+                    this.form.nif = this.u.meta.nif;
+                    this.form.stat = this.u.meta.stat;
+                },
+                submitForm: function(ev) {
+                    ev.preventDefault();
+                    this.loading = true;
+                    this.$parent.wpapi.users().id(WPAPIUserSettings.uId).update({
+                        is_active: this.form.isActive ? 1 : 0,
+                        meta: {
+                            city: this.form.city,
+                            address: this.form.address,
+                            nif: this.form.nif,
+                            stat: this.form.Stat
+                        }
+                    }).then(user => {
+                        console.log(user);
+                        this.loading = false;
+                    })
+                }
+            }
         };
         // Wordpress api is loaded!
         wp.api.loadPromise.done(() => {
@@ -111,13 +159,17 @@ jQuery(function ($) {
                 el: '#user_app',
                 components: {
                     'comp-candidate': __compCandidate,
-                    'comp-employer': __compEmployer
+                    'comp-company': __compCompany
                 },
                 data: function () {
                     return {
                         loading: false,
                         userRole: null,
-                        user: null
+                        user: null,
+                        wpapi: new WPAPI({
+                            endpoint: WPAPIUserSettings.root,
+                            nonce: WPAPIUserSettings.nonce
+                        }),
                     }
                 },
                 created: function () {

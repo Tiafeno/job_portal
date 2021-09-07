@@ -1,6 +1,6 @@
 <h3>Extra profile information</h3>
 {% comment %} Entreprise or employer {% endcomment %}
-<script type="text/x-template" id="comp-employer-template">
+<script type="text/x-template" id="comp-company-template">
     <form class="ui four segment pilled form" @submit="submitForm">
         <h4 class="ui dividing header">Information</h4>
         <div class="field">
@@ -119,6 +119,7 @@
         </div>
         <comp-candidate v-if="userRole === 'candidate'" :u="user"></comp-candidate>
         <comp-employer v-if="userRole === 'employer'" :u="user"></comp-employer>
+        <comp-company v-if="userRole === 'company'" :u="user"></comp-company>
     </section>
 
 </div>

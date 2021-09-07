@@ -71,7 +71,6 @@
                     annonces: [],
                     categories: [],
                     wpAxiosInstance: null,
-
                 }
             },
             mounted: function () {
@@ -204,7 +203,6 @@
                             if (lodash.isUndefined(item)) return null;
                             return item;
                         });
-
                         // item categories
                         if (!lodash.isEmpty(Candidate.meta.categories)) {
                             let idCategories = JSON.parse(Candidate.meta.categories); // Array return
@@ -214,7 +212,6 @@
                             });
                             Candidate.itemCategories = lodash.compact(itemCategories);
                         }
-
                         self.crtCandidateLanguages = lodash.compact(crtCandidateLanguages);
                     }
                 ));
@@ -244,9 +241,8 @@
                 ],
             }
         ];
-        const router = new VueRouter({
-            routes // short for `routes: routes`
-        });
+        // short for `routes: routes`
+        const router = new VueRouter({ routes  });
         Vue.component('v-select', VueSelect.VueSelect);
         new Vue({
             el: '#candidate-archive',

@@ -64,22 +64,23 @@ get_header();
             </div>
             <!-- Single candidate List -->
             <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-            <div class="col-md-3 col-sm-6 col-xs-12" v-if="!loading" v-for="annonce in annonces" :key="annonce.id">
-                <div class="contact-box">
-                    <div class="utf_flexbox_area mrg-l-10">
+            <div class="col-md-4 col-sm-6" v-if="!loading" v-for="annonce in annonces" :key="annonce.id">
+                <div class="utf_grid_job_widget_area"> <span class="job-type full-type">{{annonce.meta.reference}}</span>
+                    <div class="utf_job_like">
                         <label class="toggler toggler-danger">
                             <input type="checkbox">
-                            <i class="fa fa-heart"></i>
-                        </label>
+                            <i class="fa fa-heart"></i> </label>
                     </div>
-                    <div class="contact-img">
-<!--                        <img src="assets/img/client-2.jpg" class="img-responsive" alt="">-->
+                    <div class="u-content">
+                        <div class="avatar box-80">
+                            <img class="img-responsive" :src="annonce.avatar_urls[96]" alt="">
+                        </div>
+                        <p class="text-muted ui small">{{annonce.job}}</p>
                     </div>
-                    <div class="contact-caption">
-                        <router-link :to="{ name: 'UserDetails', params: { id: annonce.id }}">
-                            {{annonce.meta.reference}}
+                    <div class="utf_apply_job_btn_item">
+                        <router-link :class="'btn job-browse-btn btn-radius br-light'" :to="{ name: 'UserDetails', params: { id: annonce.id }}">
+                            Voir le candidat
                         </router-link>
-                        <span>{{annonce.job}}</span>
                     </div>
                 </div>
             </div>

@@ -88,9 +88,16 @@
                                 order: 'desc'
                             }
                         }).then(resp => {
-                            this.jobs = _.clone(resp);
+                            this._build(resp);
                             this.loading = false;
                         })
+                    },
+                    _build: function(jobs) {
+                        this.jobs = _.map(jobs, job => {
+                            const title = job.title.rendered;
+                            job.title.rendered = _.truncate(title, {length: 30, separator: ' '});
+                            return job;
+                        });
                     },
                     moreEmploi: function (ev) {
                         if (this.moreClickCount >= 2 || !this.EmploiCollection.hasMore()) {
@@ -100,7 +107,8 @@
                         if (this.EmploiCollection.hasMore()) {
                             this.loading = true;
                             this.EmploiCollection.more().then(resp => {
-                                this.jobs = this.jobs.concat(resp);
+                                const jobs = this.jobs.concat(resp);
+                                this._build(jobs);
                                 this.loading = false;
                             });
                         }

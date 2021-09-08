@@ -61,6 +61,12 @@ get_header();
             line-height: 15px;
             font-size: 11px;
         }
+        input.form-control,
+        select.form-control
+        {
+            font-size: 12px !important;
+            height: 40px !important;
+        }
 
     </style>
     <script type="text/x-template" id="client-layout">

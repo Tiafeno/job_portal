@@ -402,6 +402,8 @@ const paramKeys = Object.keys(params); // return array of keys
                         self.paging = _.clone(response._paging); // Update paging value
                         // Add property value
                         self.archives = _.map(archivesResponse, function (archive) {
+                            let title = archive.title.rendered;
+                            archive.title.rendered = _.truncate(title, {length: 40, separator: ' '});
                             archive.get_type_name = ''; // add type of contract for annonce
                             archive.get_cat_name = '';
                             const type = archive.job_type;

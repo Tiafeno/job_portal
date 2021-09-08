@@ -443,7 +443,36 @@ add_action('rest_api_init', function () {
             },
         ),
     ]);
-    register_rest_route('job/v2', '/pricing/(?P<product_id>\d+)/(?P<employer_id>\d+)/(?P<ref>\w+)', [
+    register_rest_route('job/v2', '/cv-status', [
+        array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $configs = jpHelpers::getInstance()->get_app_configs();
+                $status = $configs->candidat_status;
+                wp_send_json($status);
+            },
+            'permission_callback' => function ($data) {
+                return true;
+            },
+        ),
+        array(
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => function () {
+                $user_id = empty($_POST['uid']) ? 0 : intval($_POST['uid']);
+                $value = intval($_POST['val']);
+                if (0 === $user_id) wp_send_json_error("Erreur de requete");
+                $response = update_metadata('user', $user_id, 'cv_status', $value);
+                if ($response) {
+                    wp_send_json_success("Status mis a jour avec succes");
+                }
+                wp_send_json_error("Une erreur s'est produit");
+            },
+            'permission_callback' => function ($data) {
+                return is_user_logged_in();
+            },
+        ),
+    ]);
+    register_rest_route('pay/v2', '/pricing/(?P<product_id>\d+)/(?P<employer_id>\d+)/(?P<ref>\w+)', [
         array(
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function (WP_REST_Request $request) {
@@ -549,7 +578,7 @@ add_action('rest_api_init', function () {
             ]
         ),
     ]);
-    register_rest_route('job/v2', '/pay/(?P<type>\w+)/(?P<object_id>\d+)/(?P<customer_id>\d+)', [
+    register_rest_route('pay/v2', '/(?P<type>\w+)/(?P<object_id>\d+)/(?P<customer_id>\d+)', [
         array(
             'methods' => WP_REST_Server::CREATABLE,
             'callback' => function (WP_REST_Request $request) {
@@ -641,35 +670,6 @@ add_action('rest_api_init', function () {
             ]
         ),
     ]);
-    register_rest_route('job/v2', '/cv-status', [
-        array(
-            'methods' => WP_REST_Server::READABLE,
-            'callback' => function (WP_REST_Request $request) {
-                $configs = jpHelpers::getInstance()->get_app_configs();
-                $status = $configs->candidat_status;
-                wp_send_json($status);
-            },
-            'permission_callback' => function ($data) {
-                return true;
-            },
-        ),
-        array(
-            'methods' => WP_REST_Server::CREATABLE,
-            'callback' => function () {
-                $user_id = empty($_POST['uid']) ? 0 : intval($_POST['uid']);
-                $value = intval($_POST['val']);
-                if (0 === $user_id) wp_send_json_error("Erreur de requete");
-                $response = update_metadata('user', $user_id, 'cv_status', $value);
-                if ($response) {
-                    wp_send_json_success("Status mis a jour avec succes");
-                }
-                wp_send_json_error("Une erreur s'est produit");
-            },
-            'permission_callback' => function ($data) {
-                return is_user_logged_in();
-            },
-        ),
-    ]);
     // Get user for not restriction by wordpress
     register_rest_route('job-portal', '/users/(?P<user_id>\d+)', [
         array(
@@ -717,6 +717,19 @@ add_action('rest_api_init', function() {
             return update_user_meta($user_obj->ID, 'is_active', intval($value));
         }
     ]);
+    register_rest_field('user', 'has_cv', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $user_object = new WP_User($user_id);
+            $roles = $user_object->roles;
+            if (!in_array('candidate', $roles)) return false;
+            $has_cv = get_metadata('user', $user_id, 'has_cv');
+            return boolval($has_cv);
+        },
+        'update_callback' => function($value, $user_obj) {
+            return update_user_meta($user_obj->ID, 'has_cv', $value);
+        }
+    ]);
     register_rest_field('user', 'cv_status', [
         'get_callback' => function($user_arr) {
             $user_id = intval($user_arr['id']);
@@ -760,20 +773,6 @@ add_action('rest_api_init', function() {
         'update_callback' => function($value, $user_obj) {
             // $value - Cette valeur est déja encodé en JSON
             return update_user_meta($user_obj->ID, 'educations', $value);
-        }
-    ]);
-    // Add has_cv, is_active api rest parameter
-    register_rest_field('user', 'has_cv', [
-        'get_callback' => function($user_arr) {
-            $user_id = intval($user_arr['id']);
-            $user_object = new WP_User($user_id);
-            $roles = $user_object->roles;
-            if (!in_array('candidate', $roles)) return false;
-            $has_cv = get_metadata('user', $user_id, 'has_cv');
-            return boolval($has_cv);
-        },
-        'update_callback' => function($value, $user_obj) {
-            return update_user_meta($user_obj->ID, 'has_cv', $value);
         }
     ]);
     // Cette valeur est pour identifier s'il a déja rempli son CV

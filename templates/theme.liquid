@@ -71,7 +71,7 @@
                 <p class="mrg-top-20">Vous ne possédez pas encore de compte ? <a href="{{ register_url }}" class="font-bold">Créer un compte</a> </p>
             </div>
             <p v-if="errors.length" style="margin-top: 40px; padding-left: 20px;">
-                <b>Please correct the following error(s):</b>
+                <b>Veuillez verifier les erreurs suivants:</b>
             <ul>
                 <li style="color:red" v-for="error in errors">${ error }</li>
             </ul>
@@ -82,8 +82,14 @@
 </script>
 {% comment %}Denial access service{% endcomment %}
 <script id="denial-access" type="text/x-template">
-    <div class="denial-access">
-        Acces non autorise
+    <div class="denial-access p-message">
+        Vous n'avez pas l'autorisation necessaire pour effectuer cette action
+    </div>
+</script>
+{% comment %}pending access service{% endcomment %}
+<script id="pending-access" type="text/x-template">
+    <div class="denial-access p-message">
+        Votre compte est en attente de validation. Vous recerverais un mail de confirmation.
     </div>
 </script>
 <!--Upload avatar-->

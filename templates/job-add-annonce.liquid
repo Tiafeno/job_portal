@@ -249,6 +249,7 @@
                 <div class="text-center">
                     <button type="submit" class="btn light-gray-btn">Publier mon annonce</button>
                 </div>
+                <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
                 <div v-if="errors.length" style="margin-top: 40px">
                     <b>Please correct the following error(s):</b>
                     <ul><li style="color:#ff0000" v-for="error in errors" v-html="error"></li></ul>

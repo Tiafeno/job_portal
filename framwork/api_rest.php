@@ -685,7 +685,7 @@ add_action('rest_api_init', function() {
             $user_id = intval($user_arr['id']);
             $user_object = new WP_User($user_id);
             $roles = $user_object->roles;
-            $is_active = get_metadata('user', $user_id, 'is_active', false);
+            $is_active = get_metadata('user', $user_id, 'is_active', true);
             return boolval($is_active);
         },
         'update_callback' => function($value, $user_obj) {

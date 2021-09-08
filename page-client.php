@@ -467,7 +467,6 @@ get_header();
                             <span class="theme-cl">{{ currentUser | cvStatus }}</span>
                         </div>
                     </div>
-
                     <div class="col-md-12 col-sm-12">
                         <div class="detail-wrapper">
                             <div class="row mrg-top-30">
@@ -532,8 +531,6 @@ get_header();
                             <div class="clearfix"></div>
                         </div>
                     </div>
-
-
                     <div class="col-md-12 col-sm-12">
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-header">
@@ -574,8 +571,7 @@ get_header();
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-md-12 col-sm-12" id="educations">
+                    <div class="col-md-12 col-sm-12" id="profil">
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-header">
                                 <h4>Mon personnalité (Qu'est-ce qui vous motive vraiment?)</h4>
@@ -585,11 +581,10 @@ get_header();
                             </div>
                         </div>
                     </div>
-
                     <div class="col-md-12 col-sm-12" id="educations">
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-header">
-                                <h4>Educations ou parcours scolaire</h4>
+                                <h4>FORMATIONS / DIPLÔMES</h4>
                             </div>
                             <div class="detail-wrapper-body" id="education-list">
                                 <comp-education v-for="education in getEducations" v-if="!Loading"
@@ -609,7 +604,7 @@ get_header();
                     <div class="col-md-12 col-sm-12" id="experiences">
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-header">
-                                <h4>Expériences</h4>
+                                <h4>EXPÉRIENCES PROFESSIONNELLES </h4>
                             </div>
                             <div class="detail-wrapper-body" id="experience-list">
                                 <comp-experience v-for="experience in getExperiences" v-if="!Loading"
@@ -626,7 +621,6 @@ get_header();
                             </div>
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <button type="submit" class="btn btn-primary" :disabled="Loading">Enregistrer</button>
                         <div v-if="errors.length" style="margin-top: 40px" class="error-list">
@@ -638,16 +632,12 @@ get_header();
                     </div>
 
                     <!-- experience modal Code -->
-                    <div class="modal fade" id="experience" style="background-color:  rgba(0, 0, 0, 0.85)" tabindex="-1"
-                         role="dialog"
-                         aria-labelledby="expModal" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content" id="expModal">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Experience</h5>
-                                </div>
-                                <div class="modal-body">
-                                    <form @submit="validateExpForm" method="post" action="" novalidate>
+                    <div class="modal small ui" id="experience" >
+                        <div class="header">
+                            Experience
+                        </div>
+                        <div class="content" id="expModal">
+                            <form @submit="validateExpForm" method="post" action="" novalidate>
                                         <div class="row">
 
                                             <div class="col-md-12">
@@ -762,23 +752,14 @@ get_header();
 
                                         </div>
                                     </form>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <!-- End experience modal -->
-
                     <!-- education modal Code -->
-                    <div class="modal fade" id="education" style="background-color:  rgba(0, 0, 0, 0.85)" tabindex="-1"
-                         role="dialog"
-                         aria-labelledby="eduModal" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content" id="eduModal">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Education</h5>
-                                </div>
-                                <div class="modal-body">
-                                    <form @submit="validateEduForm" method="post" action="" novalidate>
+                    <div class="ui small modal" id="education">
+                            <div class="header">Education</div>
+                            <div class="content" id="eduModal">
+                                <form @submit="validateEduForm" method="post" action="" novalidate>
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <label class="col-form-label ">Etablissement <span
@@ -884,9 +865,7 @@ get_header();
 
                                         </div>
                                     </form>
-                                </div>
                             </div>
-                        </div>
                     </div>
                     <!-- End education modal -->
                 </div>

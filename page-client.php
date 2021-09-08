@@ -238,7 +238,7 @@ get_header();
                             <label>Email du responsable de l'entreprise <span style="color: red">*</span></label>
                             <input type="email" v-model="formData.email" :disabled="isUpdate" name="email"
                                    class="form-control" placeholder="Adresse email" required>
-                            <span class="sub-description" style="color:red">Ne pas utilisée l'adresse email de votre compte actuel.</span>
+                            <span class="sub-description" style="color:red">Ne pas utiliser l'adresse email de votre compte actuel.</span>
                         </div>
                         <div class="col-md-4 col-sm-6 col-xs-12">
                             <label>Adresse physique de l'entreprise <span style="color: red">*</span></label>
@@ -276,7 +276,7 @@ get_header();
                     <!-- Company Summery -->
                     <div class="box">
                         <div class="box-header">
-                            <h4>Company Summery</h4>
+                            <h4>A propos</h4>
                         </div>
                         <div class="box-body">
                             <div class="row">

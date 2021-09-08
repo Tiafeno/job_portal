@@ -111,7 +111,7 @@ get_header();
                 <div class="search_widget_job">
                     <div class="field_w_search">
                         <input type="text" class="form-control" @keyup="searchKey($event)"
-                               placeholder="Mot-clés">
+                               placeholder="Mots-clés">
                     </div>
                     <!--                    <div class="field_w_search">-->
                     <!--                        <input type="text" class="form-control" placeholder="All Locations">-->
@@ -172,7 +172,7 @@ get_header();
                 <div class="row">
                     <div class="col-md-3 col-sm-12 col-xs-12">
                         <div class="left floated">
-                            <button type="button" @click="resetFilter" class="btn light-gray">Reset filter</button>
+                            <button type="button" @click="resetFilter" class="btn light-gray">Reinitialiser</button>
                         </div>
                         <filter-search v-on:changed="applyFilter"></filter-search>
                         <filter-contract

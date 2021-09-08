@@ -32,7 +32,7 @@ get_header();
                             <fieldset class="search-form">
                                 <div class="col-md-3 col-sm-3">
                                     <input type="hidden" name="post_type" value="jp-jobs">
-                                    <input type="text" class="form-control" name="s" v-model="s" value="" placeholder="Reference, Keywords or Name..." />
+                                    <input type="text" class="form-control" name="s" v-model="s" value="" placeholder="Référence, Mots-clés..." />
                                 </div>
                                 <div class="col-md-3 col-sm-3">
                                     <select class="wide form-control" v-model="region" name="region" value="">
@@ -55,7 +55,7 @@ get_header();
                                     </select>
                                 </div>
                                 <div class="col-md-2 col-sm-2 m-clear">
-                                    <button type="submit" class="btn theme-btn full-width height-50 radius-0">Search</button>
+                                    <button type="submit" class="btn theme-btn full-width height-50 radius-0">Rechercher</button>
                                 </div>
                             </fieldset>
                         </form>

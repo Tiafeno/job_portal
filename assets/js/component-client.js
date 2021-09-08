@@ -844,8 +844,8 @@ const getFileReader = (file) => {
                         this.account_id = clientApiSettings.current_user_id;
                         const wpCatsModel = new wp.api.collections.Categories();
                         const wpCountryModel = new wp.api.collections.Country();
-                        const categories = await wpCatsModel.fetch();
-                        const countries = await wpCountryModel.fetch();
+                        const categories = await wpCatsModel.fetch({data: { per_page: 50}});
+                        const countries = await wpCountryModel.fetch({data: { per_page: 50}});
                         axios.all([categories, countries]).then(axios.spread(
                             (...wpapiAll) => {
                                 this.categories = lodash.clone(wpapiAll[0]);

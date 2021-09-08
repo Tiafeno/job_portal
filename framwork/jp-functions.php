@@ -28,7 +28,7 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_style('semantic-ui', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/semantic.min.css');
     wp_enqueue_style('v-select', get_stylesheet_directory_uri() . '/assets/js/vuejs/vue-select.css');
     wp_enqueue_style('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/css/alertify.css');
-    wp_register_style('job-portal', get_stylesheet_directory_uri() . '/assets/css/job-portal.css', ['semantic-ui'], '1.1.1');
+    wp_register_style('job-portal', get_stylesheet_directory_uri() . '/assets/css/job-portal.css', ['semantic-ui'], '1.1.2');
     wp_enqueue_style('style-name', get_stylesheet_uri(), [
         'elementor-frontend',
         'job-portal',

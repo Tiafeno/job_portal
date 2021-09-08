@@ -1,3 +1,7 @@
+const jobAXIOSInstance = axios.create({
+    baseURL: clientApiSettings.root + 'job/v2',
+    headers: {'X-WP-Nonce': clientApiSettings.nonce}
+});
 const fileFilter = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i;
 const getRandomPassword = () => {
     const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -178,6 +182,36 @@ const getFileReader = (file) => {
                     });
                     return;
                 }
+            }
+        };
+        const _componentCVStatus = {
+            template: "#cv-status-template",
+            props: ['client'],
+            data: function() {
+                return {
+                    optStatus: [],
+                    loading: false,
+                    status: 0,
+                }
+            },
+            methods: {
+                onUpdate: function(value) {
+                    let form = new FormData();
+                    form.append('uid', this.client.id);
+                    form.append('val', value);
+                    this.loading = true;
+                    jobAXIOSInstance.post('/cv-status', form, function(resp) {
+                       this.loading = false;
+                    });
+                }
+            },
+            created: function() {
+                this.loading = true;
+                jobAXIOSInstance.get('/cv-status').then(resp => {
+                    this.optStatus = resp.data;
+                    this.status = this.client.cv_status;
+                    this.loading = false;
+                });
             }
         };
         const Layout = {
@@ -368,6 +402,7 @@ const getFileReader = (file) => {
             components: {
                 'comp-education': CVComponents.education,
                 'comp-experience': CVComponents.experience,
+                'comp-cv-status': _componentCVStatus,
                 'upload-avatar': _componentUploadAvatar
             },
             beforeRouteLeave(to, from, next) {

@@ -90,3 +90,10 @@
 .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
     background-color: #e4e4e4 !important;
 }
+
+input.form-control,
+select.form-control
+{
+    font-size: 12px !important;
+    height: 40px !important;
+}

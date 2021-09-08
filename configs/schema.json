@@ -32,5 +32,19 @@
                 "price" : 4500
             }
         ]
-    }
+    },
+    "candidat_status": [
+        {
+            "_id": 1,
+            "name": "Je cherche un emploi"
+        },
+        {
+            "_id": 2,
+            "name": "Je souhaite entretenir mon réseau"
+        },
+        {
+            "_id": 3,
+            "name": "Je cherche un stage"
+        }
+    ]
 }

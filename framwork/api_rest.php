@@ -37,7 +37,6 @@ add_action('rest_api_init', function () {
         return $args;
     }
 });
-
 add_action('rest_api_init', function () {
 // Add two (2) variable in user meta_query (has_cv, public_cv)
     add_filter('rest_user_query', function ($args, $request) {
@@ -572,7 +571,7 @@ add_action('rest_api_init', function () {
                     case 'account':
                         $pricing_account = $configs->pricing->account;
                         $abonnement = apiHelper::getAccountPricingByID($object_id, $pricing_account);
-                        if (!$abonnement) wp_send_json_error("Abonnnement introuvable");
+                        if (!$abonnement) wp_send_json_error("Abonnement introuvable");
                         $price = $abonnement->regular_price;
                         $product_title = "PRODUCT#{$date->getTimestamp()} - {$abonnement->title} - {$customer_id}";
                         break;
@@ -642,6 +641,35 @@ add_action('rest_api_init', function () {
             ]
         ),
     ]);
+    register_rest_route('job/v2', '/cv-status', [
+        array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $configs = jpHelpers::getInstance()->get_app_configs();
+                $status = $configs->candidat_status;
+                wp_send_json($status);
+            },
+            'permission_callback' => function ($data) {
+                return true;
+            },
+        ),
+        array(
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => function () {
+                $user_id = empty($_POST['uid']) ? 0 : intval($_POST['uid']);
+                $value = intval($_POST['val']);
+                if (0 === $user_id) wp_send_json_error("Erreur de requete");
+                $response = update_metadata('user', $user_id, 'cv_status', $value);
+                if ($response) {
+                    wp_send_json_success("Status mis a jour avec succes");
+                }
+                wp_send_json_error("Une erreur s'est produit");
+            },
+            'permission_callback' => function ($data) {
+                return is_user_logged_in();
+            },
+        ),
+    ]);
     // Get user for not restriction by wordpress
     register_rest_route('job-portal', '/users/(?P<user_id>\d+)', [
         array(
@@ -660,7 +688,6 @@ add_action('rest_api_init', function () {
         ),
     ]);
 });
-
 add_action('rest_api_init', function() {
     // Avatar
     register_rest_field('user', 'avatar', [
@@ -683,13 +710,24 @@ add_action('rest_api_init', function() {
     register_rest_field('user', 'is_active', [
         'get_callback' => function($user_arr) {
             $user_id = intval($user_arr['id']);
-            $user_object = new WP_User($user_id);
-            $roles = $user_object->roles;
             $is_active = get_metadata('user', $user_id, 'is_active', true);
             return boolval($is_active);
         },
         'update_callback' => function($value, $user_obj) {
             return update_user_meta($user_obj->ID, 'is_active', intval($value));
+        }
+    ]);
+    register_rest_field('user', 'cv_status', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $user_object = new WP_User($user_id);
+            $roles = $user_object->roles;
+            if (!in_array('candidate', $roles)) return 0;
+            $is_active = get_metadata('user', $user_id, 'cv_status', true);
+            return intval($is_active);
+        },
+        'update_callback' => function($value, $user_obj) {
+            return update_user_meta($user_obj->ID, 'cv_status', intval($value));
         }
     ]);
     // Experiences du candidat

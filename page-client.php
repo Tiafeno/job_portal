@@ -71,7 +71,7 @@ get_header();
     </style>
     <script type="text/x-template" id="client-layout">
         <!-- ================ Profile Settings ======================= -->
-        <section class="padd-top-80 padd-bot-80">
+        <section class="padd-top-40 padd-bot-80">
             <div class="container">
                 <div class="row">
                     <div class="col-md-3">
@@ -367,7 +367,6 @@ get_header();
                     </div>
                 </div>
             </div>
-
             <div class="widget-boxed" v-if="userCompany !== null">
                 <div class="widget-boxed-header">
                     <h4>Information sur l'entreprise</h4>
@@ -391,7 +390,6 @@ get_header();
     <!--Tableau de bord template-->
     <script type="text/x-template" id="dashboard">
         <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
-
             <div class='row'>
                 <div class="col-md-6">
                     <comp-edit-profil></comp-edit-profil>
@@ -409,38 +407,42 @@ get_header();
     <script type="text/x-template" id="client-annonce">
         <!-- ======================== Manage Job ========================= -->
         <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
-            <h2 class="bd-title">Mes annonces</h2>
-            <p class="bd-lead">Tous vos annonces se trouvent ici</p>
+            <h2 class="ui aligned left header">
+                <div class="content">
+                    Mes annonces
+                    <div class="sub header">Tous vos annonces se trouvent ici</div>
+                </div>
+            </h2>
             <div class="table-responsive">
                 <div v-if="loading">Chargement en cours...</div>
                 <div class="alert alert-secondary" role="alert" v-if="annonces.length <= 0 && !loading">Vous n'avez pas
                     d'annonce
                 </div>
-                <table class="table table-lg table-hover" v-if="annonces.length > 0 && !loading">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Designation</th>
-                        <th>Date de publication</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
+                <table class="ui compact celled definition table" v-if="annonces.length > 0 && !loading">
+                    <thead class="full-width">
+                        <tr>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Designation</th>
+                            <th>Date de publication</th>
+                            <th>Status</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="annonce in annonces" v-if="annonces.length > 0">
-                        <td>{{ annonce.id }}</td>
-                        <td><a :href="annonce.link" target="_blank"> {{ annonce.title.rendered }} </a></td>
-                        <td><i class="ti-credit-card"></i> {{ annonce.date }}</td>
-                        <td><span class="badge badge-info">{{ annonce.status | jobStatus }}</span></td>
-                        <td>
-                            <router-link class="mrg-5" :to="{ name: 'AnnonceDetails', params: {id: annonce.id} }"><i
-                                        class="ti-view-list"></i></router-link>
-                            <a v-if="annonce.status !== 'private'" class="cl-danger mrg-5" id="trash-annonce"
-                               @click="trashAnnonce($event, annonce.id)">
-                                <i class="fa fa-trash-o"></i>
-                            </a>
-                        </td>
-                    </tr>
+                        <tr v-for="annonce in annonces" v-if="annonces.length > 0">
+                            <td class="collapsing">
+                                <router-link class="mrg-5" :to="{ name: 'AnnonceDetails', params: {id: annonce.id} }"><i
+                                            class="ti-view-list"></i></router-link>
+                                <a v-if="annonce.status !== 'private'" class="cl-danger mrg-5" id="trash-annonce"
+                                   @click="trashAnnonce($event, annonce.id)">
+                                    <i class="fa fa-trash-o"></i>
+                                </a>
+                            </td>
+                            <td>{{ annonce.id }}</td>
+                            <td><a :href="annonce.link" target="_blank"> {{ annonce.title.rendered }} </a></td>
+                            <td><i class="ti-credit-card"></i> {{ annonce.date }}</td>
+                            <td><span class="badge badge-info">{{ annonce.status | jobStatus }}</span></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -954,7 +956,6 @@ get_header();
                 <!--                <comp-client-profil v-if="!Loading && isLogged" :client="Client"></comp-client-profil>-->
             </div>
         </div>
-
     </div>
 
 <?php

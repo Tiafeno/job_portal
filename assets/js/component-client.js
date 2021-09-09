@@ -1049,7 +1049,7 @@ const getFileReader = (file) => {
                     annonces: []
                 }
             },
-            mounted: function () {
+            created: function () {
                 this.Populate();
             },
             methods: {
@@ -1073,7 +1073,14 @@ const getFileReader = (file) => {
                         .param('meta_value', clientApiSettings.current_user_id)
                         .per_page(10)
                         .then((response) => {
-                            this.annonces = lodash.clone(response);
+                            this.annonces = lodash.map(response, annonce => {
+                                let title = annonce.title.rendered;
+                                annonce.title.rendered = lodash.truncate(title, {
+                                    'length': 35,
+                                    'separator': '[...]'
+                                });
+                                return annonce;
+                            });
                             this.loading = false;
                         });
                 }

@@ -195,11 +195,13 @@ const getFileReader = (file) => {
                 }
             },
             methods: {
+                // Update candidate status
                 onUpdate: function(value) {
                     let form = new FormData();
                     form.append('uid', this.client.id);
                     form.append('val', value);
                     this.loading = true;
+                    // Send request for update status
                     jobAXIOSInstance.post('/cv-status', form, function(resp) {
                        this.loading = false;
                     });

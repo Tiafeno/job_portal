@@ -66,6 +66,7 @@ add_action('wp_enqueue_scripts', function() {
     wp_register_script('semantic-ui', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/semantic.min.js', ['jquery'], null, true);
     wp_register_script('paginationjs', get_stylesheet_directory_uri() . '/assets/js/pagination.js', ['jquery'], null, true);
     wp_register_script('sortable', get_stylesheet_directory_uri() . '/assets/js/Sortable.js', [], null, true);
+    wp_register_script('momentjs', get_stylesheet_directory_uri() . '/assets/js/moment-with-locales.min.js', [], null, true);
     wp_register_script('jp-custom', get_stylesheet_directory_uri() . '/assets/js/custom.js', [
         'jquery',
         'jp-bootstrap',

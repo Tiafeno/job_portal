@@ -477,33 +477,32 @@ const getFileReader = (file) => {
                 this.yearRange = lodash.range(1950, currentDate.getFullYear());
             },
             mounted: async function () {
-                const self = this;
                 this.Loading = true;
-                await this.$parent.Wordpress.users().me().context('edit').then(function (response) {
-                    self.currentUser = lodash.cloneDeep(response);
+                await this.$parent.Wordpress.users().me().context('edit').then((response) => {
+                    this.currentUser = lodash.cloneDeep(response);
                     //Populate data value
-                    self.first_name = self.currentUser.first_name;
-                    self.last_name = self.currentUser.last_name;
-                    self.phone = self.currentUser.meta.phone;
-                    self.address = self.currentUser.meta.address;
-                    self.gender = self.currentUser.meta.gender;
-                    self.city = self.currentUser.meta.city;
-                    self.birthday = self.currentUser.meta.birthday;
-                    self.profil = self.currentUser.meta.profil;
-                    self.region = self.currentUser.meta.region;
+                    this.first_name = this.currentUser.first_name;
+                    this.last_name = this.currentUser.last_name;
+                    this.phone = this.currentUser.meta.phone;
+                    this.address = this.currentUser.meta.address;
+                    this.gender = this.currentUser.meta.gender;
+                    this.city = this.currentUser.meta.city;
+                    this.birthday = this.currentUser.meta.birthday;
+                    this.profil = this.currentUser.meta.profil;
+                    this.region = this.currentUser.meta.region;
 
-                    let languages = self.currentUser.meta.languages;
+                    let languages = this.currentUser.meta.languages;
                     languages = lodash.isEmpty(languages) ? [] : JSON.parse(languages);
-                    self.languages = lodash.clone(languages);
+                    this.languages = lodash.clone(languages);
 
-                    let categories = self.currentUser.meta.categories;
+                    let categories = this.currentUser.meta.categories;
                     categories = lodash.isEmpty(categories) ? [] : JSON.parse(categories);
-                    self.categories = lodash.clone(categories);
+                    this.categories = lodash.clone(categories);
 
-                    self.hasCV = !!self.currentUser.meta.has_cv;
-                    self.publicCV = !!self.currentUser.is_active;
+                    this.hasCV = !!this.currentUser.meta.has_cv;
+                    this.publicCV = !!this.currentUser.is_active;
 
-                    self.Loading = false;
+                    this.Loading = false;
                 });
                 // Education sortable list
                 new Sortable(document.getElementById('education-list'), {

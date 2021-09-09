@@ -1,5 +1,10 @@
 (function ($) {
     $().ready(function () {
+        moment.locale('fr');
+        const jobHTTPInstance = axios.create({
+            baseURL: apiSettings.root + 'job/v2',
+            headers: {'X-WP-Nonce': apiSettings.nonce}
+        });
         const Pagination = {
             template: '#pagination-candidate-template',
             props: ['paging', 'pagesize'],
@@ -151,7 +156,7 @@
             data: function () {
                 return {
                     loading: false,
-                    userId: 0,
+                    status: [],
                     candidate: null,
                     crtCandidateLanguages: [],
                     categories: [],
@@ -164,10 +169,16 @@
             computed: {
                 hasCandidateLanguage: function () {
                     return !lodash.isEmpty(this.crtCandidateLanguages);
+                },
+                statusToObj: function() {
+                    if (this.candidate === null) return null;
+                    return lodash.find(this.status, {'_id': this.candidate.cv_status});
+                },
+                getRegisterDate: function() {
+                    return moment(this.candidate.registered_date).format('LLL');
                 }
             },
             mounted: async function () {
-                const self = this;
                 this.loading = true;
                 this.userId = parseInt(this.$route.params.id);
                 const candidateInstance = axios.create({baseURL: apiSettings.root + 'job/v2'});
@@ -189,17 +200,19 @@
                 const categoriesRequest = axiosInstance.get('categories?per_page=50');
                 const languagesRequest = axiosInstance.get('language?per_page=50');
                 const regionsRequest = axiosInstance.get('region?per_page=50');
-                await axios.all([categoriesRequest, languagesRequest, regionsRequest]).then(axios.spread(
+                const cvStatusRequest =  jobHTTPInstance.get('/cv-status');
+                await axios.all([categoriesRequest, languagesRequest, regionsRequest, cvStatusRequest]).then(axios.spread(
                     (...responses) => {
-                        self.categories = lodash.clone(responses[0].data);
-                        self.languages = lodash.clone(responses[1].data);
-                        self.regions = lodash.clone(responses[2].data);
+                        this.categories = lodash.clone(responses[0].data);
+                        this.languages = lodash.clone(responses[1].data);
+                        this.regions = lodash.clone(responses[2].data);
+                        this.status = lodash.clone(responses[3].data);
                         // Populate
                         let metaLanguages = Candidate.meta.languages;
                         let useLg = lodash.isEmpty(metaLanguages) ? [] : JSON.parse(metaLanguages);
                         useLg = lodash.map(useLg, lodash.parseInt);
                         let crtCandidateLanguages = lodash.map(useLg, idLg => {
-                            let item = lodash.find(self.languages, {'id': idLg});
+                            let item = lodash.find(this.languages, {'id': idLg});
                             if (lodash.isUndefined(item)) return null;
                             return item;
                         });
@@ -207,19 +220,19 @@
                         if (!lodash.isEmpty(Candidate.meta.categories)) {
                             let idCategories = JSON.parse(Candidate.meta.categories); // Array return
                             let itemCategories = lodash.map(idCategories, idCtg => {
-                                let item = lodash.find(self.categories, {'id': parseInt(idCtg, 10)});
+                                let item = lodash.find(this.categories, {'id': parseInt(idCtg, 10)});
                                 return lodash.isUndefined(item) ? null : item.name;
                             });
                             Candidate.itemCategories = lodash.compact(itemCategories);
                         }
-                        self.crtCandidateLanguages = lodash.compact(crtCandidateLanguages);
+                        this.crtCandidateLanguages = lodash.compact(crtCandidateLanguages);
                     }
                 ));
                 const meta = Candidate.meta;
-                self.experiences = JSON.parse(meta.experiences);
-                self.educations = JSON.parse(meta.educations);
-                self.candidate = lodash.clone(Candidate);
-                self.loading = false;
+                this.experiences = JSON.parse(meta.experiences);
+                this.educations = JSON.parse(meta.educations);
+                this.candidate = lodash.clone(Candidate);
+                this.loading = false;
             }
         };
         const routes = [

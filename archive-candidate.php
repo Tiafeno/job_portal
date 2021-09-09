@@ -7,7 +7,7 @@
 wp_enqueue_script(
     'comp-archive-candidate',
     get_stylesheet_directory_uri() . '/assets/js/comp-archive-candidate.js',
-    ['vue-router', 'axios', 'wpapi', 'wp-api', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'vue-select'],
+    ['vue-router', 'axios', 'wpapi', 'wp-api', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'vue-select', 'momentjs'],
     null,
     true
 );
@@ -103,14 +103,27 @@ get_header();
                                 <div class="row">
                                     <div class="col-md-7 user_profile_img mrg-bot-30">
                                         <h2 class="meg-0 text-info">{{candidate.meta.reference}}</h2>
-                                        <span class="skill-tag" v-for="item in candidate.itemCategories">{{item}}</span>
                                     </div>
                                     <div class="col-md-5 user_job_detail">
                                         <div class="col-md-12 mrg-bot-10"><i class="ti-credit-card padd-r-10"></i>
                                             {{ candidate.meta.gender === 'Mr' ? 'Homme' : 'Femme' }}
                                         </div>
-                                        <!--                                    <div class="col-md-12 mrg-bot-10"> <i class="ti-shield padd-r-10"></i> Déposée le 23 mars, 2021 </div>-->
+                                        <div class="col-md-12 mrg-bot-10"> <i class="ti-shield padd-r-10"></i> Déposée le {{getRegisterDate}} </div>
+                                    </div>
+                                </div>
+                                <div class="row mrg-top-30">
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-1 font-bold">Emploi recherché:</p>
+                                        <span class="skill-tag" v-for="item in candidate.itemCategories">{{item}}</span>
+                                    </div>
 
+                                    <div class="col-md-6 mt-3" v-if="false">
+                                        <p class="mb-1 uk-text-bold">Permis de conduire:</p>
+                                    </div>
+
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-1 font-bold">Statut du candidat:</p>
+                                        <span v-if="candidate !== null">{{statusToObj.name}}</span>
                                     </div>
                                 </div>
                             </div>

@@ -38,7 +38,7 @@
                                            placeholder="Nom de l'entreprise ou société" required>
                                 </div>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                    <label>Categorie de l'entreprise ou société <span style="color: red">*</span></label>
+                                    <label>Categorie de l'entreprise <span style="color: red">*</span></label>
                                     <select v-model="formData.category" name="category" class="form-control ui dropdown" required>
                                         <option value="">Selectionner une catégorie</option>
                                         {% for categorie in categories %}<option value="{{ categorie.term_id }}">{{ categorie.name }}</option>
@@ -115,12 +115,12 @@
                 <!-- Company Summery -->
                 <div class="box">
                     <div class="box-header">
-                        <h4>Company Summery</h4>
+                        <h4>Résumé de l'entreprise</h4>
                     </div>
                     <div class="box-body">
                         <div class="row">
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Employées</label>
+                                <label>Effectif de l'entreprise</label>
                                 <select v-model="formData.employees" name="employees" class="ui dropdown form-control">
                                     <option value="1-5">1-5</option>
                                     <option value="5-10">5-10</option>
@@ -130,12 +130,12 @@
                                 </select>
                             </div>
                             <div class="col-md-4 col-sm-6 col-xs-12">
-                                <label>Site web de l'entreprise ou société</label>
+                                <label>Site web de l'entreprise </label>
                                 <input type="text" v-model="formData.website" name="website" class="form-control"
                                        placeholder="Ex: entreprise.com">
                             </div>
                             <div class="col-sm-12">
-                                <label>Description courte à propos de l'entreprise ou société <span style="color: red">*</span></label>
+                                <label>Description courte à propos de l'entreprise <span style="color: red">*</span></label>
                                 <textarea v-model="formData.description" name="description" class="form-control height-120 textarea"
                                           placeholder="Votre description ici."></textarea>
                             </div>
@@ -152,7 +152,7 @@
                 </div>
                 
                 <div v-if="errors.length" style="margin-top: 40px">
-                    <b>Please correct the following error(s):</b>
+                    <b>Veuillez corriger les erreurs suivante(s):</b>
                     <ul><li style="color:#ff0000" v-for="error in errors">${ error }</li></ul>
                 </div>
             </form>
@@ -168,7 +168,7 @@
                 <!-- General Information -->
                 <div class="box">
                     <div class="box-header">
-                        <h4>General Information</h4>
+                        <h4>Formulaire entreprise</h4>
                     </div>
                     <div class="box-body">
                         <div class="row">
@@ -251,7 +251,7 @@
                 </div>
                 <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
                 <div v-if="errors.length" style="margin-top: 40px">
-                    <b>Please correct the following error(s):</b>
+                    <b>Veuillez corriger les erreurs suivante(s):</b>
                     <ul><li style="color:#ff0000" v-for="error in errors" v-html="error"></li></ul>
                 </div>
             </form>

@@ -69,4 +69,9 @@ final class jpCompany extends \WP_User
         }
         return false;
     }
+
+    public function is_active() {
+        $is_active = get_user_meta($this->ID, 'is_active', false); // int|bool
+        return boolval($is_active);
+    }
 }

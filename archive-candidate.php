@@ -7,7 +7,7 @@
 wp_enqueue_script(
     'comp-archive-candidate',
     get_stylesheet_directory_uri() . '/assets/js/comp-archive-candidate.js',
-    ['vue-router', 'axios', 'wpapi', 'wp-api', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'vue-select'],
+    ['vue-router', 'axios', 'wpapi', 'wp-api', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'vue-select', 'momentjs'],
     null,
     true
 );
@@ -27,11 +27,12 @@ get_header();
             <div class=" padd-bot-10 jov_search_block_inner">
                 <div class="row">
                     <div class="container">
+<!--                        Recherche -->
                         <form method="get" action="" @submit="filterHandler" novalidate>
                             <fieldset class="search-form">
                                 <div class="col-md-3 col-sm-3">
                                     <input type="hidden" name="post_type" value="jp-jobs">
-                                    <input type="text" class="form-control" name="s" v-model="s" value="" placeholder="Reference, Keywords or Name..." />
+                                    <input type="text" class="form-control" name="s" v-model="s" value="" placeholder="Référence, Mots-clés..." />
                                 </div>
                                 <div class="col-md-3 col-sm-3">
                                     <select class="wide form-control" v-model="region" name="region" value="">
@@ -54,7 +55,7 @@ get_header();
                                     </select>
                                 </div>
                                 <div class="col-md-2 col-sm-2 m-clear">
-                                    <button type="submit" class="btn theme-btn full-width height-50 radius-0">Search</button>
+                                    <button type="submit" class="btn theme-btn full-width height-50 radius-0">Rechercher</button>
                                 </div>
                             </fieldset>
                         </form>
@@ -62,22 +63,24 @@ get_header();
                 </div>
             </div>
             <!-- Single candidate List -->
-            <div class="col-md-3 col-sm-6 col-xs-12" v-if="!loading" v-for="annonce in annonces" :key="annonce.id">
-                <div class="contact-box">
-                    <div class="utf_flexbox_area mrg-l-10">
+            <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            <div class="col-md-4 col-sm-6" v-if="!loading" v-for="annonce in annonces" :key="annonce.id">
+                <div class="utf_grid_job_widget_area"> <span class="job-type full-type">{{annonce.meta.reference}}</span>
+                    <div class="utf_job_like">
                         <label class="toggler toggler-danger">
                             <input type="checkbox">
-                            <i class="fa fa-heart"></i>
-                        </label>
+                            <i class="fa fa-heart"></i> </label>
                     </div>
-                    <div class="contact-img">
-<!--                        <img src="assets/img/client-2.jpg" class="img-responsive" alt="">-->
+                    <div class="u-content">
+                        <div class="avatar box-80">
+                            <img class="img-responsive" :src="annonce.avatar_urls[96]" alt="">
+                        </div>
+                        <p class="text-muted ui small">{{annonce.job}}</p>
                     </div>
-                    <div class="contact-caption">
-                        <router-link :to="{ name: 'UserDetails', params: { id: annonce.id }}">
-                            {{annonce.meta.reference}}
+                    <div class="utf_apply_job_btn_item">
+                        <router-link :class="'btn job-browse-btn btn-radius br-light'" :to="{ name: 'UserDetails', params: { id: annonce.id }}">
+                            Voir le candidat
                         </router-link>
-                        <span>{{annonce.job}}</span>
                     </div>
                 </div>
             </div>
@@ -91,6 +94,7 @@ get_header();
 <!--Single candidate template-->
     <script type="text/x-template" id="candidate-details">
         <section class="padd-top-80 padd-bot-80">
+            <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
             <div class="container" v-if="!loading && candidate != null">
                 <div class="row">
                     <div class="col-md-8 col-sm-7">
@@ -99,14 +103,27 @@ get_header();
                                 <div class="row">
                                     <div class="col-md-7 user_profile_img mrg-bot-30">
                                         <h2 class="meg-0 text-info">{{candidate.meta.reference}}</h2>
-                                        <span class="skill-tag" v-for="item in candidate.itemCategories">{{item}}</span>
                                     </div>
                                     <div class="col-md-5 user_job_detail">
                                         <div class="col-md-12 mrg-bot-10"><i class="ti-credit-card padd-r-10"></i>
                                             {{ candidate.meta.gender === 'Mr' ? 'Homme' : 'Femme' }}
                                         </div>
-                                        <!--                                    <div class="col-md-12 mrg-bot-10"> <i class="ti-shield padd-r-10"></i> Déposée le 23 mars, 2021 </div>-->
+                                        <div class="col-md-12 mrg-bot-10"> <i class="ti-shield padd-r-10"></i> Déposée le {{getRegisterDate}} </div>
+                                    </div>
+                                </div>
+                                <div class="row mrg-top-30">
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-1 font-bold">Emploi recherché:</p>
+                                        <span class="skill-tag" v-for="item in candidate.itemCategories">{{item}}</span>
+                                    </div>
 
+                                    <div class="col-md-6 mt-3" v-if="false">
+                                        <p class="mb-1 uk-text-bold">Permis de conduire:</p>
+                                    </div>
+
+                                    <div class="col-md-6 mt-3">
+                                        <p class="mb-1 font-bold">Statut du candidat:</p>
+                                        <span v-if="candidate !== null">{{statusToObj.name}}</span>
                                     </div>
                                 </div>
                             </div>

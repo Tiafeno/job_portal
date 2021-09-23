@@ -66,7 +66,7 @@ $category = $job->get_reset_term('category');
                             <div class="row">
                                 <div class="col-md-8 user_job_detail" style="border: none !important">
 
-                                    <?php if ($salary !== 0) : ?>
+                                    <?php if ($salary !== 0 && false) : ?>
                                     <div class="col-sm-12 mrg-bot-10"> <i class="ti-credit-card padd-r-10"></i>
                                         Plus de <?= number_format($salary, 2, ',', ' ') ?> MGA
                                     </div>

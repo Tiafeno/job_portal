@@ -1,7 +1,7 @@
 <!-- ================= Job start ========================= -->
 
 <script  id="job-grid-template" type="text/x-template">
-    <div class="col-md-3 col-sm-6">
+    <div class="col-md-4 col-sm-6">
         <div class="utf_grid_job_widget_area">
             <span class="job-type full-type">${item.job_type | jobType(taxonomies)}</span>
             <div class="utf_job_like">
@@ -42,7 +42,7 @@
             <job-grid v-for="job in jobs" v-bind:item="job" :key="job.id" v-if="Object.keys(Taxonomies).length !== 0" v-bind:taxonomies="Taxonomies" ></job-grid>
         </div>
         <div class="col-md-12 mrg-top-20 text-center">
-            <a href="{{ job_archive_url }}" @click="moreEmploi($event)" target="_parent" class="btn theme-btn btn-m">Voir plus d'offre</a>
+            <a href="{{ job_archive_url }}" @click="moreEmploi($event)" target="_parent" class="btn theme-btn btn-m">Voir plus d'offres</a>
         </div>
     </div>
 </section>

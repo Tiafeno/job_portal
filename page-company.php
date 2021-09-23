@@ -1,7 +1,7 @@
 <?php
 /*
  * Template Name: Company Archive
- * description:
+ * description: /companies
  */
 
 wp_enqueue_script('comp-company', get_stylesheet_directory_uri() . '/assets/js/comp-archives-company.js',
@@ -13,81 +13,71 @@ wp_localize_script('comp-company', 'apiSettings', [
 ]);
 get_header();
 ?>
-    <script  id="company-jobs" type="text/x-template">
-        <div class="jobs-container">
-            <div class="col-md-3 col-sm-6" v-for="item in jobs" :key="item.id">
-                <div class="utf_grid_job_widget_area">
-                    <div class="u-content">
-                        <div class="avatar box-80">
-                            <a v-bind:href="item.link" target="_blank">
-                                <img class="img-responsive" :src="item.company.avatar_urls[96]" alt="">
-                            </a>
+    <script type="text/x-template" id="avatar-template">
+        <img :class="class_css" :src="getUrl" alt="">
+    </script>
+
+    <script id="company-jobs" type="text/x-template">
+        <div>
+            <div class="header ui">Tous les annonces</div>
+            <div class="jobs-container">
+                <div class="lds-roller" v-if="loading">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="col-md-3 col-sm-6" v-if="!loading && jobs.length > 0" v-for="item in jobs" :key="item.id">
+                    <div class="utf_grid_job_widget_area">
+                        <div class="u-content">
+                            <div class="avatar box-80">
+                                <a v-bind:href="item.link" target="_blank">
+                                    <comp-avatar :class_css="'img-responsive'" :user="item.company"></comp-avatar>
+                                </a>
+                            </div>
+                            <h5><a v-bind:href="item.link">{{item.title.rendered}}</a></h5>
+                            <p class="text-muted">{{item.meta.address}}</p>
                         </div>
-                        <h5><a v-bind:href="item.link">${item.title.rendered}</a></h5>
-                        <p class="text-muted">lorem upsum</p>
+                        <div class="utf_apply_job_btn_item">
+                            <a v-bind:href="item.link" target="_blank" class="btn job-browse-btn btn-radius br-light">Voir l'offre</a>
+                        </div>
                     </div>
-                    <div class="utf_apply_job_btn_item">
-                        <a v-bind:href="item.link" target="_blank" class="btn job-browse-btn btn-radius br-light">Voir l'offre</a>
-                    </div>
+                </div>
+                <div class="alert alert-warning" role="alert" v-if="jobs.length === 0 && !loading">
+                    Aucune annonce pour le moment
                 </div>
             </div>
         </div>
-
     </script>
     <!-- jobs company template-->
     <script type="text/x-template" id="company-archive-item">
         <!-- ================ Companies Jobs ======================= -->
         <section class="padd-top-30">
             <div class="container">
+                <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                <div class="alert alert-warning" role="alert" v-if="companies.length === 0 && !loading">
+                    Aucune entreprise ou société pour le moment
+                </div>
                 <div class="row">
 
                     <!-- Single Job -->
-                    <div class="col-md-3 col-sm-6" v-for="company in companies" :key="company.id">
+                    <div class="col-md-3 col-sm-6" v-if="!loading && companies.length > 0" v-for="company in companies" :key="company.id">
                         <div class="utf_grid_job_widget_area">
                             <div class="u-content">
                                 <div class="avatar box-80">
                                     <router-link :to="{name: 'SingleCompany', params: {id: company.id} }">
-                                        <img class="img-responsive" :src="company.avatar_urls[96]" alt="">
+                                        <comp-avatar :class_css="'img-responsive'" :user="company"></comp-avatar>
                                     </router-link>
-
                                 </div>
-                                <h5>
-                                    <a >{{ company.name }}</a>
-                                </h5>
+                                <h5><a >{{ company.name }}</a></h5>
                                 <p class="text-muted">{{ company.address }}</p>
                             </div>
                         </div>
                     </div>
-
-                </div>
-                <div class="clearfix"></div>
-            </div>
-        </section>
-    </script>
-    <!--Archives candidate template-->
-    <script type="text/x-template" id="company-archive-item">
-        <!-- ================ Companies Jobs ======================= -->
-        <section class="padd-top-30">
-            <div class="container">
-                <div class="row">
-
-                    <!-- Single Job -->
-                    <div class="col-md-3 col-sm-6" v-for="company in companies" :key="company.id">
-                        <div class="utf_grid_job_widget_area">
-                            <div class="u-content">
-                                <div class="avatar box-80"><a href="employer-detail.html">
-                                        <img class="img-responsive" src="assets/img/company_logo_1.png" alt=""> </a>
-                                </div>
-                                <h5>
-                                    <router-link :to="{ name: 'SingleCompany', params: { id: company.id }}">{{
-                                        company.name }}
-                                    </router-link>
-                                </h5>
-                                <p class="text-muted">{{ company.meta.address }}</p>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -96,26 +86,35 @@ get_header();
     <!--Single company template-->
     <script type="text/x-template" id="company-details">
         <div>
+
             <!-- ================ Company Profile ======================= -->
             <section class="padd-top-80 padd-bot-50">
-                <div class="container">
+                <div class="lds-roller" v-if="loading">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="container" v-if="!loading && company != null">
                     <div class="user_acount_info">
-                        <div class="col-md-3 col-sm-5">
-                            <div class="emp-pic"><img class="img-responsive width-270" src="assets/img/user-profile.png"
-                                                      alt=""></div>
+                        <div class="col-md-4 col-sm-6">
+                            <div class="emp-pic">
+                                <comp-avatar :class_css="'img-responsive width-270'" :user="company"></comp-avatar>
+                            </div>
                         </div>
-                        <div class="col-md-9 col-sm-7">
+                        <div class="col-md-8 col-sm-6">
                             <div class="emp-des">
-                                <h3>Daniel Dicoss</h3>
-                                <span class="theme-cl">Account Manager</span>
+                                <h3>{{company.name}}</h3>
+                                <span class="theme-cl">Lorem upsum</span>
                                 <ul class="employer_detail_item">
-                                    <li><i class="ti-credit-card padd-r-10"></i>MT-587, Near Bue Market Qch52, New York
-                                    </li>
-                                    <li><i class="ti-world padd-r-10"></i>https://www.example.com</li>
-                                    <li><i class="ti-mobile padd-r-10"></i>91 234 567 8765</li>
-                                    <li><i class="ti-email padd-r-10"></i>mail@example.com</li>
-                                    <li><i class="ti-pencil-alt padd-r-10"></i>Bachelor Degree</li>
-                                    <li><i class="ti-shield padd-r-10"></i>3 Year Exp.</li>
+                                    <li><i class="ti-credit-card padd-r-10"></i>{{company.meta.address}}, {{company.meta.city}}</li>
+                                    <li><i class="ti-mobile padd-r-10"></i>Lorem upsum</li>
+                                    <li><i class="ti-pencil-alt padd-r-10"></i>Lorem upsum</li>
+                                    <li><i class="ti-shield padd-r-10"></i>Lorem upsum dotme</li>
                                 </ul>
                             </div>
                         </div>

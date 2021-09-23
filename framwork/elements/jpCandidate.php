@@ -68,8 +68,28 @@ class jpCandidate extends \WP_User
     }
 
     public function isPublic() {
-        $is_public = get_user_meta($this->ID, 'public_cv', true);
-        return (bool) $is_public;
+        return $this->is_active();
+    }
+
+    public function is_active() {
+        $is_active = get_user_meta($this->ID, 'is_active', true);
+        return (bool) $is_active;
+    }
+
+    public function getExperiences() {
+        $exp_encode = get_user_meta($this->ID, 'experiences', true);
+        $experiences = $exp_encode ? json_decode($exp_encode) : [];
+        return is_array($experiences) ? $experiences : [];
+    }
+
+    public function removeExperience(string $id) {
+        $experience = $this->getExperiences();
+    }
+
+    public function getEducations() {
+        $edu_encode  = get_user_meta($this->ID, 'educations', true);
+        $educations = $edu_encode ? json_decode($edu_encode) : [];
+        return $educations;
     }
 
 }

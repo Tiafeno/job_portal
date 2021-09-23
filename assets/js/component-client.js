@@ -1,3 +1,7 @@
+const jobAXIOSInstance = axios.create({
+    baseURL: clientApiSettings.root + 'job/v2',
+    headers: {'X-WP-Nonce': clientApiSettings.nonce}
+});
 const fileFilter = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i;
 const getRandomPassword = () => {
     const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -74,13 +78,17 @@ const getFileReader = (file) => {
         });
         Vue.filter('cvStatus', function (user) {
             if (!user) return 'Inconnue';
-            const isPublic = user.meta.public_cv; // boolean
+            const isPublic = user.is_active; // boolean
             const hasCV = user.meta.has_cv; // boolean
             if (!hasCV) return "Indisponible";
             return isPublic ? "Publier" : "En attent de validation";
 
         });
         // Return random password
+        const jobHTTPInstance = axios.create({
+            baseURL: clientApiSettings.root + 'job/v2',
+            headers: {'X-WP-Nonce': clientApiSettings.nonce}
+        });
         const getRandomId = () => {
             const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
             const string_length = 8;
@@ -149,6 +157,64 @@ const getFileReader = (file) => {
                 });
             },
             delimiters: ['${', '}'],
+        };
+        const _componentPricing = {
+            props: ['item'],
+            template: "#pricing_account",
+            data: function () {
+                return {
+                    loading: false,
+                }
+            },
+            methods: {
+                goToPurchase: function (ev, _id) {
+                    ev.preventDefault();
+                    const uId = clientApiSettings.current_user_id;
+                    this.loading = true;
+                    jobHTTPInstance.post(`pay/account/${_id}/${uId}`, {}).then((resp) => {
+                        if (resp.status === 200) {
+                            const response = resp.data;
+                            if (response.success) {
+                                console.log(response)
+                            }
+                        }
+                        this.loading = false;
+                    });
+                    return;
+                }
+            }
+        };
+        const _componentCVStatus = {
+            template: "#cv-status-template",
+            props: ['client'],
+            data: function() {
+                return {
+                    optStatus: [],
+                    loading: false,
+                    status: 0,
+                }
+            },
+            methods: {
+                // Update candidate status
+                onUpdate: function(value) {
+                    let form = new FormData();
+                    form.append('uid', this.client.id);
+                    form.append('val', value);
+                    this.loading = true;
+                    // Send request for update status
+                    jobAXIOSInstance.post('/cv-status', form, function(resp) {
+                       this.loading = false;
+                    });
+                }
+            },
+            created: function() {
+                this.loading = true;
+                jobAXIOSInstance.get('/cv-status').then(resp => {
+                    this.optStatus = resp.data;
+                    this.status = this.client.cv_status;
+                    this.loading = false;
+                });
+            }
         };
         const Layout = {
             template: '#client-layout',
@@ -274,28 +340,38 @@ const getFileReader = (file) => {
                     userCompany: null,
                 }
             },
-            mounted: function () {
+            created: function () {
                 this.init();
+            },
+            computed: {
+                hisRole: function() {
+                    return this.isCandidate ? 'Candidat' : 'Employeur';
+                }
             },
             methods: {
                 submitProfil: function (ev) {
                     ev.preventDefault();
                 },
                 init: async function () {
-                    this.loading = true;
-                    const cUser = new wp.api.models.User({id: clientApiSettings.current_user_id});
-                    cUser.fetch({data: {context: 'edit'}}).done(user => {
-                        this.user = lodash.clone(user);
-                        if (lodash.indexOf(user.roles, 'employer') >= 0) {
-                            this.isEmployer = true;
-                            const companyId = parseInt(user.meta.company_id, 10);
-                            if (0 === companyId) return;
-                            const companyModel = new wp.api.models.User({id: companyId});
-                            companyModel.fetch({data: {context: 'edit'}}).done(companyResponse => {
-                                this.userCompany = lodash.clone(companyResponse);
-                                this.loading = false;
-                            });
-                        }
+                    wp.api.loadPromise.done(() => {
+                        this.loading = true;
+                        const cUser = new wp.api.models.User({id: clientApiSettings.current_user_id});
+                        cUser.fetch({data: {context: 'edit'}}).done(user => {
+                            this.user = lodash.clone(user);
+                            this.isCandidate = lodash.indexOf(user.roles, 'candidate') >= 0;
+                            this.isEmployer = lodash.indexOf(user.roles, 'employer') >= 0;
+                            // If employer or company
+                            if (this.isEmployer) {
+                                const companyId = parseInt(user.meta.company_id, 10);
+                                if (0 === companyId) return;
+                                const companyModel = new wp.api.models.User({id: companyId});
+                                companyModel.fetch({data: {context: 'edit'}}).done(companyResponse => {
+                                    this.userCompany = lodash.clone(companyResponse);
+                                    this.loading = false;
+                                });
+                            }
+
+                        });
                     });
                 },
             }
@@ -328,6 +404,7 @@ const getFileReader = (file) => {
             components: {
                 'comp-education': CVComponents.education,
                 'comp-experience': CVComponents.experience,
+                'comp-cv-status': _componentCVStatus,
                 'upload-avatar': _componentUploadAvatar
             },
             beforeRouteLeave(to, from, next) {
@@ -402,33 +479,32 @@ const getFileReader = (file) => {
                 this.yearRange = lodash.range(1950, currentDate.getFullYear());
             },
             mounted: async function () {
-                const self = this;
                 this.Loading = true;
-                await this.$parent.Wordpress.users().me().context('edit').then(function (response) {
-                    self.currentUser = lodash.cloneDeep(response);
+                await this.$parent.Wordpress.users().me().context('edit').then((response) => {
+                    this.currentUser = lodash.cloneDeep(response);
                     //Populate data value
-                    self.first_name = self.currentUser.first_name;
-                    self.last_name = self.currentUser.last_name;
-                    self.phone = self.currentUser.meta.phone;
-                    self.address = self.currentUser.meta.address;
-                    self.gender = self.currentUser.meta.gender;
-                    self.city = self.currentUser.meta.city;
-                    self.birthday = self.currentUser.meta.birthday;
-                    self.profil = self.currentUser.meta.profil;
-                    self.region = self.currentUser.meta.region;
+                    this.first_name = this.currentUser.first_name;
+                    this.last_name = this.currentUser.last_name;
+                    this.phone = this.currentUser.meta.phone;
+                    this.address = this.currentUser.meta.address;
+                    this.gender = this.currentUser.meta.gender;
+                    this.city = this.currentUser.meta.city;
+                    this.birthday = this.currentUser.meta.birthday;
+                    this.profil = this.currentUser.meta.profil;
+                    this.region = this.currentUser.meta.region;
 
-                    let languages = self.currentUser.meta.languages;
+                    let languages = this.currentUser.meta.languages;
                     languages = lodash.isEmpty(languages) ? [] : JSON.parse(languages);
-                    self.languages = lodash.clone(languages);
+                    this.languages = lodash.clone(languages);
 
-                    let categories = self.currentUser.meta.categories;
+                    let categories = this.currentUser.meta.categories;
                     categories = lodash.isEmpty(categories) ? [] : JSON.parse(categories);
-                    self.categories = lodash.clone(categories);
+                    this.categories = lodash.clone(categories);
 
-                    self.hasCV = !!self.currentUser.meta.has_cv;
-                    self.publicCV = !!self.currentUser.meta.public_cv;
+                    this.hasCV = !!this.currentUser.meta.has_cv;
+                    this.publicCV = !!this.currentUser.is_active;
 
-                    self.Loading = false;
+                    this.Loading = false;
                 });
                 // Education sortable list
                 new Sortable(document.getElementById('education-list'), {
@@ -732,6 +808,7 @@ const getFileReader = (file) => {
                         .update({
                             last_name: this.last_name,
                             first_name: this.first_name,
+                            is_active:  this.publicCV,
                             meta: {
                                 phone: this.phone,
                                 address: this.address,
@@ -745,7 +822,6 @@ const getFileReader = (file) => {
                                 profil: this.profil,
                                 // Render visible this CV
                                 has_cv: true,
-                                public_cv: this.publicCV
                             }
                         })
                         .then(function (resp) {
@@ -798,53 +874,56 @@ const getFileReader = (file) => {
                 }
             },
             methods: {
-                initComponent: async function () {
-                    this.loading = true;
-                    this.account_id = clientApiSettings.current_user_id;
-                    const wpCatsModel = new wp.api.collections.Categories();
-                    const wpCountryModel = new wp.api.collections.Country();
-                    const categories = await wpCatsModel.fetch();
-                    const countries = await wpCountryModel.fetch();
-                    axios.all([categories, countries]).then(axios.spread(
-                        (...wpapiAll) => {
-                            this.categories = lodash.clone(wpapiAll[0]);
-                            this.countries = lodash.clone(wpapiAll[1]);
-                        }
-                    )).catch(errors => {
-                    });
-                    this.wpapi.users().me().context('edit').then((response) => {
-                        const me = lodash.cloneDeep(response);
-                        const hasCompany = me.meta.company_id !== 0;
-                        if (hasCompany) {
-                            // S'il possede deja une entreprise
-                            const wpCompanyModel = new wp.api.models.User({id: me.meta.company_id});
-                            wpCompanyModel.fetch({data: {context: 'edit'}}).done(company => {
-                                this.isUpdate = true;
-                                this.company_account = lodash.clone(company);
-                                // Ajouter les valeurs dans le formulaires
-                                this.formData = {
-                                    name: company.username,
-                                    category: company.meta.category,
-                                    email: company.email,
-                                    address: company.meta.address,
-                                    nif: company.meta.nif,
-                                    stat: company.meta.stat,
-                                    phone: company.meta.phone,
-                                    country: company.meta.country,
-                                    city: company.meta.city,
-                                    zipcode: company.meta.zipcode,
-                                    website: company.meta.website,
-                                    employees: company.meta.employees,
-                                    description: company.description
-                                }
+                initComponent: function () {
+                    wp.api.loadPromise.done(async () => {
+                        this.loading = true;
+                        this.account_id = clientApiSettings.current_user_id;
+                        const wpCatsModel = new wp.api.collections.Categories();
+                        const wpCountryModel = new wp.api.collections.Country();
+                        const categories = await wpCatsModel.fetch({data: { per_page: 50}});
+                        const countries = await wpCountryModel.fetch({data: { per_page: 50}});
+                        axios.all([categories, countries]).then(axios.spread(
+                            (...wpapiAll) => {
+                                this.categories = lodash.clone(wpapiAll[0]);
+                                this.countries = lodash.clone(wpapiAll[1]);
+                            }
+                        )).catch(errors => {
+                        });
+                        this.wpapi.users().me().context('edit').then((response) => {
+                            const me = lodash.cloneDeep(response);
+                            const hasCompany = me.meta.company_id !== 0;
+                            if (hasCompany) {
+                                // S'il possede deja une entreprise
+                                const wpCompanyModel = new wp.api.models.User({id: me.meta.company_id});
+                                wpCompanyModel.fetch({data: {context: 'edit'}}).done(company => {
+                                    this.isUpdate = true;
+                                    this.company_account = lodash.clone(company);
+                                    // Ajouter les valeurs dans le formulaires
+                                    this.formData = {
+                                        name: company.username,
+                                        category: company.meta.category,
+                                        email: company.email,
+                                        address: company.meta.address,
+                                        nif: company.meta.nif,
+                                        stat: company.meta.stat,
+                                        phone: company.meta.phone,
+                                        country: company.meta.country,
+                                        city: company.meta.city,
+                                        zipcode: company.meta.zipcode,
+                                        website: company.meta.website,
+                                        employees: company.meta.employees,
+                                        description: company.description
+                                    }
+                                    this.loading = false;
+                                });
+                            } else {
                                 this.loading = false;
-                            });
-                        } else {
+                            }
+                        }).catch((err) => {
                             this.loading = false;
-                        }
-                    }).catch((err) => {
-                        this.loading = false;
+                        });
                     });
+
                 },
                 checkForm: function (e) {
                     e.preventDefault();
@@ -971,7 +1050,7 @@ const getFileReader = (file) => {
                     annonces: []
                 }
             },
-            mounted: function () {
+            created: function () {
                 this.Populate();
             },
             methods: {
@@ -995,7 +1074,14 @@ const getFileReader = (file) => {
                         .param('meta_value', clientApiSettings.current_user_id)
                         .per_page(10)
                         .then((response) => {
-                            this.annonces = lodash.clone(response);
+                            this.annonces = lodash.map(response, annonce => {
+                                let title = annonce.title.rendered;
+                                annonce.title.rendered = lodash.truncate(title, {
+                                    'length': 35,
+                                    'separator': '[...]'
+                                });
+                                return annonce;
+                            });
                             this.loading = false;
                         });
                 }
@@ -1077,6 +1163,42 @@ const getFileReader = (file) => {
                 }
             }
         };
+        const PricingLayout = {
+            template: "<div><router-view></router-view></div>",
+        };
+        const PricingTable = {
+            template: "#pricing-table",
+            components: {
+                'comp-pricing': _componentPricing
+            },
+            data: function () {
+                return {
+                    loading: false,
+                    products: []
+                };
+            },
+            created: function () {
+                this.loading = true;
+                jobHTTPInstance.get('pricing').then((resp) => {
+                    if (resp.status === 200) {
+                        this.products = lodash.clone(resp.data);
+                    }
+                    this.loading = false;
+                });
+
+                /**
+                 * Effectuer un paiement direct
+                 */
+                // const jWCHTTPInstance = axios.create({
+                //     baseURL: clientApiSettings.root + 'wc/v2',
+                //     headers: {'X-WP-Nonce': clientApiSettings.nonce}
+                // });
+                // jWCHTTPInstance.get(clientApiSettings.root + 'wc/v2/pricing/176/11').then((resp) => {
+                //     console.log(resp);
+                // });
+            }
+        };
+        const PricingPurchase = {};
         const routes = [{
             path: '/',
             component: Layout,
@@ -1112,7 +1234,25 @@ const getFileReader = (file) => {
                     path: 'ad_applied',
                     name: 'AdApplied',
                     component: AdApplied
-                }
+                },
+                {
+                    path: 'pricing',
+                    name: 'Pricing',
+                    component: PricingLayout,
+                    redirect: '/pricing/items',
+                    children: [
+                        {
+                            path: 'items',
+                            name: 'PricingTable',
+                            component: PricingTable
+                        },
+                        {
+                            path: ':id/purchase',
+                            name: 'PricingPurchase',
+                            component: PricingPurchase,
+                        }
+                    ]
+                },
             ],
             beforeEnter: (to, from, next) => {
                 let isAuth = parseInt(clientApiSettings.current_user_id) !== 0;

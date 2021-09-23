@@ -10,7 +10,7 @@ const paramKeys = Object.keys(params); // return array of keys
                 'X-WP-Nonce': archiveApiSettings.nonce
             }
         });
-        const regionFilter = {
+        const __compRegion = {
             props: ['regions'],
             template: "#filter-region-template",
             data: function () {
@@ -41,7 +41,7 @@ const paramKeys = Object.keys(params); // return array of keys
                 }
             }
         };
-        const categoryFilter = {
+        const __compCats = {
             props: ['categories'],
             template: "#filter-category-template",
             data: function () {
@@ -72,7 +72,7 @@ const paramKeys = Object.keys(params); // return array of keys
                 }
             }
         };
-        const salaryFilter = {
+        const __compSalary = {
             props: ['salaries'],
             template: '#filter-salary-template',
             data: function () {
@@ -83,17 +83,16 @@ const paramKeys = Object.keys(params); // return array of keys
             created: function () {
                 if (_.isArray(this.salaries)) {
                     this.items = _.map(this.salaries, salary => {
-                        var valueFloat = parseFloat(salary.name);
-                        var amount = valueFloat.toLocaleString("en-GB", {
+                        const valueFloat = parseFloat(salary.name);
+                        const amount = valueFloat.toLocaleString("en-GB", {
                             style: "currency",
                             currency: "MGA",
                             minimumFractionDigits: 0
                         });
-                        salary.filter_name = 'Plus de ' + amount.toString();
+                        salary.filter_name = '+ ' + amount.toString();
                         return salary;
                     });
                 }
-
             },
             methods: {
                 selectedFilter: function ($event) {
@@ -111,7 +110,35 @@ const paramKeys = Object.keys(params); // return array of keys
                 }
             }
         };
-        const searchFilter = {
+        const __compContract = {
+            props: ['contracts'],
+            template: '#filter-contract-template',
+            data: function () {
+                return {
+                    items: []
+                }
+            },
+            created: function () {
+                if (_.isArray(this.contracts)) {
+                    this.items = _.clone(this.contracts);
+                }
+            },
+            methods: {
+                selectedFilter: function ($event) {
+                    $event.preventDefault();
+                    const target = $event.target;
+                    let values = [];
+                    // Get all input selected
+                    const inputChecked = $('input:checked.contract-filter');
+                    inputChecked.each(function (index, el) {
+                        values.push($(el).val());
+                    });
+                    const inputName = inputChecked.attr('name');
+                    this.$emit('changed', values, inputName);
+                }
+            }
+        };
+        const __compSearch = {
             template: '#filter-search-template',
             data: function () {
                 return {}
@@ -127,52 +154,8 @@ const paramKeys = Object.keys(params); // return array of keys
                 }
             }
         };
-        // Composant 'je postule'
-        const CompApply = {
-            template: "#apply-job",
-            props: ['jobid'],
-            data: function () {
-                return {
-                    loading: false,
-                    isLogged: false,
-                    buttonText: "Je postule",
-                    message: {success: null, data: ''},
-                }
-            },
-            mounted: function () {
-                this.isLogged = !!archiveApiSettings.isLogged;
-            },
-            watch: {
-                loading: function () {
-                    this.buttonText = this.loading ? "Chargement..." : "Je postule";
-                }
-            },
-            methods: {
-                apply: function () {
-                    const self = this;
-                    const jobId = this.jobid;
-                    if (!this.isLogged) {
-                        // Call login modal
-                        renderLoginModel();
-                        $('#signin').modal('show');
-                    } else {
-                        this.loading = true;
-                        jobapiAxiosInstance.post(`apply/${jobId}`, {}).then(function (response) {
-                            const dataResponse = response.data;
-                            self.message = _.clone(dataResponse);
-                            self.loading = false;
-                        }).catch(function () {
-                            self.loading = false;
-                        })
-                    }
-                }
-            }
-        };
         const jobVerticalLists = {
             props: ['item'],
-            components: {
-                'comp-apply': CompApply
-            },
             template: "#job-vertical-lists",
             data: function() {
                 return {
@@ -184,9 +167,11 @@ const paramKeys = Object.keys(params); // return array of keys
             },
             computed: {
                 avatarSrc: function() {
-                    const company = this.item.company;
-                    const avatar = company.avatar;
+                    const avatar = this.item.company.avatar;
                     return _.isEmpty(avatar) ? this.defaultAvatarSrc : avatar.upload_dir.baseurl + '/' + avatar.image.file;
+                },
+                getCompanyUrl: function() {
+                    return `${archiveApiSettings.company_archive_url}/#/companies/${this.item.company.id}`;
                 }
             }
         };
@@ -231,10 +216,11 @@ const paramKeys = Object.keys(params); // return array of keys
             template: "#job-archive-template",
             props: ['taxonomies'],
             components: {
-                'filter-salary': salaryFilter,
-                'filter-search': searchFilter,
-                'filter-region': regionFilter,
-                'filter-category': categoryFilter,
+                'filter-salary': __compSalary,
+                'filter-search': __compSearch,
+                'filter-region': __compRegion,
+                'filter-category': __compCats,
+                'filter-contract': __compContract,
                 'job-vertical-lists': jobVerticalLists,
                 'com-pagination': Pagination
             },
@@ -245,7 +231,7 @@ const paramKeys = Object.keys(params); // return array of keys
                     WPAPI: null,
                     hasURLSearchParam: false,
                     Request: {}, // object request
-                    ParamsFilter: {}, // for all search filter
+                    ParamsFilter: {}, // for all params search filter
                     paging: null, // content pagination
                     per_page: 10, // per page default value
                     page: 1, // default page value
@@ -321,6 +307,18 @@ const paramKeys = Object.keys(params); // return array of keys
                             _params = _.map(data, _.unary(parseInt));
                             this.ParamsFilter.salaries = {
                                 props: 'salaries',
+                                type: 'taxonomy',
+                                param: _params
+                            };
+                            break;
+                        case 'job_type':
+                            if (_.isEmpty(data)) {
+                                this.ParamsFilter.job_type = {};
+                                break;
+                            }
+                            _params = _.map(data, _.unary(parseInt));
+                            this.ParamsFilter.job_type = {
+                                props: 'job_type',
                                 type: 'taxonomy',
                                 param: _params
                             };
@@ -404,6 +402,8 @@ const paramKeys = Object.keys(params); // return array of keys
                         self.paging = _.clone(response._paging); // Update paging value
                         // Add property value
                         self.archives = _.map(archivesResponse, function (archive) {
+                            let title = archive.title.rendered;
+                            archive.title.rendered = _.truncate(title, {length: 40, separator: ' '});
                             archive.get_type_name = ''; // add type of contract for annonce
                             archive.get_cat_name = '';
                             const type = archive.job_type;

@@ -48,35 +48,45 @@
             }
         }
         function renderLoginModel() {
-            // Application
-            if (typeof CompLogin === 'undefined') {
-                console.warn('Commposant login non definie');
-                return false;
-            }
-            ;
-            new Vue({
-                el: '#signin',
-                components: {'comp-login': CompLogin},
-                data: function () {
-                    return {}
-                },
-                methods: {
-                    loggedIn: function (data) {
-                        window.location.reload();
-                    }
-                },
-                delimiters: ['${', '}']
+            return new Promise((resolve, reject) => {
+                // Application
+                if (typeof CompLogin === 'undefined') {
+                    console.warn('Composant login non definie');
+                    reject(false);
+                }
+                new Vue({
+                    el: '#signin',
+                    components: { 'comp-login': CompLogin },
+                    methods: {
+                        loggedIn: function (data) {
+                            window.location.reload();
+                        }
+                    },
+                    created: function() {
+                        resolve(true);
+                    },
+                    delimiters: ['${', '}']
+                });
             });
-            return true;
         }
 
         function showLoginModal() {
-            var renderResult = renderLoginModel();
-            if (renderResult) jQuery('#signin').modal('show');
+            renderLoginModel().then(() => {
+                jQuery('#signin').modal('show');
+            }).catch(err => {});
         }
     </script>
 </head>
 <body <?php body_class(); ?> >
+<?php if (!is_user_logged_in()): ?>
+    <!-- Signup Code -->
+        <div class="ui mini modal" id="signin">
+            <div class="content" >
+                <comp-login v-on:login-success="loggedIn"></comp-login>
+            </div>
+        </div>
+    <!-- End Signup -->
+<?php endif; ?>
 <div class="page_preloader"></div>
 <!-- ======================= Start Navigation ===================== -->
 <?php
@@ -110,13 +120,16 @@ $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
                 )
             );
             ?>
-
             <ul class="nav navbar-nav navbar-right">
-
                 <?php if (!is_user_logged_in()): ?>
                     <li class="br-right">
-                        <a class="btn-signup red-btn" onclick="renderLoginModel()" data-toggle="modal"
-                           data-target="#signin">
+                        <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
+                            <i class="login-icon ti-archive"></i>
+                            Publiez une offre
+                        </a>
+                    </li>
+                    <li class="br-right">
+                        <a class="btn-signup red-btn" onclick="showLoginModal()" >
                             <i class="login-icon ti-user"></i>
                             Connexion
                         </a>
@@ -129,7 +142,7 @@ $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
                     <li class="br-right">
                         <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
                             <i class="login-icon ti-archive"></i>
-                            Publier une offre
+                            Publiez une offre
                         </a>
                     </li>
                     <?php endif; ?>
@@ -143,27 +156,12 @@ $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
                             <i class="fa fa-sign-out"></i>
                         </a>
                     </li>
-
                 <?php endif; ?>
             </ul>
         </div>
     </div>
 </nav>
 
-<?php if (!is_user_logged_in()): ?>
-    <!-- Signup Code -->
-    <div class="modal fade" id="signin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content" id="myModalLabel1">
-                <div class="modal-body">
-                    <div class="tab-pane fade in show active" id="employer" role="tabpanel">
-                        <comp-login v-on:login-success="loggedIn"></comp-login>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- End Signup -->
-<?php endif; ?>
+
 <!-- ======================= End Navigation ===================== -->
 

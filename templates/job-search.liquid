@@ -22,16 +22,16 @@
                         </select>
                     </div>
                     <div class="col-md-3 col-sm-3 padd-0">
-                        <select name="region" class="wide form-control br-1">
-                            <option value="" data-display="Location">Tous les régions</option>
-                            {% for region in regions %}
-                                <option value="{{ region.term_id }}">{{ region.name }}</option>
+                        <select name="job_type" class="wide form-control br-1">
+                            <option value="" data-display="Location">Type de contrat</option>
+                            {% for type in types %}
+                                <option value="{{ type.slug }}">{{ type.name }}</option>
                             {% endfor %}
 
                         </select>
                     </div>
                     <div class="col-md-3 col-sm-3 padd-0">
-                        <input type="text" class="form-control br-1" name="s" placeholder="Rechercher des mots-clés..." />
+                        <input type="text" class="form-control br-1" name="s" placeholder="Mots-clés" />
                     </div>
                     <div class="col-md-2 col-sm-2 padd-0 m-clear">
                         <input type="hidden"  name="post_type" value="jp-jobs">

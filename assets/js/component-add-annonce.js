@@ -180,6 +180,7 @@
                         roles: ['company'],
                         description: item.description,
                         avatar: fileId,
+                        is_active: 0, // Ne pas activer l'entreprise pour être en attente de validation
                         meta: {
                             country: item.country,
                             category: item.category,
@@ -218,28 +219,29 @@
                             title = 'Information';
                             break
                     }
-                    alertify.alert(title, response.message, function () {
-                    });
+                    alertify.alert(title, response.message);
                 },
                 formatHTML: function (str) {
                     return str.replace(/(<([^>]+)>)/ig, "");
                 }
             },
             created: function () {
-                const self = this;
                 this.loading = true;
-                this.wordpress_api.users().me().context('view').then((response) => {
-                    const me = lodash.cloneDeep(response);
-                    const hasCompany = me.meta.company_id !== 0;
-                    if (hasCompany) {
-                        self.$router.push({name: 'Annonce'});
-                    }
-                    self.loading = false;
-                }).catch(function (err) {
-                    self.loading = false;
-                    self.errorHandler(err);
+                this.wordpress_api
+                    .users()
+                    .me()
+                    .context('view')
+                    .then((response) => {
+                        const me = lodash.cloneDeep(response);
+                        const hasCompany = me.meta.company_id !== 0;
+                        if (hasCompany) {
+                            this.$router.push({name: 'Annonce'});
+                        }
+                        this.loading = false;
+                    }).catch(function (err) {
+                    this.loading = false;
+                    this.errorHandler(err);
                 });
-
             },
             mounted: function () {
                 $('select').dropdown({
@@ -260,6 +262,7 @@
                     sectionClass: 'utf_create_company_area padd-bot-80',
                     loading: false,
                     errors: [],
+                    companyId: 0,
                     inputs: {
                         title: '',
                         salary_range: '',
@@ -312,27 +315,36 @@
                     params: ['context']
                 });
                 // Si le client est connecter, On verifie s'il existe deja une entreprise
-                this.loading = true;
-                this.WPAPI.users().me().context('edit')
-                    .then( resp => {
-                        this.me = lodash.clone(resp);
-                        this.loading = false;
-                        // Verifier le role du client
-                        let roles = this.me.roles;
-                        if (lodash.indexOf(roles, 'employer') < 0) {
-                            this.$router.push({name: "DenialAccess"});
-                            return;
-                        }
-                        // Verifier si l'utilisateur possede deja une entreprise ou societe
-                        var hasCompany = this.me.meta.company_id !== 0;
-                        if (!hasCompany) this.$router.push({name: 'Company'});
-                    });
+                this.initComponent();
             },
             methods: {
                 errorHandler: function (inputName) {
                     var err = `Le champ <b>"${inputName}"</b> est obligatoire`;
                     this.errors.push(err);
                 },
+                initComponent: async function() {
+                    this.loading = true;
+                    this.WPAPI.users().me().context('edit')
+                        .then(resp => {
+                            this.me = lodash.clone(resp);
+                            this.loading = false;
+                            // Verifier le role du client
+                            let roles = this.me.roles;
+                            if (lodash.indexOf(roles, 'employer') < 0) {
+                                this.$router.push({name: "DenialAccess"});
+                                return;
+                            }
+                            // Verifier si l'utilisateur possede deja une entreprise ou societe
+                            // et que cette entreprise est valide ou verifier
+                            this.companyId = parseInt(this.me.meta.company_id);
+                            var hasCompany = this.companyId !== 0;
+                            if (!hasCompany) {
+                                this.$router.push({name: 'Company'});
+                                return;
+                            }
+                        });
+                },
+                /** Event on submit form */
                 checkAddForm: function (ev) {
                     ev.preventDefault();
                     this.errors = [];
@@ -352,7 +364,18 @@
                     if (!lodash.isEmpty(this.errors)) {
                         return;
                     }
-                    this.submitForm();
+
+                    this.loading = true;
+                    this.WPAPI.users().id(this.companyId).context('view').then(companyResp => {
+                        this.loading = false;
+                        if (!companyResp.is_active) {
+                            alertify.alert('Validation de compte', "Votre compte est en attente de validation. Vous recerverais un mail de confirmation.");
+                            return;
+                        } else {
+                            // Envoyer le formulaire si le compte est validé
+                            this.submitForm();
+                        }
+                    });
                 },
                 submitForm: function () {
                     const self = this;
@@ -396,7 +419,10 @@
         };
         const DenialAccess = {
             template: "#denial-access", // Include in theme.liquid
-        }
+        };
+        const PendingAccess = {
+            template: "#pending-access", // Include in theme.liquid
+        };
 
         // Application
         const Layout = {
@@ -456,6 +482,11 @@
                 path: '/denial-access',
                 component: DenialAccess,
                 name: 'DenialAccess',
+            },
+            {
+                path: '/pending-access',
+                component: PendingAccess,
+                name: 'PendingAccess',
             }
         ];
         const router = new VueRouter({

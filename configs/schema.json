@@ -8,8 +8,43 @@
                 "validity": 1,
                 "count": 4,
                 "activated": 1,
-                "desc": ""
+                "desc": "Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?"
+            },
+            {
+                "_id": 1,
+                "title": "Premium",
+                "regular_price": 485000,
+                "validity": 1,
+                "count": 4,
+                "activated": 1,
+                "desc": "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur"
+            }
+        ],
+        "buy" : [
+            {
+                "_id" : 1,
+                "type" : "ad-candidate",
+                "price" : 1500
+            },
+            {
+                "_id" : 2,
+                "type" : "cv",
+                "price" : 4500
             }
         ]
-    }
+    },
+    "candidat_status": [
+        {
+            "_id": 1,
+            "name": "Je cherche un emploi"
+        },
+        {
+            "_id": 2,
+            "name": "Je souhaite entretenir mon réseau"
+        },
+        {
+            "_id": 3,
+            "name": "Je cherche un stage"
+        }
+    ]
 }

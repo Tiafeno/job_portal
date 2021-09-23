@@ -86,7 +86,14 @@ const CompLogin = {
                     alertify.alert('Erreur', "Adresse email ou mot de passe incorrect.");
                     return;
                 } else {
-                    window.location.reload();
+                    let pathname = window.location.pathname;
+                    if (lodash.includes(pathname, 'register')) {
+                        // Redirection page client
+                        window.location.href = window.location.origin + '/espace-client';
+                    } else {
+                        window.location.reload();
+                    }
+
                 }
             }).catch((err) => {
                 this.loading = false;

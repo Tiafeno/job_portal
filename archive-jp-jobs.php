@@ -1,11 +1,12 @@
 <?php
 
 wp_enqueue_script('comp-archive-jobs', get_stylesheet_directory_uri() . '/assets/js/comp-archive-jobs.js',
-    ['axios', 'wpapi', 'jquery', 'bluebird', 'lodash', 'paginationjs'], null, true);
+    ['axios', 'wpapi', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'comp-login'], null, true);
 wp_localize_script('comp-archive-jobs', 'archiveApiSettings', [
     'root' => esc_url_raw(rest_url()),
     'nonce' => wp_create_nonce('wp_rest'),
     'isLogged' => is_user_logged_in(),
+    'company_archive_url' => home_url('/companies'),
     'userId' => get_current_user_id(),
 ]);
 
@@ -31,6 +32,30 @@ get_header();
         }
     </style>
     <!-- Template-->
+    <script id="filter-contract-template" type="text/x-template">
+        <div class="widget-boxed padd-bot-0" v-if="items.length > 0">
+            <div class="widget-boxed-header">
+                <h4>Type de contrat</h4>
+            </div>
+            <div class="widget-boxed-body">
+                <div class="side-list no-border">
+                    <ul>
+                        <li v-for="item in items">
+                            <span class="custom-checkbox">
+                                <input type="checkbox" class="contract-filter" :id="item.id" :name="'job_type'"
+                                       :value="item.id" v-on:change="selectedFilter">
+                                <label :for="item.id"></label>
+                            </span>
+                            {{ item.name }}
+                            <span class="pull-right">
+                                <span class="count-item">{{ item.count }} </span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </script>
     <script id="filter-salary-template" type="text/x-template">
         <div class="widget-boxed padd-bot-0" v-if="items.length > 0">
             <div class="widget-boxed-header">
@@ -40,13 +65,13 @@ get_header();
                 <div class="side-list no-border">
                     <ul>
                         <li v-for="item in items">
-                        <span class="custom-checkbox">
-                            <input type="checkbox" class="salary-filter" :id="item.id" :name="'salaries'"
+                            <span class="custom-checkbox">
+                                <input type="checkbox" class="salary-filter" :id="item.id" :name="'salaries'"
                                    :value="item.id" v-on:change="selectedFilter">
-                            <label :for="item.id"></label>
-                        </span> {{ item.filter_name }} <span class="pull-right"> <span class="count-item">{{ item.count }} </span></span>
+                                <label :for="item.id"></label>
+                            </span>
+                            {{ item.filter_name }}
                         </li>
-
                     </ul>
                 </div>
             </div>
@@ -86,7 +111,7 @@ get_header();
                 <div class="search_widget_job">
                     <div class="field_w_search">
                         <input type="text" class="form-control" @keyup="searchKey($event)"
-                               placeholder="Rechercher des mot-clés">
+                               placeholder="Mots-clés">
                     </div>
                     <!--                    <div class="field_w_search">-->
                     <!--                        <input type="text" class="form-control" placeholder="All Locations">-->
@@ -113,7 +138,7 @@ get_header();
                             <img :src="avatarSrc" class="img-responsive" alt="">
                         </a>
                     </div>
-                    <h4><a href="job-detail.html"></a>{{ item.company.name }}</h4>
+                    <h4><a :href="getCompanyUrl">{{ item.company.name }}</a></h4>
                     <span class="com-tagline">{{item.title.rendered}}</span> <span
                             class="pull-right vacancy-no">ID. <span class="v-count">{{item.id}}</span></span>
                 </div>
@@ -130,7 +155,6 @@ get_header();
                         </div>
                         <div class="col-md-3 col-sm-12 col-xs-12">
                             <div class="vrt-job-act" style="margin-top: 0px !important">
-                                <comp-apply :jobid="item.id"></comp-apply>
                                 <a :href="item.link" title="" class="btn-job btn-sm light-gray-btn">Voir offre</a>
                             </div>
                         </div>
@@ -143,14 +167,19 @@ get_header();
         <div class="utf_flexbox_area padd-0" id="pagination-archive"></div>
     </script>
     <script id="job-archive-template" type="text/x-template">
-        <section class="padd-top-80 padd-bot-80" id="archive-jobs">
+        <section class="padd-bot-80" id="archive-jobs">
             <div class="container padd-top-40">
                 <div class="row">
                     <div class="col-md-3 col-sm-12 col-xs-12">
                         <div class="left floated">
-                            <button type="button" @click="resetFilter" class="btn light-gray">Reset filter</button>
+                            <button type="button" @click="resetFilter" class="btn light-gray">Reinitialiser</button>
                         </div>
                         <filter-search v-on:changed="applyFilter"></filter-search>
+                        <filter-contract
+                                v-bind:contracts="taxonomies.Types"
+                                v-if="typeof taxonomies.Types === 'object'"
+                                v-on:changed="applyFilter">
+                        </filter-contract>
                         <filter-category
                                 v-bind:categories="taxonomies.Categories"
                                 v-if="typeof taxonomies.Categories === 'object'"
@@ -166,8 +195,6 @@ get_header();
                                 v-if="typeof taxonomies.Salaries === 'object'"
                                 v-on:changed="applyFilter">
                         </filter-salary>
-
-
                     </div>
                     <!-- Start Job List -->
                     <div class="col-md-7 col-sm-12">
@@ -220,7 +247,7 @@ get_header();
         </section>
     </script>
     <!-- .end template-->
-    <div id="archive-jobs">
+    <div id="archive-jobs" style="padding-top: 70px">
         <div class="lds-roller" v-if="loading">
             <div></div>
             <div></div>

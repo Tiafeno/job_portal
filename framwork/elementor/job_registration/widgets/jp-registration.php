@@ -14,7 +14,7 @@ class JobRegistration_Widget extends Widget_Base {
 
     public function get_script_depends()
     {
-        wp_register_script('registration', get_stylesheet_directory_uri() . '/assets/js/registration.js',
+        wp_register_script('registration', get_stylesheet_directory_uri() . '/assets/js/component-registration.js',
             ['lodash'], null, true);
         wp_localize_script('registration', 'registerSetting', [
             'is_logged' => is_user_logged_in(),
@@ -121,16 +121,17 @@ add_action('action_jobportal_register', function() {
         $user_id = $response;
         $phone_number = $_POST['phone'];
         if ($role == 'candidate') {
+            // Pour les candidat
             $candidate = new jpCandidate($user_id);
             $candidate->profile_update([
                 'phones' => esc_sql($phone_number),
-                'hasCV' => false,
-                'public_cv' => false,
+                'is_active' => 0,
+                'has_cv' => 0,
 
             ]);
         } else {
+            // pour les employer
             update_user_meta($user_id, 'company_id', 0);
-
         }
 
         do_action('send_email_new_user', $user_id); // Envoyer le mail

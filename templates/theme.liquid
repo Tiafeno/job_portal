@@ -52,7 +52,7 @@
                 <h3 class="text-center">Bonjour!</h3>
                 <p class="text-center">Connectez-vous pour découvrir toutes nos fonctionnalités.</p>
         <!-- Nav tabs -->
-        <form @submit="checkLoginForm" method="post" action="" novalidate>
+        <form @submit="checkLoginForm" method="post" action="">
             <div class="form-group">
                 <input type="text" v-model="user_login" name="user_login" class="form-control"
                        placeholder="Votre adresse email" required>
@@ -71,7 +71,7 @@
                 <p class="mrg-top-20">Vous ne possédez pas encore de compte ? <a href="{{ register_url }}" class="font-bold">Créer un compte</a> </p>
             </div>
             <p v-if="errors.length" style="margin-top: 40px; padding-left: 20px;">
-                <b>Please correct the following error(s):</b>
+                <b>Veuillez verifier les erreurs suivants:</b>
             <ul>
                 <li style="color:red" v-for="error in errors">${ error }</li>
             </ul>
@@ -82,8 +82,14 @@
 </script>
 {% comment %}Denial access service{% endcomment %}
 <script id="denial-access" type="text/x-template">
-    <div class="denial-access">
-        Acces non autorise
+    <div class="denial-access p-message">
+        Merci de créer votre compte recruteur, avec l'adresse mail de votre entreprise, pour pouvoir poster des annonces
+    </div>
+</script>
+{% comment %}pending access service{% endcomment %}
+<script id="pending-access" type="text/x-template">
+    <div class="denial-access p-message">
+        Votre compte est en attente de validation. Vous recerverais un mail de confirmation.
     </div>
 </script>
 <!--Upload avatar-->
@@ -92,7 +98,7 @@
         <div id="leftcol_item">
             <img class="ui small centered circular image" :src="previewUrl">
             <input type="file" id="upload-avatar" @change="previewFiles" style="display: none">
-            <button class="btn text-uppercase text-center light-gray-btn" @click="eventClickHandler" style="margin: auto;display: block;margin-top: 10px;">
+            <button class="btn small ui text-center light-gray-btn" @click="eventClickHandler" style="margin: auto;display: block;margin-top: 10px;">
                 ${btnTitle}
             </button>
         </div>

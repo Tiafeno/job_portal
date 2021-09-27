@@ -343,7 +343,7 @@ add_action('init', function () {
         if (is_user_logged_in()) {
             wp_send_json_error(["msg" => "Vous ne pouvez pas effectuer cette action"]);
         }
-        $email = Http\Request::getValue('email');
+        $email = jpHelpers::getValue('email');
         if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             wp_send_json_error(["msg" => "Paramétre non valide"]);
         }

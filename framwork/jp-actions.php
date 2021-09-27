@@ -2,6 +2,7 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+$no_reply_email = "no-reply@jobjiaby.com>";
 // Create user role
 add_action('helper_register_jp_user_role', function () {
     // for employer
@@ -291,13 +292,15 @@ add_action('helper_register_jp_post_types', function () {
     ]);
 });
 add_action('init', function () {
+
     // Permet de se connecter avec AJAX
     add_action('wp_ajax_ajax_login', 'login');
     add_action('wp_ajax_nopriv_ajax_login', 'login');
-    function login() {
-        if (is_user_logged_in(  )) {
+    function login()
+    {
+        if (is_user_logged_in()) {
             wp_logout();
-            wp_send_json_error( new WP_Error(406, "La ressource demandée n'est pas disponible") );
+            wp_send_json_error(new WP_Error(406, "La ressource demandée n'est pas disponible"));
         }
         // First check the nonce, if it fails the function will break
         check_ajax_referer('ajax-login-nonce', 'security');
@@ -329,6 +332,73 @@ add_action('init', function () {
             wp_send_json_error($user_signon);
         }
     }
+
+    add_action('wp_ajax_nopriv_forgot_password', 'forgot_password');
+    add_action('forgot_my_password', 'forgot_my_password');
+    /**
+     * Fonction ajax - nopriv only.
+     * Envoie un email pour recuperer le mot de passe
+     */
+    function forgot_password() {
+        if (is_user_logged_in()) {
+            wp_send_json_error(["msg" => "Vous ne pouvez pas effectuer cette action"]);
+        }
+        $email = Http\Request::getValue('email');
+        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            wp_send_json_error(["msg" => "Paramétre non valide"]);
+        }
+        $user = get_user_by('email', $email);
+        if (!$user) {
+            wp_send_json_error(['msg' => "Votre recherche ne donne aucun résultat. Veuillez réessayer avec d’autres adresse email."]);
+        }
+        $reset_key = get_password_reset_key($user);
+        if (is_wp_error($reset_key)) {
+            wp_send_json_error(['msg' => $reset_key->get_error_message()]);
+        }
+        // Envoyer un email à l'utilisateur
+        do_action('forgot_my_password', $email, $reset_key);
+    }
+
+    /**
+     * Envoyer un mail de recuperation de mot de passe
+     *
+     * @param string $email
+     * @param string $key - An generate reset key
+     */
+    function forgot_my_password($email, $key) {
+        global $Liquid_engine, $no_reply_email;
+        $to = $email;
+        $User = get_user_by('email', $to);
+        $subject = "Réinitialiser votre mot de passe - JOBJIABY";
+        $headers = [];
+        $headers[] = 'Content-Type: text/html; charset=UTF-8';
+        $headers[] = "From: ItJobMada <{$no_reply_email}>";
+        $content = '';
+        $custom_logo_id = get_theme_mod('custom_logo');
+        $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
+        $content .= $Liquid_engine->parseFile('forgot-password')->render([
+            'forgot_link' => home_url('/forgot-password') . "?key={$key}&account={$User->user_login}&action=resetpass",
+            'home_url' => home_url("/"),
+            'logo' => $logo[0]
+        ]);
+        $sender = wp_mail($to, $subject, $content, $headers);
+        if ($sender) {
+            // Mail envoyer avec success
+            wp_send_json_success([
+                "msg" => "Merci de vérifier que vous avez reçu un e-mail avec un lien de récupération.",
+                'key' => $key
+            ]);
+        } else {
+            // Erreur d'envoie
+            wp_send_json_error([
+                "msg" => "Le message n’a pas pu être envoyé. " .
+                    "Cause possible : Votre hébergeur a peut-être désactivé la fonction mail().",
+                "key" => $key,
+                "login" => $User->user_login
+            ]);
+        }
+    }
+
     // Modifier le mot de passe d'un utilisateur
     add_action('wp_ajax_change_my_pwd', function () {
         check_ajax_referer('ajax-client-form', 'pwd_nonce');

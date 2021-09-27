@@ -33,7 +33,6 @@ if ( isset($_GET['action']) && !empty($_GET['action']) ) {
             } else {
                 $user = false;
             }
-
             // Si la variable utilisateur ou $user est false ou un erreur on efface la cookie
             // et on redirige la page vers la page de reinitialisation de mot de passe
             if ( ! $user || is_wp_error( $user ) ) {
@@ -46,12 +45,10 @@ if ( isset($_GET['action']) && !empty($_GET['action']) ) {
                 }
                 exit;
             }
-
             // Si le mot de passe est envoyer par un formulaire et qu'ils ne sont pas identique on ajoute une erreur
             if ( isset($_POST['pwd']) && $_POST['pwd'] != $_POST['cpwd'] ) {
                 $errors->add( 'password_reset_mismatch', "Les mots de passe saisis ne sont pas identiques." );
             }
-
             /**
              * Fires before the password reset procedure is validated.
              *
@@ -61,7 +58,6 @@ if ( isset($_GET['action']) && !empty($_GET['action']) ) {
              * @param WP_User|WP_Error $user WP_User object if the login and reset key match. WP_Error object otherwise.
              */
             do_action( 'validate_password_reset', $errors, $user ); // Verifier si l'utilisateur a reinitialiser le mot de passe
-
             // On change le mot de passe si ces condition sont requis
             if ( ( ! $errors->get_error_code() ) && isset($_POST['pwd']) && !empty($_POST['pwd'])) {
                 // Modifie le mot de passe
@@ -73,9 +69,7 @@ if ( isset($_GET['action']) && !empty($_GET['action']) ) {
                 wp_safe_redirect( add_query_arg( [ 'action' => 'confirmaction', 'role' =>  $role] ) );
                 exit;
             }
-
             break;
-
         case "confirmaction":
             $login_url = "";
             break;
@@ -89,12 +83,10 @@ get_header();
             max-width: 400px;
             margin: 100px auto 50px;
         }
-
         .recovery-content input {
             font-family: 'Montserrat', sans-serif;
             font-size: 12px;
         }
-
         .auth-head-icon {
             position: relative;
             height: 60px;
@@ -110,7 +102,6 @@ get_header();
             transform: translateY(-50%);
             z-index: 2;
         }
-
         #change-password-form label.error {
             font-size: 12px;
             color: red;
@@ -131,7 +122,6 @@ get_header();
                 var successMessage = $('.alert.success-message');
                 var errorMessage = $('.alert.error-message');
                 var submitButton = $('.recovery-content').find('button');
-
                 if ($().validate) {
                     $.validator.addMethod("pwdpattern", function (value) {
                         return /^(?=(.*\d){2})(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z\d]).{8,}$/.test(value)
@@ -206,9 +196,11 @@ get_header();
 <?php
 $forgot_password =  jpHelpers::getValue( 'forgot_password', 0 );
 ?>
-    <div class="uk-section uk-section-transparent uk-padding-remove-top">
-        <div class="uk-container uk-container-medium">
-            <div class="<?= $action !== 'confirmaction' ? 'ibox' : '' ?> recovery-content">
+    <section class="padd-bot-80">
+        <div class="container padd-top-40">
+            <div class="row">
+                <div class="col-md-3 col-sm-12 col-xs-12">
+                    <div class="<?= $action !== 'confirmaction' ? 'ibox' : '' ?> recovery-content">
                 <?php
                 if ( !isset($_GET['action']) ) :?>
                     <div class="text-center">
@@ -283,17 +275,16 @@ $forgot_password =  jpHelpers::getValue( 'forgot_password', 0 );
                         <div class="alert alert-info alert-dismissable fade show">
                             <h4>Félicitation!</h4>
                             <p>Votre mot de passe a été réinitialisé.</p>
-                            <p>
-                                <a href="<?= $login_url ?>" class="btn btn-secondary btn-sm mr-2">Se connecter</a>
-                            </p>
+                            <p><a href="<?= $login_url ?>" class="btn btn-secondary btn-sm mr-2">Se connecter</a></p>
                         </div>
                     </div>
                 <?php
                 endif;
                 ?>
             </div>
+                </div>
+            </div>
         </div>
-    </div>
-    </div>
+    </section>
 <?php
 get_footer();

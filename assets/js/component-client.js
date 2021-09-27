@@ -492,18 +492,14 @@ const getFileReader = (file) => {
                     this.birthday = this.currentUser.meta.birthday;
                     this.profil = this.currentUser.meta.profil;
                     this.region = this.currentUser.meta.region;
-
                     let languages = this.currentUser.meta.languages;
                     languages = lodash.isEmpty(languages) ? [] : JSON.parse(languages);
                     this.languages = lodash.clone(languages);
-
                     let categories = this.currentUser.meta.categories;
                     categories = lodash.isEmpty(categories) ? [] : JSON.parse(categories);
                     this.categories = lodash.clone(categories);
-
                     this.hasCV = !!this.currentUser.meta.has_cv;
                     this.publicCV = !!this.currentUser.is_active;
-
                     this.Loading = false;
                 });
                 // Education sortable list
@@ -526,15 +522,15 @@ const getFileReader = (file) => {
                 });
                 // Recuperer les langues
                 fetch(clientApiSettings.root + 'wp/v2/language?per_page=50').then(res => {
-                    res.json().then(json => (self.optLanguages = json));
+                    res.json().then(json => (this.optLanguages = json));
                 });
                 // Recuperer les categories
                 fetch(clientApiSettings.root + 'wp/v2/categories?per_page=50').then(res => {
-                    res.json().then(json => (self.optCategories = json));
+                    res.json().then(json => (this.optCategories = json));
                 });
                 // Recuperer les items de region
                 fetch(clientApiSettings.root + 'wp/v2/region?per_page=50').then(res => {
-                    res.json().then(json => (self.optRegions = json));
+                    res.json().then(json => (this.optRegions = json));
                 });
             },
             computed: {

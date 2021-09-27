@@ -372,7 +372,7 @@ add_action('init', function () {
         $subject = "Réinitialiser votre mot de passe - JOBJIABY";
         $headers = [];
         $headers[] = 'Content-Type: text/html; charset=UTF-8';
-        $headers[] = "From: ItJobMada <{$no_reply_email}>";
+        $headers[] = "From: Jobjiaby <{$no_reply_email}>";
         $content = '';
         $custom_logo_id = get_theme_mod('custom_logo');
         $logo = wp_get_attachment_image_src($custom_logo_id, 'full');

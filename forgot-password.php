@@ -68,7 +68,7 @@ if ( isset($_GET['action']) && !empty($_GET['action']) ) {
                 reset_password( $user, $_POST['pwd'] );
                 setcookie( $rp_cookie, ' ', time() - YEAR_IN_SECONDS, $rp_path, COOKIE_DOMAIN, is_ssl(), true );
                 // Password is reset succefuly
-                $role = in_array('company', $user->roles) ? 'company' : 'candidate';
+                $role = in_array('employer', $user->roles) ? 'employer' : 'candidate';
 
                 wp_safe_redirect( add_query_arg( [ 'action' => 'confirmaction', 'role' =>  $role] ) );
                 exit;

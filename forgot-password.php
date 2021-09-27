@@ -172,8 +172,8 @@ get_header();
                                 $(e).closest(".form-group.row").removeClass("has-error")
                             },
                             submitHandler: function (form) {
-                                errorMessage.hide();
-                                successMessage.hide();
+                                errorMessage.alert('close');
+                                successMessage.alert('close');
                                 var forgotEmail = $('input#forgot_email').val();
                                 submitButton.text('Chargement en cours ...');
                                 $.ajax({
@@ -199,13 +199,11 @@ $forgot_password =  jpHelpers::getValue( 'forgot_password', 0 );
     <section class="padd-bot-80">
         <div class="container padd-top-40">
             <div class="row">
-                <div class="col-md-3 col-sm-12 col-xs-12">
+                <div class="col-md-4 hidden-sm hidden-xs"></div>
+                <div class="col-md-4 col-sm-12 col-xs-12">
                     <div class="<?= $action !== 'confirmaction' ? 'ibox' : '' ?> recovery-content">
                 <?php
                 if ( !isset($_GET['action']) ) :?>
-                    <div class="text-center">
-                        <span class="auth-head-icon"><i class="la la-key"></i></span>
-                    </div>
                     <form class="ibox-body pt-0" id="forgot-form" action="" method="POST">
                         <h4 class="font-strong text-center mb-4">Mot de passe oublié</h4>
                         <p class="mb-4">
@@ -213,11 +211,11 @@ $forgot_password =  jpHelpers::getValue( 'forgot_password', 0 );
                             Un lien permettant de créer un nouveau mot de passe vous sera envoyé par e-mail.
                         </p>
                         <!--            Error message -->
-                        <div class="alert alert-pink alert-dismissable fade show alert-outline error-message" style="display:none">
+                        <div class="alert alert-warning alert-dismissible error-message" style="display:none">
                             ...
                         </div>
                         <!--            Success message -->
-                        <div class="alert alert-info alert-dismissable fade show alert-outline success-message"
+                        <div class="alert alert-success alert-dismissible success-message"
                              style="display:none">
                             ...
                         </div>
@@ -281,8 +279,9 @@ $forgot_password =  jpHelpers::getValue( 'forgot_password', 0 );
                 <?php
                 endif;
                 ?>
-            </div>
+                    </div>
                 </div>
+                <div class="col-md-4 hidden-sm hidden-xs"></div>
             </div>
         </div>
     </section>

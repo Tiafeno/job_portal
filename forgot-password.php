@@ -4,6 +4,10 @@
  * Template Name: Forgot Password
  */
 
+if (is_user_logged_in()) {
+    wp_redirect(home_url('/'));
+}
+
 $action = "";
 if ( isset($_GET['action']) && !empty($_GET['action']) ) {
     $action = $_GET['action'];
@@ -182,11 +186,11 @@ get_header();
                                     dataType: "json",
                                     data: {email: forgotEmail, action: "forgot_password"}
                                 })
-                                    .done(function (resp) {
-                                        submitButton.text('Envoyer');
-                                        var element = resp.success ? successMessage : errorMessage;
-                                        element.html(resp.data.msg).show();
-                                    });
+                                .done(function (resp) {
+                                    submitButton.text('Envoyer');
+                                    var element = resp.success ? successMessage : errorMessage;
+                                    element.html(resp.data.msg).show();
+                                });
                             }
                         });
                 }

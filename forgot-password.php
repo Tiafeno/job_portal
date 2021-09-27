@@ -189,7 +189,8 @@ get_header();
                                 .done(function (resp) {
                                     submitButton.text('Envoyer');
                                     var element = resp.success ? successMessage : errorMessage;
-                                    element.html(resp.data.msg).show();
+                                    element.html(resp.data.msg);
+                                    element.alert();
                                 });
                             }
                         });
@@ -215,12 +216,11 @@ $forgot_password =  jpHelpers::getValue( 'forgot_password', 0 );
                             Un lien permettant de créer un nouveau mot de passe vous sera envoyé par e-mail.
                         </p>
                         <!--            Error message -->
-                        <div class="alert alert-warning alert-dismissible error-message" style="display:none">
+                        <div class="alert alert-warning alert-dismissible error-message">
                             ...
                         </div>
                         <!--            Success message -->
-                        <div class="alert alert-success alert-dismissible success-message"
-                             style="display:none">
+                        <div class="alert alert-success alert-dismissible success-message">
                             ...
                         </div>
 

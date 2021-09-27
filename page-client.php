@@ -24,7 +24,7 @@ get_header();
 ?>
     <style type="text/css">
         .vs--searchable .vs__dropdown-toggle {
-            height: 40px;
+            min-height: 40px;
             font-size: 12px;
         }
         .vs__dropdown-toggle {
@@ -43,6 +43,7 @@ get_header();
             margin: 4px 2px 0px;
             padding: 0 1em;
             z-index: 0;
+            min-height: 25px;
         }
         .dashboard_nav_item ul li a.router-link-exact-active.router-link-active {
             background: #26ae61;

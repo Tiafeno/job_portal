@@ -121,13 +121,18 @@ get_header();
     <script type="text/javascript">
         (function ($) {
             $(document).ready(function () {
+                function hideMessage() {
+                    var successMessage = $('.alert.success-message');
+                    var errorMessage = $('.alert.error-message');
+                    errorMessage.hide();
+                    successMessage.hide();
+                }
                 var admin_ajax = "<?= admin_url( 'admin-ajax.php' ) ?>";
                 var forgotForm = $("#forgot-form");
                 var successMessage = $('.alert.success-message');
                 var errorMessage = $('.alert.error-message');
                 var submitButton = $('.recovery-content').find('button');
-                errorMessage.hide();
-                successMessage.hide();
+                hideMessage();
                 if ($().validate) {
                     $.validator.addMethod("pwdpattern", function (value) {
                         return /^(?=(.*\d){2})(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z\d]).{8,}$/.test(value)
@@ -178,6 +183,7 @@ get_header();
                                 $(e).closest(".form-group.row").removeClass("has-error")
                             },
                             submitHandler: function (form) {
+                                hideMessage();
                                 var forgotEmail = $('input#forgot_email').val();
                                 submitButton.text('Chargement en cours ...');
                                 $.ajax({

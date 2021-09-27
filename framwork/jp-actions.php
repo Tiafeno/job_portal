@@ -334,7 +334,7 @@ add_action('init', function () {
     }
 
     add_action('wp_ajax_nopriv_forgot_password', 'forgot_password');
-    add_action('forgot_my_password', 'forgot_my_password');
+    add_action('forgot_my_password', 'forgot_my_password', 10, 2);
     /**
      * Fonction ajax - nopriv only.
      * Envoie un email pour recuperer le mot de passe

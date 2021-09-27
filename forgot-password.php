@@ -85,7 +85,7 @@ get_header();
     <style type="text/css">
         .recovery-content {
             max-width: 400px;
-            margin: 100px auto 50px;
+            margin: 40px auto 50px;
         }
         .recovery-content input {
             font-family: 'Montserrat', sans-serif;
@@ -126,6 +126,8 @@ get_header();
                 var successMessage = $('.alert.success-message');
                 var errorMessage = $('.alert.error-message');
                 var submitButton = $('.recovery-content').find('button');
+                errorMessage.hide();
+                successMessage.hide();
                 if ($().validate) {
                     $.validator.addMethod("pwdpattern", function (value) {
                         return /^(?=(.*\d){2})(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z\d]).{8,}$/.test(value)
@@ -176,8 +178,6 @@ get_header();
                                 $(e).closest(".form-group.row").removeClass("has-error")
                             },
                             submitHandler: function (form) {
-                                errorMessage.alert('close');
-                                successMessage.alert('close');
                                 var forgotEmail = $('input#forgot_email').val();
                                 submitButton.text('Chargement en cours ...');
                                 $.ajax({
@@ -190,7 +190,7 @@ get_header();
                                     submitButton.text('Envoyer');
                                     var element = resp.success ? successMessage : errorMessage;
                                     element.html(resp.data.msg);
-                                    element.alert();
+                                    element.show();
                                 });
                             }
                         });
@@ -216,11 +216,11 @@ $forgot_password =  jpHelpers::getValue( 'forgot_password', 0 );
                             Un lien permettant de créer un nouveau mot de passe vous sera envoyé par e-mail.
                         </p>
                         <!--            Error message -->
-                        <div class="alert alert-warning alert-dismissible error-message">
+                        <div class="alert alert-warning error-message" role="alert">
                             ...
                         </div>
                         <!--            Success message -->
-                        <div class="alert alert-success alert-dismissible success-message">
+                        <div class="alert alert-success success-message" role="alert">
                             ...
                         </div>
 

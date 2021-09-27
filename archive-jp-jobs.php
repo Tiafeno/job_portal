@@ -211,7 +211,7 @@ get_header();
                                     <div class="search-wide full">
                                         <select name="per_page" @change="Route($event.currentTarget.value, 'per_page')"
                                                 class="wide form-control">
-                                            <option :value="n" v-for="n in inputPerPages">{{ n }} Per Page</option>
+                                            <option :value="n" v-for="n in inputPerPages">{{ n }} par page</option>
                                         </select>
                                     </div>
                                 </div>

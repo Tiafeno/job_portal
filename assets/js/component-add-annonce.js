@@ -95,7 +95,7 @@
                         city: '',
                         zipcode: '',
                         website: '',
-                        employees: 0,
+                        employees: "0",
                         description: ''
                     }
                 }

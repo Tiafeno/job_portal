@@ -32,9 +32,10 @@
             </div>
 
             <div class="two fields">
-                <div class="field">
+                <div class="field" id="employer-field">
                     <label>Employer</label>
-                    <select name="employer_id" @change="eventChangeEmployer($event)" v-model="form.employer_id" class="ui normal fluid dropdown">
+                    <select name="employer_id" id="employer_id" v-model="form.employer_id" 
+                    class="ui normal fluid dropdown search ">
                         <option :value="0" >Aucun employer</option>
                         <option :value="employer.id" v-for="employer in ptEmployers">${ employer.name }</option>
                     </select>

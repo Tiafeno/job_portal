@@ -4,9 +4,10 @@ jQuery(function ($) {
             delimiters: ['${', '}'],
             template: "#comp-editor-template",
             props: ['u'],
-            data: function() {
+            data: function () {
                 return {
                     loading: false,
+                    inSearch: false,
                     emploi: null,
                     ptEmployers: [],
                     form: {
@@ -17,38 +18,40 @@ jQuery(function ($) {
                     }
                 }
             },
-            created: function() {
+            created: function () {
                 this.emploi = _.clone(this.u);
                 this._buildForm();
             },
-            mounted: function() {
-                $('.ui.dropdown')
-                    .dropdown({
-                        clearable: true,
-                        placeholder: ''
-                    });
-            },
             methods: {
-                _buildForm: function() {
+                _loadDropdown: function () {
+                    setTimeout(() => {
+                        $('.ui.dropdown').dropdown('restore defaults');
+                        $('#employer-field input.search').on('keypress', (ev) => {
+                            this.eventSearchEmployer(ev);
+                        });
+                    }, 1000);
+                },
+                _buildForm: function () {
                     this.form.address = this.emploi.meta.address;
                     this.form.experience = this.emploi.meta.experience;
-                    const allEmployer = new wp.api.collections.Users();
-                    this.loading = true;
-                    allEmployer.fetch({data: {context: 'edit', roles: ['employer'], per_page: 100}})
-                        .then(resp => {
-                            this.ptEmployers = _.clone(resp);
-                            this.form.employer_id = this.emploi.employer;
-                            this.loading = false;
-                        });
+                    this._loadDropdown();
                 },
-                eventChangeEmployer: function(ev) {
+                eventChangeEmployer: function (ev) {
                     ev.preventDefault();
-                    const employer = _.find(this.ptEmployers, {id: this.form.employer_id});
+                    const employer = _.find(this.ptEmployers, {
+                        id: this.form.employer_id
+                    });
                     if (_.isUndefined(employer)) return;
                     this.form.company_id = employer.meta.company_id;
                     this.loading = true;
-                    const currentPost = new wp.api.models.Emploi({id: this.emploi.id});
-                    currentPost.fetch({data : {context: 'edit'}})
+                    const currentPost = new wp.api.models.Emploi({
+                        id: this.emploi.id
+                    });
+                    currentPost.fetch({
+                            data: {
+                                context: 'edit'
+                            }
+                        })
                         .then((employe) => {
                             currentPost.set('employer', employer.id);
                             currentPost.save().done(() => {
@@ -57,13 +60,35 @@ jQuery(function ($) {
                         });
 
                 },
-                submitForm: function(ev) {
+                eventSearchEmployer: function (ev) {
+                    const query = ev.target.value;
+                    if (this.inSearch || _.isEmpty(query)) return;
+                    const user = new wp.api.collections.Users();
+                    this.inSearch = true;
+                    user.fetch({
+                            data: {
+                                context: 'edit',
+                                roles: ['employer'],
+                                search: query
+                            }
+                        })
+                        .then(U => {
+                            this.ptEmployers = _.clone(U);
+                            this.inSearch = false;
+                        });
+                },
+                submitForm: function (ev) {
                     ev.preventDefault();
                     this.loading = true;
-                    const currentPost = new wp.api.models.Emploi({id: this.emploi.id});
-                    currentPost.fetch({data : {context: 'edit'}})
+                    const currentPost = new wp.api.models.Emploi({
+                        id: this.emploi.id
+                    });
+                    currentPost.fetch({
+                            data: {
+                                context: 'edit'
+                            }
+                        })
                         .then((employer) => {
-
                             currentPost.setMeta('experience', this.form.experience);
                             currentPost.setMeta('address', this.form.address);
                             currentPost.save().done(() => {
@@ -97,8 +122,14 @@ jQuery(function ($) {
                 methods: {
                     init: function () {
                         this.loading = true;
-                        const post = new wp.api.models.Emploi({id: WPAPIEmploiSettings.postId});
-                        post.fetch({data: {context: 'edit'}}).then(resp => {
+                        const post = new wp.api.models.Emploi({
+                            id: WPAPIEmploiSettings.postId
+                        });
+                        post.fetch({
+                            data: {
+                                context: 'edit'
+                            }
+                        }).then(resp => {
                             this.post = resp;
                             this.loading = false;
                         });

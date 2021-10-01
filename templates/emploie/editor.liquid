@@ -1,0 +1,64 @@
+
+{% comment %} Candidate {% endcomment %}
+<script type="text/x-template" id="comp-editor-template">
+    <div>
+        <div class="lds-roller" v-if="loading">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+        </div>
+        <form class="ui four segment pilled form" @submit="submitForm" v-if="!loading && emploi !== null">
+            <h4 class="ui dividing header">Information</h4>
+            <div class="field">
+                
+                <div class="two fields">
+                    <div class="field">
+                    <label for="experience">Experience</label>
+                        <select name="experience" v-model="form.experience" placeholder="Experience" class="ui dropdown form-control" required>
+                            <option :value="0" data-display="Experience">0 - 3 Mois</option>
+                            <option :value="year" v-for="year in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]">${year} ans</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="address">Adresse</label>
+                        <input type="text" name="address" v-model="form.address" placeholder="Adresse">
+                    </div>
+                </div>
+            </div>
+
+            <div class="two fields">
+                <div class="field">
+                    <label>Employer</label>
+                    <select name="employer_id" @change="eventChangeEmployer($event)" v-model="form.employer_id" class="ui normal fluid dropdown">
+                        <option :value="0" >Aucun employer</option>
+                        <option :value="employer.id" v-for="employer in ptEmployers">${ employer.name }</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="ui positive button" :disabled="loading" tabindex="0">Enregistrer</button>
+        </form>
+    </div>
+    
+</script>
+
+<div id="emploi_app">
+    <section>
+        <div class="lds-roller" v-if="loading">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <comp-admin-emploi-editor v-if="post !== null" :u="post"></comp-admin-emploi-editor>
+    </section>
+
+</div>

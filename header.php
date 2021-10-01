@@ -23,9 +23,10 @@
  -->
 <!DOCTYPE html>
 <html class="no-js" <?= language_attributes(); ?>>
+
 <head>
     <meta charset="<?php bloginfo('charset'); ?>">
-    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <!--	<meta name="viewport" content="width=device-width, initial-scale=1">-->
@@ -47,6 +48,7 @@
                 return false;
             }
         }
+
         function renderLoginModel() {
             return new Promise((resolve, reject) => {
                 // Application
@@ -54,19 +56,7 @@
                     console.warn('Composant login non definie');
                     reject(false);
                 }
-                new Vue({
-                    el: '#signin',
-                    components: { 'comp-login': CompLogin },
-                    methods: {
-                        loggedIn: function (data) {
-                            window.location.reload();
-                        }
-                    },
-                    created: function() {
-                        resolve(true);
-                    },
-                    delimiters: ['${', '}']
-                });
+                resolve(true);
             });
         }
 
@@ -75,93 +65,109 @@
                 jQuery('#signin').modal('show');
             }).catch(err => {});
         }
+
+        jQuery(function($) {
+            renderLoginModel().then(() => {
+                new Vue({
+                    el: '#signin',
+                    components: {
+                        'comp-login': CompLogin
+                    },
+                    methods: {
+                        loggedIn: function(data) {
+                            window.location.reload();
+                        }
+                    },
+                    delimiters: ['${', '}']
+                });
+            }).catch(err => {});
+        });
     </script>
 </head>
-<body <?php body_class(); ?> >
-<?php if (!is_user_logged_in()): ?>
-    <!-- Signup Code -->
+
+<body <?php body_class(); ?>>
+    <?php if (!is_user_logged_in()) : ?>
+        <!-- Signup Code -->
         <div class="ui mini modal" id="signin">
-            <div class="content" >
+            <div class="content">
                 <comp-login v-on:login-success="loggedIn"></comp-login>
             </div>
         </div>
-    <!-- End Signup -->
-<?php endif; ?>
-<div class="page_preloader"></div>
-<!-- ======================= Start Navigation ===================== -->
-<?php
-$navClass = is_front_page() ? 'white no-background' : 'light';
-$custom_logo_id = get_theme_mod('custom_logo');
-$logo = wp_get_attachment_image_src($custom_logo_id, 'full');
-?>
-<nav class="navbar navbar-default navbar-mobile navbar-fixed <?= $navClass ?> bootsnav">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu"><i
-                        class="fa fa-bars"></i></button>
-            <a class="navbar-brand" href="<?= home_url('/') ?>">
-                <?php if (has_custom_logo()): ?>
-                    <img src="<?= esc_url($logo[0]) ?>" class="logo logo-display" alt="<?= get_bloginfo('name') ?>">
-                    <img src="<?= esc_url($logo[0]) ?>" class="logo logo-scrolled" alt="<?= get_bloginfo('name') ?>">
-                <?php endif; ?>
-            </a>
-        </div>
-        <div class="collapse navbar-collapse" id="navbar-menu">
-            <?php
-            wp_nav_menu(
-                array(
-                    'theme_location' => 'primary',
-                    'menu_class' => 'nav navbar-nav navbar-left',
-                    'menu_id' => 'navbar-menu',
-                    'container' => false,
-                    //'container_class' => 'collapse navbar-collapse',
-                    'items_wrap' => '<ul  class="%2$s" data-in="" data-out="">%3$s</ul>',
-                    'walker' => new JP_Primary_Walker()
-                )
-            );
-            ?>
-            <ul class="nav navbar-nav navbar-right">
-                <?php if (!is_user_logged_in()): ?>
-                    <li class="br-right">
-                        <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
-                            <i class="login-icon ti-archive"></i>
-                            Publiez une offre
-                        </a>
-                    </li>
-                    <li class="br-right">
-                        <a class="btn-signup red-btn" onclick="showLoginModal()" >
-                            <i class="login-icon ti-user"></i>
-                            Connexion
-                        </a>
-                    </li>
-                <?php else:
+        <!-- End Signup -->
+    <?php endif; ?>
+    <div class="page_preloader"></div>
+    <!-- ======================= Start Navigation ===================== -->
+    <?php
+    $navClass = is_front_page() ? 'white no-background' : 'light';
+    $custom_logo_id = get_theme_mod('custom_logo');
+    $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
+    ?>
+    <nav class="navbar navbar-default navbar-mobile navbar-fixed <?= $navClass ?> bootsnav">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu"><i class="fa fa-bars"></i></button>
+                <a class="navbar-brand" href="<?= home_url('/') ?>">
+                    <?php if (has_custom_logo()) : ?>
+                        <img src="<?= esc_url($logo[0]) ?>" class="logo logo-display" alt="<?= get_bloginfo('name') ?>">
+                        <img src="<?= esc_url($logo[0]) ?>" class="logo logo-scrolled" alt="<?= get_bloginfo('name') ?>">
+                    <?php endif; ?>
+                </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <?php
+                wp_nav_menu(
+                    array(
+                        'theme_location' => 'primary',
+                        'menu_class' => 'nav navbar-nav navbar-left',
+                        'menu_id' => 'navbar-menu',
+                        'container' => false,
+                        //'container_class' => 'collapse navbar-collapse',
+                        'items_wrap' => '<ul  class="%2$s" data-in="" data-out="">%3$s</ul>',
+                        'walker' => new JP_Primary_Walker()
+                    )
+                );
+                ?>
+                <ul class="nav navbar-nav navbar-right">
+                    <?php if (!is_user_logged_in()) : ?>
+                        <li class="br-right">
+                            <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
+                                <i class="login-icon ti-archive"></i>
+                                Publiez une offre
+                            </a>
+                        </li>
+                        <li class="br-right">
+                            <a class="btn-signup red-btn" onclick="showLoginModal()">
+                                <i class="login-icon ti-user"></i>
+                                Connexion
+                            </a>
+                        </li>
+                        <?php else :
                         $user_id = get_current_user_id();
                         $user = new WP_User($user_id);
-                        if (in_array('employer', $user->roles) ) :
-                    ?>
-                    <li class="br-right">
-                        <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
-                            <i class="login-icon ti-archive"></i>
-                            Publiez une offre
-                        </a>
-                    </li>
+                        if (in_array('employer', $user->roles)) :
+                        ?>
+                            <li class="br-right">
+                                <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
+                                    <i class="login-icon ti-archive"></i>
+                                    Publiez une offre
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                        <li class="sign-up">
+                            <a class=" btn-signup red-btn" href="<?= home_url('/espace-client') ?>">
+                                Espace client
+                            </a>
+                        </li>
+                        <li>
+                            <a class="btn-danger btn red-btn" title="Déconnexion" href="<?= wp_logout_url(home_url('/')) ?>" style="font-size: 20px">
+                                <i class="fa fa-sign-out"></i>
+                            </a>
+                        </li>
                     <?php endif; ?>
-                    <li class="sign-up">
-                        <a class=" btn-signup red-btn" href="<?= home_url('/espace-client') ?>" >
-                           Espace client
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn-danger btn red-btn" title="Déconnexion" href="<?= wp_logout_url(home_url('/')) ?>" style="font-size: 20px">
-                            <i class="fa fa-sign-out"></i>
-                        </a>
-                    </li>
-                <?php endif; ?>
-            </ul>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
 
-<!-- ======================= End Navigation ===================== -->
-
+    <!-- ======================= End Navigation ===================== -->

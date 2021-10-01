@@ -167,6 +167,34 @@ add_action('init', function () {
     }
 });
 
+//function save_profile_fields( $user_id ) {
+//    if ( !current_user_can( 'edit_user', $user_id ) ) :
+//        return false;
+//    endif;
+//    $public_cv = jpHelpers::getValue('public_cv') ? jpHelpers::getValue('public_cv') : 0;
+//    update_user_meta( $user_id, 'phone', jpHelpers::getValue('phone', '') );
+//    update_user_meta( $user_id, 'address', jpHelpers::getValue('address', '') );
+//    update_user_meta( $user_id, 'city', jpHelpers::getValue('city', '') );
+//    update_user_meta( $user_id, 'public_cv', intval($public_cv));
+//}
+//add_action( 'personal_options_update', 'save_profile_fields' );
+//add_action( 'edit_user_profile_update', 'save_profile_fields' );
+
+add_action( 'show_user_profile', 'user_fields' );
+add_action( 'edit_user_profile', 'user_fields' );
+function user_fields( $user ) {
+    global $Liquid_engine;
+    wp_enqueue_script('admin-user', get_stylesheet_directory_uri() . '/assets/js/admin-user.js',
+        ['jquery', 'wp-api','wpapi', 'vuejs', 'medium-editor', 'alertify', 'lodash', 'axios', 'semantic']);
+    wp_localize_script('admin-user', 'WPAPIUserSettings', [
+        'root' => esc_url_raw(rest_url()),
+        'nonce' => wp_create_nonce('wp_rest'),
+        'uId' => intval($user->ID),
+        'uRole' => reset($user->roles),
+    ]);
+    echo $Liquid_engine->parseFile('admin/extra-profil-information')->render([]);
+}
+
 // Cette action permet d'afficher des contenues dynamique
 // et aussi gerer les abonnements
 add_action('acf/render_field/name=pricing', 'acf_pricing_field');
@@ -180,10 +208,37 @@ function acf_pricing_field() {
     echo $Liquid_engine->parseFile('pricings/pricing-layout')->render($args);
 }
 
+
+add_action('admin_enqueue_scripts', function($hook) {
+    wp_enqueue_script('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/alertify.min.js', ['jquery'], null, true);
+    wp_enqueue_style('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/css/alertify.css');
+    wp_enqueue_style('job-portal', get_stylesheet_directory_uri() . '/assets/css/job-portal.css', [], null);
+    wp_register_script('wpapi', get_stylesheet_directory_uri() . '/assets/js/wpapi/wpapi.js', [], null, true); // dev
+    if ('user-edit.php' === $hook || 'post.php' == $hook || 'post-new.php' == $hook ) {
+        wp_register_script('axios', get_stylesheet_directory_uri() . '/assets/js/axios.min.js', [], null, true); // dev
+        wp_register_script('medium-editor', get_stylesheet_directory_uri() . '/assets/js/vuejs/medium-editor.min.js', [], null, true); // dev
+        wp_register_script('vuejs', get_stylesheet_directory_uri() . '/assets/js/vuejs/vue.js', [], '2.5.16', true); // dev
+        wp_register_script('semantic', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/semantic.min.js', ['jquery'], null, true);
+        wp_enqueue_style('semantic-ui', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/semantic.css');
+    }
+}, 10);
+
+add_action( 'admin_enqueue_scripts', function($hook_suffix) {
+    if( 'post.php' == $hook_suffix || 'post-new.php' == $hook_suffix ) {
+        global $post;
+        wp_enqueue_script('admin-emploie', get_stylesheet_directory_uri() . '/assets/js/admin-emploie.js',
+        ['jquery', 'wp-api','wpapi', 'vuejs', 'medium-editor', 'alertify', 'lodash', 'axios', 'semantic']);
+        wp_localize_script('admin-emploie', 'WPAPIEmploiSettings', [
+            'root' => esc_url_raw(rest_url()),
+            'nonce' => wp_create_nonce('wp_rest'),
+            'postId' => intval($post->ID),
+        ]);
+    }
+} );
+
 add_action('acf/render_field/name=editor', 'acf_emploi_editor_field');
 function acf_emploi_editor_field($field) {
     global $Liquid_engine;
-    var_dump($field);
     echo $Liquid_engine->parseFile('emploie/editor')->render([]);
 }
 

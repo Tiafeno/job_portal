@@ -59,7 +59,6 @@ jQuery(function ($) {
                         });
                         if (_.isUndefined(employer)) return;
                         this.form.company_id = employer.meta.company_id;
-                        this.loading = true;
                         const currentPost = new wp.api.models.Emploi({
                             id: this.emploi.id
                         });
@@ -70,9 +69,7 @@ jQuery(function ($) {
                             })
                             .then((employe) => {
                                 currentPost.set('employer', employer.id);
-                                currentPost.save().done(() => {
-                                    this.loading = false;
-                                });
+                                currentPost.save().done(() => { });
                             });
     
                     },
@@ -95,6 +92,7 @@ jQuery(function ($) {
                     },
                     submitForm: function (ev) {
                         ev.preventDefault();
+                        this.loading = true;
                         const currentPost = new wp.api.models.Emploi({
                             id: this.emploi.id
                         });
@@ -106,7 +104,10 @@ jQuery(function ($) {
                             .then((employer) => {
                                 currentPost.setMeta('experience', this.form.experience);
                                 currentPost.setMeta('address', this.form.address);
-                                currentPost.save().done(() => { });
+                                currentPost.save().done(() => {
+                                    this.loading = false;
+                                    window.location.reload();
+                                });
                             });
     
                     }

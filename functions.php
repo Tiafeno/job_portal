@@ -239,7 +239,7 @@ add_action( 'admin_enqueue_scripts', function($hook_suffix) {
 add_action('acf/render_field/name=editor', 'acf_emploi_editor_field');
 function acf_emploi_editor_field($field) {
     global $Liquid_engine;
-    echo $Liquid_engine->parseFile('emploie/editor')->render([]);
+    return $Liquid_engine->parseFile('emploie/editor')->render([]);
 }
 
 

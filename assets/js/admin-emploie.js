@@ -89,7 +89,7 @@ jQuery(function ($) {
                                 }
                             })
                             .then(U => {
-                                this.ptEmployers = _.union(this.ptEmployers, U);
+                                this.ptEmployers = lodash.uniqBy(_.union(this.ptEmployers, U), function(e) { return e.id; });
                                 this.inSearch = false;
                             });
                     },

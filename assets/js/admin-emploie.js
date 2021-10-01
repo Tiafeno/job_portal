@@ -95,7 +95,6 @@ jQuery(function ($) {
                     },
                     submitForm: function (ev) {
                         ev.preventDefault();
-                        this.loading = true;
                         const currentPost = new wp.api.models.Emploi({
                             id: this.emploi.id
                         });
@@ -107,10 +106,7 @@ jQuery(function ($) {
                             .then((employer) => {
                                 currentPost.setMeta('experience', this.form.experience);
                                 currentPost.setMeta('address', this.form.address);
-                                currentPost.save().done(() => {
-                                    this.loading = false;
-                                    this._loadDropdown();
-                                });
+                                currentPost.save().done(() => { });
                             });
     
                     }

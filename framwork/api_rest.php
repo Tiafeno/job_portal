@@ -158,10 +158,11 @@ add_action('rest_api_init', function () {
                 return new WP_Error('rest_integer_failer',
                     "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
             $ret = update_post_meta($job_obj->ID, 'employer_id', $employer_id);
+            $ty = gettype($ret);
             if ( false === $ret ) {
                 return new WP_Error(
                     'rest_updated_failed',
-                    __( 'Failed to update employer id.' ),
+                    __( 'Failed to update employer id.' . $typ),
                     array( 'status' => 500 )
                 );
             }

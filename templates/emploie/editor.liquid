@@ -34,7 +34,7 @@
             <div class="two fields">
                 <div class="field" id="employer-field">
                     <label>Employer</label>
-                    <select name="employer_id" id="employer_id" v-model="form.employer_id" 
+                    <select name="employer_id" @change="eventChangeEmployer($event)" id="employer_id" v-model="form.employer_id" 
                     class="ui normal fluid dropdown search ">
                         <option :value="0" >Aucun employer</option>
                         <option :value="employer.id" v-for="employer in ptEmployers">${ employer.name }</option>

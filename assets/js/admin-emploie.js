@@ -83,7 +83,7 @@ jQuery(function ($) {
                         this.inSearch = true;
                         user.fetch({
                                 data: {
-                                    context: 'edit',
+                                    context: 'view',
                                     roles: ['employer'],
                                     search: query
                                 }

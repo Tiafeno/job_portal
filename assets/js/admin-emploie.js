@@ -109,6 +109,7 @@ jQuery(function ($) {
                                 currentPost.setMeta('address', this.form.address);
                                 currentPost.save().done(() => {
                                     this.loading = false;
+                                    this._loadDropdown();
                                 });
                             });
     

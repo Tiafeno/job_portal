@@ -180,6 +180,12 @@ function acf_pricing_field() {
     echo $Liquid_engine->parseFile('pricings/pricing-layout')->render($args);
 }
 
+add_action('acf/render_field/name=editor', 'acf_emploi_editor_field');
+function acf_emploi_editor_field($field) {
+    global $Liquid_engine;
+    var_dump($field);
+    echo $Liquid_engine->parseFile('emploie/editor')->render([]);
+}
 
 
 

@@ -89,7 +89,7 @@ jQuery(function ($) {
                                 }
                             })
                             .then(U => {
-                                this.ptEmployers = _.clone(U);
+                                this.ptEmployers = _.union(this.ptEmployers, U);
                                 this.inSearch = false;
                             });
                     },

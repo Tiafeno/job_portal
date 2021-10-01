@@ -27,7 +27,9 @@ jQuery(function ($) {
                     setTimeout(() => {
                         $('.ui.dropdown').dropdown('restore defaults');
                         $('#employer-field input.search').on('keypress', (ev) => {
-                            this.eventSearchEmployer(ev);
+                            setTimeout(() => {
+                                this.eventSearchEmployer(ev);
+                            }, 500);
                         });
                     }, 1000);
                 },

@@ -128,7 +128,7 @@ add_action('action_jobportal_register', function() {
     }
 });
 
-add_action('wp_loaded', 'pre_process_registration', 1);
+add_action('init', 'pre_process_registration', 1);
 function pre_process_registration() {
     //if (!is_singular()) return;
     $reg = \jpHelpers::getValue('reg', false);

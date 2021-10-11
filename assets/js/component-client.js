@@ -1009,6 +1009,7 @@ const getFileReader = (file) => {
                             }
                         });
                     }
+                    // Callback
                     request.then(user => {
                         // Add this company for the employee
                         this.wpapi.users().me().update({

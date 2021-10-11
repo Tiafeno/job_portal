@@ -3,9 +3,9 @@ const jobAXIOSInstance = axios.create({
     headers: {'X-WP-Nonce': clientApiSettings.nonce}
 });
 const fileFilter = /^(?:image\/bmp|image\/cis\-cod|image\/gif|image\/ief|image\/jpeg|image\/jpeg|image\/jpeg|image\/pipeg|image\/png|image\/svg\+xml|image\/tiff|image\/x\-cmu\-raster|image\/x\-cmx|image\/x\-icon|image\/x\-portable\-anymap|image\/x\-portable\-bitmap|image\/x\-portable\-graymap|image\/x\-portable\-pixmap|image\/x\-rgb|image\/x\-xbitmap|image\/x\-xpixmap|image\/x\-xwindowdump)$/i;
-const getRandomPassword = () => {
+const getRandomPassword = (length = 8) => {
     const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    const string_length = 8;
+    const string_length = length;
     let randomstring = '';
     for (var i = 0; i < string_length; i++) {
         var rnum = Math.floor(Math.random() * chars.length);
@@ -855,7 +855,7 @@ const getFileReader = (file) => {
                         name: '',
                         logo: '',
                         category: '',
-                        email: '',
+                        // email: '',
                         address: '',
                         nif: '',
                         stat: '',
@@ -898,7 +898,7 @@ const getFileReader = (file) => {
                                     this.formData = {
                                         name: company.username,
                                         category: company.meta.category,
-                                        email: company.email,
+                                        // email: company.email,
                                         address: company.meta.address,
                                         nif: company.meta.nif,
                                         stat: company.meta.stat,
@@ -932,9 +932,9 @@ const getFileReader = (file) => {
                     if (data.category === "" || data.category === " ") {
                         this.errors.push('Champ categorie est requis');
                     }
-                    if (lodash.isEmpty(data.email) || !data.email.match(validRegex)) {
-                        this.errors.push('Le champ email est requis ou verifier que c\'est une adresse email valide');
-                    }
+                    // if (lodash.isEmpty(data.email) || !data.email.match(validRegex)) {
+                    //     this.errors.push('Le champ email est requis ou verifier que c\'est une adresse email valide');
+                    // }
                     if (lodash.isEmpty(data.nif)) {
                         this.errors.push('Champ "NIF" est requis');
                     }
@@ -958,7 +958,8 @@ const getFileReader = (file) => {
                     }
                 },
                 updateCompany: async function (item) {
-                    const _email = item.email;
+                    const randomMail = getRandomPassword(10);
+                    const _email = `${randomMail}@jobjiaby.com`;
                     const _name = item.name;
                     // Upload avatar
                     this.loading = true;

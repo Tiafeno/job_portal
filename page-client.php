@@ -247,12 +247,12 @@ get_header();
 
                         <div class="clearfix"></div>
 
-                        <div class="col-md-4 col-sm-6 col-xs-12">
+                        <!-- <div class="col-md-4 col-sm-6 col-xs-12">
                             <label>Email du responsable de l'entreprise <span style="color: red">*</span></label>
                             <input type="email" v-model="formData.email" :disabled="isUpdate" name="email"
                                    class="form-control" placeholder="Adresse email" required>
                             <span class="sub-description" style="color:red">Ne pas utiliser l'adresse email de votre compte actuel.</span>
-                        </div>
+                        </div> -->
                         <div class="col-md-4 col-sm-6 col-xs-12">
                             <label>Adresse physique de l'entreprise <span style="color: red">*</span></label>
                             <input type="text" v-model="formData.address" name="address" class="form-control"

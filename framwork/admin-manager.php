@@ -35,7 +35,7 @@ final class AdminManager {
             $user_id = (int) jpHelpers::getValue('user');
             // Mettre a jours la valeur
             update_metadata('user', $user_id, 'is_active', $value);
-            wp_redirect(admin_url('user.php'));
+            wp_redirect(admin_url('users.php'));
         }
     }
 }

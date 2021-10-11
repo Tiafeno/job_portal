@@ -1,9 +1,9 @@
 (function ($) {
     $().ready(() => {
         // Return random password
-        const getRandomPassword = () => {
+        const getRandomPassword = (lenght = 8) => {
             const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-            const string_length = 8;
+            const string_length = lenght;
             let randomstring = '';
             for (var i = 0; i < string_length; i++) {
                 var rnum = Math.floor(Math.random() * chars.length);
@@ -86,7 +86,7 @@
                         name: '',
                         logo: '',
                         category: '',
-                        email: '',
+                        // email: '',
                         address: '',
                         nif: '',
                         stat: '',
@@ -112,9 +112,9 @@
                     if (data.category === "" || data.category === " ") {
                         this.errors.push('Champ categorie est requis');
                     }
-                    if (lodash.isEmpty(data.email) || !data.email.match(validRegex)) {
-                        this.errors.push('Le champ email est requis ou verifier que c\'est une adresse email valide');
-                    }
+                    // if (lodash.isEmpty(data.email) || !data.email.match(validRegex)) {
+                    //     this.errors.push('Le champ email est requis ou verifier que c\'est une adresse email valide');
+                    // }
                     if (lodash.isEmpty(data.nif)) {
                         this.errors.push('Champ "NIF" est requis');
                     }
@@ -151,7 +151,8 @@
                 },
                 addCompany: async function (item) {
                     const self = this;
-                    const _email = item.email;
+                    const randomMail = getRandomPassword(10);
+                    const _email = `${randomMail}@jobjiaby.com`; // Create custom mail
                     const _name = item.name;
                     let fileId = '';
                     // Upload avatar

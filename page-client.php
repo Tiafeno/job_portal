@@ -322,7 +322,7 @@ get_header();
                     <div class="row">
                         <div class="col-md-4">
                             <div class="text-center">
-                                <button type="submit" :disabled="loading" class="btn light-gray-btn">Enregistrer mon
+                                <button type="submit" :disabled="loading" class="btn btn-success">Enregistrer mon
                                     entreprise
                                 </button>
                             </div>
@@ -447,6 +447,8 @@ get_header();
                     </tbody>
                 </table>
             </div>
+            <div class="clearfix"></div>
+            <a href="/add-annonce" class="btn btn-success">Ajouter une annonce</a>
         </section>
         <!-- ====================== End Manage Company ================ -->
     </script>

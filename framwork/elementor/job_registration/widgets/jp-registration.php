@@ -78,7 +78,6 @@ class JobRegistration_Widget extends Widget_Base {
  * Permet d'enregistrer un utilisateur (Employer ou Candidat)
  */
 add_action('action_jobportal_register', function() {
-    echo 'enter';
     if ( ! \jpHelpers::getValue('_wpnonce', false) ) return;
     if (wp_verify_nonce($_POST['_wpnonce'], 'portaljob-register')) {
         $email = \jpHelpers::getValue('email', null);
@@ -129,8 +128,8 @@ add_action('action_jobportal_register', function() {
     }
 });
 
-add_action('template_redirect', 'pre_process_shortcode', 1);
-function pre_process_shortcode() {
+add_action('wp_loaded', 'pre_process_registration', 1);
+function pre_process_registration() {
     if (!is_singular()) return;
     if (\jpHelpers::getValue('reg', false)) {
         // Enregistrer les informations utilisateur

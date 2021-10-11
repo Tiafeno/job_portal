@@ -261,6 +261,7 @@
                     me: {},
                     heading: "Ajouter une annonce",
                     sectionClass: 'utf_create_company_area padd-bot-80',
+                    hasActiveCompany: false,
                     loading: false,
                     errors: [],
                     companyId: 0,
@@ -323,12 +324,16 @@
                     var err = `Le champ <b>"${inputName}"</b> est obligatoire`;
                     this.errors.push(err);
                 },
-                initComponent: async function() {
+                isActiveCompany: async function (idCompany) {
+                    const company = await this.WPAPI.users().id(idCompany).get();
+                    this.hasActiveCompany = !!company.is_active;
+                    this.loading = false;
+                },
+                initComponent: async function () {
                     this.loading = true;
                     this.WPAPI.users().me().context('edit')
                         .then(resp => {
                             this.me = lodash.clone(resp);
-                            this.loading = false;
                             // Verifier le role du client
                             let roles = this.me.roles;
                             if (lodash.indexOf(roles, 'employer') < 0) {
@@ -343,6 +348,8 @@
                                 this.$router.push({name: 'Company'});
                                 return;
                             }
+                            // Check the company is valid or not
+                            this.isActiveCompany(this.companyId);
                         });
                 },
                 /** Event on submit form */
@@ -362,21 +369,8 @@
                     if (lodash.isEmpty(this.inputs.address)) {
                         this.errorHandler('Adresse');
                     }
-                    if (!lodash.isEmpty(this.errors)) {
-                        return;
-                    }
-
-                    this.loading = true;
-                    this.WPAPI.users().id(this.companyId).context('view').then(companyResp => {
-                        this.loading = false;
-                        if (!companyResp.is_active) {
-                            alertify.alert('Validation de compte', "Votre compte est en attente de validation. Vous recerverais un mail de confirmation.");
-                            return;
-                        } else {
-                            // Envoyer le formulaire si le compte est validé
-                            this.submitForm();
-                        }
-                    });
+                    // Return if an error exist and company isn't activate
+                    if (!lodash.isEmpty(this.errors) || !this.hasActiveCompany) return;
                 },
                 submitForm: function () {
                     const self = this;
@@ -411,13 +405,13 @@
                         });
                     }).catch(function (err) {
                         self.loading = false;
-                        alertify.alert('Erreur', err.message, function () {
-                        });
+                        alertify.alert('Erreur', err.message);
                     });
                 }
             },
             delimiters: ['${', '}']
         };
+        // Denial access template
         const DenialAccess = {
             template: "#denial-access", // Include in theme.liquid
         };

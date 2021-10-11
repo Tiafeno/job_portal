@@ -164,6 +164,9 @@
     <section v-bind:class="[sectionClass]">
         <!-- ======================= Create Job ===================== -->
         <div class="container" data-aos="fade-up">
+            <div class="alert alert-warning" role="alert" v-if="!hasActiveCompany">
+                Votre compte est en attente de validation. Vous recerverais un mail de confirmation.
+            </div>
             <form class="c-form" @submit="checkAddForm" method="post" action="" novalidate>
                 <!-- General Information -->
                 <div class="box">
@@ -247,7 +250,7 @@
                 </div>
 
                 <div class="text-center">
-                    <button type="submit" class="btn light-gray-btn">Publier mon annonce</button>
+                    <button type="submit" :disabled="!hasActiveCompany" class="btn btn-success">Publier mon annonce</button>
                 </div>
                 <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
                 <div v-if="errors.length" style="margin-top: 40px">

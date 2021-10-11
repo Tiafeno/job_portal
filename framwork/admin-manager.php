@@ -19,7 +19,7 @@ final class AdminManager {
                 $is_active = get_metadata('user', $user->ID, 'is_active', true);
                 $action_name = $is_active ? "deactivated" : "activated";
                 $btn_class = $is_active ? '' : "button-primary";
-                return "<a class='activation button $btn_class' href='" . admin_url( "users.php?action=user_activation&amp;user=$user->ID&amp;ref=$action_name") . "'>" . ucfirst($action_name) . "</a>";
+                return "<a class='activation button $btn_class' href='" . admin_url( "users.php?controller=user_activation&amp;user=$user->ID&amp;name=$action_name") . "'>" . ucfirst($action_name) . "</a>";
             default:
         }
         return $val;
@@ -29,10 +29,10 @@ final class AdminManager {
         /**
          * Cette action permet d'activer ou desactiver une utilisateur
          */
-        $action = jpHelpers::getValue('action');
-        if ($action === 'user_activation') {
-            $ref = jpHelpers::getValue('ref');
-            $value = $ref === 'deactivated' ? 0 : 1;
+        $controller = jpHelpers::getValue('controller');
+        if ($controller === 'user_activation') {
+            $name = jpHelpers::getValue('name');
+            $value = ($name === 'deactivated') ? 0 : 1;
             $user_id = (int) jpHelpers::getValue('user');
             // Mettre a jours la valeur
             update_metadata('user', $user_id, 'is_active', $value);

@@ -67,15 +67,10 @@ class JobRegistration_Widget extends Widget_Base {
             echo "<p class='text-center'><a href='".$home_url."' target='_parent' class='btn btn-info'><i class='ti-back-left'></i> Page d'accueil</a> </p>";
             return;
         }
-        do_action('action_jobportal_register');
-        if (isset($_GET['register']) && boolval($_GET['register'])) {
-            // Register successfully
-            wp_redirect(home_url('/'));
-            exit;
-        }
+
         $nonce = wp_nonce_field('portaljob-register', '_wpnonce', true, false);
         $current_page_url = get_the_permalink();
-        echo $Liquid_engine->parseFile('job-registration')->render(['nonce' => $nonce, 'action' =>  $current_page_url . '?register=true']);
+        echo $Liquid_engine->parseFile('job-registration')->render(['nonce' => $nonce, 'action' =>  $current_page_url . '?reg=true']);
     }
 }
 
@@ -83,15 +78,17 @@ class JobRegistration_Widget extends Widget_Base {
  * Permet d'enregistrer un utilisateur (Employer ou Candidat)
  */
 add_action('action_jobportal_register', function() {
-    if ( ! isset($_POST['_wpnonce']) ) return;
+    if ( ! \jpHelpers::getValue('_wpnonce', false) ) return;
     if (wp_verify_nonce($_POST['_wpnonce'], 'portaljob-register')) {
-        $email = is_email($_POST['email']) ? $_POST['email'] : null;
+        $email = \jpHelpers::getValue('email', null);
         if (is_null($email) || empty($_POST['role'])) { return false; }
         $role = esc_attr($_POST['role']); //candidate or employer
+        $password = \jpHelpers::getValue('password');
+        if (!$password) return;
         $args = [
-            'user_pass' => $_POST['password'],
+            'user_pass' => $password,
             'nickname' => $email,
-            'first_name' => trim($_POST['first_name']),
+            'first_name' => \jpHelpers::getValue('first_name', ''),
             'last_name' => '',
             'user_login' => $email,
             'user_email' => $email,
@@ -125,5 +122,17 @@ add_action('action_jobportal_register', function() {
         }
 
         do_action('send_email_new_user', $user_id); // Envoyer le mail
+        // Redirection
+        wp_redirect(home_url('/'));
+        exit();
     }
 });
+
+add_action('template_redirect', 'pre_process_shortcode', 1);
+function pre_process_shortcode() {
+    if (!is_singular()) return;
+    if (\jpHelpers::getValue('reg', false)) {
+        // Enregistrer les informations utilisateur
+        do_action('action_jobportal_register');
+    }
+}

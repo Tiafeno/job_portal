@@ -18,10 +18,7 @@
       <path value="$PROJECT_DIR$/vendor/symfony/property-access" />
       <path value="$PROJECT_DIR$/vendor/symfony/property-info" />
       <path value="$PROJECT_DIR$/vendor/symfony/string" />
-      <path value="$PROJECT_DIR$/../../plugins/elementor" />
-      <path value="$USER_HOME$/Documents/wordpress_sources" />
-      <path value="$PROJECT_DIR$/../../plugins/advanced-custom-fields" />
-      <path value="$PROJECT_DIR$/../../plugins/woocommerce" />
+      <path value="D:/xampp/htdocs/jobjiaby" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.4">

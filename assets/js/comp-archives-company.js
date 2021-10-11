@@ -137,6 +137,9 @@
                                 const responseHTTP = resp.data;
                                 if (responseHTTP.success) {
                                     this.company = lodash.clone(responseHTTP.data);
+                                } else {
+                                    // Rediriger vers la page d'accueil si l'entreprise est introuvable
+                                    window.location.href = window.location.origin;
                                 }
                             }
                             this.loading = false;

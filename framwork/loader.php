@@ -3,6 +3,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 require_once 'api_rest.php';
+require_once 'admin-manager.php';
 require_once 'jp-helpers.php';
 require_once 'jp-actions.php';
 require_once 'jp-mailing.php';

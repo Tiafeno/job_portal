@@ -111,7 +111,8 @@ add_action('after_switch_theme', function() {
     $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 		ID bigint(20) NOT NULL AUTO_INCREMENT,
 		job_id bigint(20) NOT NULL,
-		user_id bigint(20) NOT NULL,
+		candidate_id BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
+		employer_id  BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
 		date_add DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         purchased TINYINT(5) NOT NULL DEFAULT 0,
         status TINYINT(5) NOT NULL DEFAULT 0,

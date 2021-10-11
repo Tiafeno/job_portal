@@ -16,8 +16,10 @@ final class AdminManager {
     public function manage_user_table($val, $column_name, $user_id) {
         switch ($column_name) {
             case 'is_active' :
-                $is_active = get_metadata('user', $user_id, 'is_active', true);
-                return $is_active ? "OUI" : "NON";
+                $user = WP_User::get_data_by('ID', $user_id);
+                $is_active = get_metadata('user', $user->ID, 'is_active', true);
+                $action_name = $is_active ? "deactivated" : "activated";
+                return "<a class='activation btn' href='" . admin_url( "users.php?&action=user_activation&amp;user=$user->ID&amp;ref=$action_name") . "'>" . ucfirst($action_name) . "</a>";
             default:
         }
         return $val;

@@ -88,9 +88,7 @@ add_action('action_jobportal_register', function() {
     if ( ! isset($_POST['_wpnonce']) ) return;
     if (wp_verify_nonce($_POST['_wpnonce'], 'portaljob-register')) {
         $email = is_email($_POST['email']) ? $_POST['email'] : null;
-        if (is_null($email) || empty($_POST['role'])) {
-            return false;
-        }
+        if (is_null($email) || empty($_POST['role'])) { return false; }
         $role = esc_attr($_POST['role']); //candidate or employer
         $args = [
             'user_pass' => $_POST['password'],
@@ -101,33 +99,27 @@ add_action('action_jobportal_register', function() {
             'user_email' => $email,
             'role' => $role
         ];
-
         // Check if user exist
         if (email_exists($email) || username_exists($email)) {
             // User exist in bdd
             $response = email_exists($email);
         } else {
             $response = wp_insert_user($args);
-            if (is_wp_error($response)) {
-                return false;
-            }
+            if (is_wp_error($response)) {  return false; }
         }
-
         if (!is_numeric($response)) {
             echo "Value isn't numeric";
             return false;
         }
-
         $user_id = $response;
         $phone_number = $_POST['phone'];
-        if ($role == 'candidate') {
+        if ($role === 'candidate') {
             // Pour les candidat
             $candidate = new jpCandidate($user_id);
             $candidate->profile_update([
                 'phones' => esc_sql($phone_number),
                 'is_active' => 0,
                 'has_cv' => 0,
-
             ]);
         } else {
             // pour les employer

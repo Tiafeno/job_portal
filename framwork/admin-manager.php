@@ -18,7 +18,8 @@ final class AdminManager {
                 $user = WP_User::get_data_by('ID', $user_id);
                 $is_active = get_metadata('user', $user->ID, 'is_active', true);
                 $action_name = $is_active ? "deactivated" : "activated";
-                return "<a class='activation button' href='" . admin_url( "users.php?action=user_activation&amp;user=$user->ID&amp;ref=$action_name") . "'>" . ucfirst($action_name) . "</a>";
+                $btn_class = $is_active ? '' : "button-primary";
+                return "<a class='activation button $btn_class' href='" . admin_url( "users.php?action=user_activation&amp;user=$user->ID&amp;ref=$action_name") . "'>" . ucfirst($action_name) . "</a>";
             default:
         }
         return $val;

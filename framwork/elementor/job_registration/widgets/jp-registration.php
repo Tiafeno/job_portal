@@ -70,7 +70,7 @@ class JobRegistration_Widget extends Widget_Base {
         do_action('action_jobportal_register');
         if (isset($_GET['register']) && boolval($_GET['register'])) {
             // Register successfully
-            wp_redirect(home_url('/'), 301);
+            wp_redirect(home_url('/'));
             exit;
         }
         $nonce = wp_nonce_field('portaljob-register', '_wpnonce', true, false);

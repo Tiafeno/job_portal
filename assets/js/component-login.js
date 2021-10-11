@@ -87,7 +87,7 @@ const CompLogin = {
                     return;
                 } else {
                     let pathname = window.location.pathname;
-                    if (lodash.includes(pathname, 'register')) {
+                    if (lodash.includes([pathname], 'register')) {
                         // Redirection page client
                         window.location.href = window.location.origin + '/espace-client';
                     } else {

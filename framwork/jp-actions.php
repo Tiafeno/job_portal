@@ -1,298 +1,12 @@
 <?php
+
+use JP\Framwork\Elements\jpCandidate;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 $no_reply_email = "no-reply@jobjiaby.com>";
-// Create user role
-add_action('helper_register_jp_user_role', function () {
-    // for employer
-    $employer_capabilities = array(
-        'read' => true,  // true allows this capability
-        'upload_files' => true,
-
-        'edit_others_pages' => true,
-        'edit_others_posts' => true,
-        'edit_pages' => true,
-        'edit_posts' => true,
-        'edit_users' => true,
-        'list_users' => true,
-
-        'manage_options' => false,
-        'remove_users' => false,
-        'delete_others_pages' => true,
-        'delete_posts' => false,
-        'delete_pages' => false,
-        'delete_published_posts' => false,
-        'delete_users' => false,
-        'delete_themes' => false,
-        'delete_plugins' => false,
-
-        'create_posts' => true, // Allows user to create new posts
-        'manage_categories' => true, // Allows user to manage post categories
-        'publish_posts' => true, // Allows the user to publish, otherwise posts stays in draft mode
-        'edit_themes' => false, // false denies this capability. User can’t edit your theme
-        'install_plugins' => false, // User cant add new plugins
-        'update_plugin' => false, // User can’t update any plugins
-        'update_core' => false, // user cant perform core updates
-        'create_users' => true,
-        'install_themes' => false,
-    );
-    add_role('employer', 'Employer', $employer_capabilities);
-
-    // for candidate
-    $candidate_capabilities = array(
-        'read' => true,  // true allows this capability
-        'upload_files' => true,
-        'edit_posts' => true,
-        'edit_users' => true,
-        'list_users' => true,
-        'manage_options' => false,
-        'remove_users' => false,
-        'delete_others_pages' => true,
-        'delete_published_posts' => true,
-        'edit_others_posts' => true, // Allows user to edit others posts not just their own
-        'create_posts' => true, // Allows user to create new posts
-        'manage_categories' => true, // Allows user to manage post categories
-        'publish_posts' => true, // Allows the user to publish, otherwise posts stays in draft mode
-        'edit_themes' => false, // false denies this capability. User can’t edit your theme
-        'install_plugins' => false, // User cant add new plugins
-        'delete_plugins' => false,
-        'update_plugin' => false, // User can’t update any plugins
-        'update_core' => false, // user cant perform core updatesy
-        'create_users' => false,
-        'delete_themes' => false,
-        'install_themes' => false,
-    );
-    add_role('candidate', 'Candidate', $candidate_capabilities);
-
-    // for company
-    $company_capabilities = array(
-        'read' => true,  // true allows this capability
-        'upload_files' => true,
-        'edit_posts' => true,
-        'edit_users' => true,
-        'list_users' => true,
-        'manage_options' => false,
-        'remove_users' => false,
-        'delete_others_pages' => true,
-        'delete_published_posts' => true,
-        'edit_others_posts' => true, // Allows user to edit others posts not just their own
-        'create_posts' => true, // Allows user to create new posts
-        'manage_categories' => true, // Allows user to manage post categories
-        'publish_posts' => true, // Allows the user to publish, otherwise posts stays in draft mode
-        'edit_themes' => false, // false denies this capability. User can’t edit your theme
-        'install_plugins' => false, // User cant add new plugins
-        'delete_plugins' => false,
-        'update_plugin' => false, // User can’t update any plugins
-        'update_core' => false, // user cant perform core updatesy
-        'create_users' => false,
-        'delete_themes' => false,
-        'install_themes' => false,
-    );
-    add_role('company', 'Company', $company_capabilities);
-
-});
-// Create post type
-add_action('helper_register_jp_post_types', function () {
-    // Emploi post type
-    register_post_type('jp-jobs', [
-        'label' => "L'emploi",
-        'labels' => [
-            'name' => "L'emplois",
-            'singular_name' => "Emploi",
-            'add_new' => 'Ajouter',
-            'add_new_item' => "Ajouter une nouvelle emploi",
-            'edit_item' => 'Modifier',
-            'view_item' => 'Voir',
-            'search_items' => "Trouver des emplois",
-            'all_items' => "Tous les emplois",
-            'not_found' => "Aucune emploi trouver",
-            'not_found_in_trash' => "Aucune emploi dans la corbeille"
-        ],
-        'public' => true,
-        'hierarchical' => false,
-        'menu_position' => null,
-        'show_ui' => true,
-        'has_archive' => true,
-        'rewrite' => ['slug' => 'emploi'],
-        'rest_base' => 'emploi',
-        'capability_type' => 'post',
-        'map_meta_cap' => true,
-        'menu_icon' => 'dashicons-media-interactive',
-        'supports' => ['title', 'editor', 'excerpt', 'thumbnail', 'custom-fields'],
-        'show_in_rest' => true
-    ]);
-    // Ajouter category pour le 'jp-jobs'
-    register_taxonomy_for_object_type('category', 'jp-jobs');
-    // Logiciel maitrisés
-    register_taxonomy('tech_mastery', ['post'], [
-        'hierarchical' => true,
-        'labels' => array(
-            'name' => 'Logiciels',
-            'singular_name' => 'Logiciel',
-            'search_items' => 'Trouver',
-            'all_items' => 'Trouver des tech.',
-            'parent_item' => 'Tech. parent',
-            'parent_item_colon' => 'Tech. parent:',
-            'edit_item' => 'Modifier la technologie',
-            'update_item' => 'Mettre à jour',
-            'add_new_item' => 'Ajouter',
-            'menu_name' => 'Logiciels',
-        ),
-        'show_ui' => true,
-        'show_admin_column' => false,
-        'query_var' => true,
-        'public' => true,
-        'show_in_rest' => true,
-        'rewrite' => array('slug' => 'mastered_technology'),
-    ]);
-    //  Drive licence
-    register_taxonomy('drive_licence', ['jp-jobs'], [
-        'hierarchical' => true,
-        'labels' => array(
-            'name' => 'Permis de conduire',
-            'singular_name' => 'Permis de conduire',
-            'search_items' => 'Trouver',
-            'all_items' => 'Trouver des permis',
-            'edit_item' => 'Modifier le permis',
-            'update_item' => 'Mettre à jour',
-            'add_new_item' => 'Ajouter',
-            'menu_name' => 'Permis de conduire',
-        ),
-        'show_ui' => true,
-        'show_admin_column' => false,
-        'query_var' => true,
-        'public' => true,
-        'show_in_rest' => true,
-        'rewrite' => array('slug' => 'drive_licence'),
-    ]);
-    //  Salaires
-    register_taxonomy('salaries', ['jp-jobs'], [
-        'hierarchical' => true,
-        'labels' => array(
-            'name' => 'Salaires',
-            'singular_name' => 'Salaire',
-            'search_items' => 'Trouver',
-            'all_items' => 'Trouver des salaires.',
-            'parent_item' => 'Tech. parent',
-            'parent_item_colon' => 'Tech. parent:',
-            'edit_item' => 'Modifier le salaire',
-            'update_item' => 'Mettre à jour',
-            'add_new_item' => 'Ajouter',
-            'menu_name' => 'Salaires',
-        ),
-        'show_ui' => true,
-        'show_admin_column' => false,
-        'query_var' => true,
-        'public' => true,
-        'show_in_rest' => true,
-        'rewrite' => array('slug' => 'salaries'),
-    ]);
-    //  Qualification
-    register_taxonomy('qualification', ['jp-jobs'], [
-        'hierarchical' => true,
-        'labels' => array(
-            'name' => 'Qualifications',
-            'singular_name' => 'Qualification',
-            'search_items' => 'Trouver',
-            'all_items' => 'Trouver des qualifications',
-            'edit_item' => 'Modifier la qualification',
-            'update_item' => 'Mettre à jour',
-            'add_new_item' => 'Ajouter',
-            'menu_name' => 'Qualifications',
-        ),
-        'show_ui' => true,
-        'show_admin_column' => false,
-        'query_var' => true,
-        'public' => true,
-        'show_in_rest' => true,
-        'rewrite' => array('slug' => 'qualification'),
-    ]);
-    //  Language
-    register_taxonomy('language', ['post'], [
-        'hierarchical' => true,
-        'labels' => array(
-            'name' => 'Langages',
-            'singular_name' => 'Langage',
-            'search_items' => 'Trouver',
-            'all_items' => 'Trouver des langues',
-            'edit_item' => 'Modifier la langue',
-            'update_item' => 'Mettre à jour',
-            'add_new_item' => 'Ajouter',
-            'menu_name' => 'Languages',
-        ),
-        'show_ui' => true,
-        'show_admin_column' => false,
-        'query_var' => true,
-        'public' => true,
-        'show_in_rest' => true,
-        'rewrite' => array('slug' => 'language'),
-    ]);
-    //  Type de travail
-    register_taxonomy('job_type', ['jp-jobs'], [
-        'hierarchical' => true,
-        'labels' => array(
-            'name' => 'Type de contract',
-            'singular_name' => 'Type de contract',
-            'search_items' => 'Trouver',
-            'all_items' => 'Trouver des types',
-            'parent_item' => 'Tech. parent',
-            'parent_item_colon' => 'Tech. parent:',
-            'edit_item' => 'Modifier le type',
-            'update_item' => 'Mettre à jour',
-            'add_new_item' => 'Ajouter',
-            'menu_name' => 'Type de contract',
-        ),
-        'show_ui' => true,
-        'show_admin_column' => false,
-        'query_var' => true,
-        'public' => true,
-        'show_in_rest' => true,
-        'rewrite' => array('slug' => 'job_type'),
-    ]);
-    // Pays
-    register_taxonomy('country', ['post'], [
-        'hierarchical' => true,
-        'labels' => array(
-            'name' => 'Pays',
-            'singular_name' => 'Pays',
-            'search_items' => 'Trouver',
-            'all_items' => 'Trouver des pays',
-            'edit_item' => 'Modifier',
-            'update_item' => 'Mettre à jour',
-            'add_new_item' => 'Ajouter',
-            'menu_name' => 'Pays',
-        ),
-        'show_ui' => true,
-        'show_admin_column' => false,
-        'query_var' => true,
-        'public' => true,
-        'show_in_rest' => true,
-        'rewrite' => array('slug' => 'country'),
-    ]);
-    // Region
-    register_taxonomy('region', ['jp-jobs'], [
-        'hierarchical' => true,
-        'labels' => array(
-            'name' => 'Regions',
-            'singular_name' => 'Region',
-            'search_items' => 'Trouver',
-            'all_items' => 'Trouver des regions',
-            'edit_item' => 'Modifier',
-            'update_item' => 'Mettre à jour',
-            'add_new_item' => 'Ajouter',
-            'menu_name' => 'Regions',
-        ),
-        'show_ui' => true,
-        'show_admin_column' => false,
-        'query_var' => true,
-        'public' => true,
-        'show_in_rest' => true,
-        'rewrite' => array('slug' => 'region'),
-    ]);
-});
 add_action('init', function () {
-
     // Permet de se connecter avec AJAX
     add_action('wp_ajax_ajax_login', 'login');
     add_action('wp_ajax_nopriv_ajax_login', 'login');
@@ -333,13 +47,13 @@ add_action('init', function () {
         }
     }
 
-    add_action('wp_ajax_nopriv_forgot_password', 'forgot_password');
-    add_action('forgot_my_password', 'forgot_my_password', 10, 2);
     /**
      * Fonction ajax - nopriv only.
      * Envoie un email pour recuperer le mot de passe
      */
-    function forgot_password() {
+    add_action('wp_ajax_nopriv_forgot_password', 'forgot_password');
+    function forgot_password()
+    {
         if (is_user_logged_in()) {
             wp_send_json_error(["msg" => "Vous ne pouvez pas effectuer cette action"]);
         }
@@ -365,7 +79,9 @@ add_action('init', function () {
      * @param string $email
      * @param string $key - An generate reset key
      */
-    function forgot_my_password($email, $key) {
+    add_action('forgot_my_password', 'forgot_my_password', 10, 2);
+    function forgot_my_password($email, $key)
+    {
         global $Liquid_engine, $no_reply_email;
         $to = $email;
         $User = get_user_by('email', $to);
@@ -426,4 +142,61 @@ add_action('init', function () {
     });
 });
 
+/**
+ * Permet d'enregistrer un utilisateur (Employer ou Candidat)
+ */
+add_action('init', 'pre_process_registration', 1);
+function pre_process_registration() {
+    //if (!is_singular()) return;
+    if (\jpHelpers::getValue('_wpnonce', false)) {
+        // Enregistrer les informations utilisateur
+        if (wp_verify_nonce($_POST['_wpnonce'], 'jobjiaby-register')) {
+            $email = \jpHelpers::getValue('email', null);
+            if (is_null($email) || empty($_POST['role'])) { return false; }
+            $role = esc_attr($_POST['role']); //candidate or employer
+            $password = \jpHelpers::getValue('password');
+            if (!$password) return;
+            $args = [
+                'user_pass' => $password,
+                'nickname' => $email,
+                'first_name' => \jpHelpers::getValue('first_name', ''),
+                'last_name' => '',
+                'user_login' => $email,
+                'user_email' => $email,
+                'role' => $role
+            ];
+            // Check if user exist
+            if (email_exists($email) || username_exists($email)) {
+                // User exist in bdd
+                $response = email_exists($email);
+            } else {
+                $response = wp_insert_user($args);
+                if (is_wp_error($response)) {  return false; }
+            }
+            if (!is_numeric($response)) {
+                echo "Value isn't numeric";
+                return false;
+            }
+            $user_id = $response;
+            $phone_number = $_POST['phone'];
+            if ($role === 'candidate') {
+                // Pour les candidat
+                $candidate = new jpCandidate($user_id);
+                $candidate->profile_update([
+                    'phones' => esc_sql($phone_number),
+                    'is_active' => 0,
+                    'has_cv' => 0,
+                ]);
+            } else {
+                // pour les employer
+                update_user_meta($user_id, 'company_id', 0);
+            }
+
+            do_action('send_email_new_user', $user_id); // Envoyer le mail
+            // Redirection
+            wp_redirect(home_url('/'));
+            exit();
+        }
+    }
+}
 

@@ -7,6 +7,7 @@
  * @package WordPress
  */
 global $post;
+use JP\Framwork\Elements\jpJobs;
 
 wp_enqueue_script('comp-apply',get_stylesheet_directory_uri() . '/assets/js/component-apply.js',
     ['vue-router', 'jp-custom'],null,true
@@ -23,7 +24,7 @@ get_header();
 /* Start the Loop */
 while ( have_posts() ) : the_post();
 
-$job = new \JP\Framwork\Elements\jpJobs($post);
+$job = new jpJobs($post);
 $experience = $job->experience; // meta data
 $salary = $job->get_reset_term('salaries')->name;
 $salary = $salary ? floatval($salary) : 0;
@@ -177,7 +178,7 @@ $category = $job->get_reset_term('category');
             <div class="row">
                 <!-- the loop -->
                 <?php while ( $query_posts->have_posts() ) : $query_posts->the_post();
-                    $current_job = new \JP\Framwork\Elements\jpJobs($query_posts->post);
+                    $current_job = new jpJobs($query_posts->post);
                 ?>
                     <!-- Single Job -->
                     <div class="col-md-3 col-sm-6">

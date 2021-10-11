@@ -3,7 +3,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 require_once 'api_rest.php';
+
 require_once 'admin-manager.php';
+require_once 'menu-walker.php';
+require_once 'service-providers.php';
+
 require_once 'jp-helpers.php';
 require_once 'jp-actions.php';
 require_once 'jp-mailing.php';
@@ -17,10 +21,14 @@ add_action('init', function() {
         require_once 'elementor/elementor-jobportal.php';
     }
 });
+
+// Load Controller
+
 // Class object
 require 'elements/jpCandidate.php';
 require 'elements/jpCompany.php';
 require 'elements/jpEmployer.php';
 require 'elements/jpJobs.php';
-// Functions
-require_once 'jp-functions.php';
+
+// Styles and Scripts
+require_once 'enqueue.php';

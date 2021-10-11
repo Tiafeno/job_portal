@@ -14,7 +14,7 @@ global $wpdb;
 define('APPLY_TABLE', "{$wpdb->prefix}job_apply");
 define('APPLY_PURCHASE_TABLE', "{$wpdb->prefix}job_apply_purchase");
 
-include_once __DIR__ . '/framwork/loader.php'; // Load all elements
+require_once __DIR__ . '/framwork/loader.php'; // Load all elements
 require_once __DIR__ . '/vendor/autoload.php';
 
 \Liquid\Liquid::set('INCLUDE_PREFIX', '');
@@ -95,8 +95,7 @@ add_action('after_setup_theme', function () {
 });
 
 add_action('init', function() {
-    do_action('helper_register_jp_user_role');
-    do_action('helper_register_jp_post_types');
+    do_action('register_services');
 });
 
 //Fires on the first WP load after a theme switch if the old theme still exists.

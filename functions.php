@@ -16,6 +16,10 @@ define('APPLY_PURCHASE_TABLE', "{$wpdb->prefix}job_apply_purchase");
 
 require_once __DIR__ . '/framwork/loader.php'; // Load all elements
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/framwork/jp-migration.php';
+
+// Gestion d'erreur
+$errors = [];
 
 \Liquid\Liquid::set('INCLUDE_PREFIX', '');
 $Liquid_engine = new Template(__DIR__ . '/templates');
@@ -98,28 +102,6 @@ add_action('init', function() {
     do_action('register_services');
 });
 
-//Fires on the first WP load after a theme switch if the old theme still exists.
-/**
- * This action fires multiple times and the parameters differs according to the context,
- * if the old theme exists or not. If the old theme is missing, the parameter
- * will be the slug of the old theme.
- */
-add_action('after_switch_theme', function() {
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'job_apply';
-    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-		ID bigint(20) NOT NULL AUTO_INCREMENT,
-		job_id bigint(20) NOT NULL,
-		candidate_id BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
-		employer_id  BIGINT(20) UNSIGNED NOT NULL DEFAULT 0,
-		date_add DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        purchased TINYINT(5) NOT NULL DEFAULT 0,
-        status TINYINT(5) NOT NULL DEFAULT 0,
-		PRIMARY KEY  `apply_id` (`ID`)
-	) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-    dbDelta( $sql );
-});
 
 // or install this plugin: https://wordpress.org/plugins/admin-bar-dashboard-control/
 add_action('after_setup_theme', 'remove_admin_bar');

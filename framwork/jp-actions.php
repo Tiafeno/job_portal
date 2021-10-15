@@ -5,7 +5,6 @@ use JP\Framwork\Elements\jpCandidate;
 if (!defined('ABSPATH')) {
     exit;
 }
-$errors = [];
 $no_reply_email = "no-reply@jobjiaby.com>";
 add_action('init', function () {
     // Permet de se connecter avec AJAX
@@ -194,6 +193,8 @@ function pre_process_registration() {
                 update_user_meta($user_id, 'company_id', 0);
             }
 
+            // Ajouter un meta pour la verification de mail
+            update_user_meta($user_id, 'email_verify', 0);
             do_action('send_email_new_user', $user_id); // Envoyer le mail
             // Redirection
             wp_redirect(home_url('/'));
@@ -202,13 +203,17 @@ function pre_process_registration() {
     }
 }
 
+add_action('init', 'process_validate_user_email', 1);
+function process_validate_user_email() {
+
+}
 
 /**
  * Cette action permet de se connecter au site
  */
 add_action('init', function () {
-    if (!isset($_POST['jp-login-nonce'])) return;
-    $nonce = trim($_POST['jp-login-nonce']);
+    $nonce = jpHelpers::getValue('jp-login-nonce', false);
+    if (!$nonce) return;
     $nonce_verify = wp_verify_nonce($nonce, 'jp-login-action');
     if ($nonce_verify) {
         $remember = isset($_POST['remember']) ? true : false;

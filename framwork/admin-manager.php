@@ -46,14 +46,14 @@ final class AdminManager
     public function user_head_table($column)
     {
         $column['is_active'] = 'Active';
-        $column['employer'] = 'Relation <User>';
+        $column['employer'] = 'Relation';
         return $column;
     }
 
     public function manage_user_table($val, $column_name, $user_id)
     {
         $user = new WP_User($user_id);
-        $no_required = "<span class='button'>No required</span>";
+        $no_required = "-";
         switch ($column_name) {
             case 'is_active' :
                 if (!in_array($user->roles[0], ['candidate', 'company'])) {

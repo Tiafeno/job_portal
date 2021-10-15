@@ -143,21 +143,6 @@ add_action('pre_get_posts', function (WP_Query $query) {
     return $query;
 });
 
-
-
-//function save_profile_fields( $user_id ) {
-//    if ( !current_user_can( 'edit_user', $user_id ) ) :
-//        return false;
-//    endif;
-//    $public_cv = jpHelpers::getValue('public_cv') ? jpHelpers::getValue('public_cv') : 0;
-//    update_user_meta( $user_id, 'phone', jpHelpers::getValue('phone', '') );
-//    update_user_meta( $user_id, 'address', jpHelpers::getValue('address', '') );
-//    update_user_meta( $user_id, 'city', jpHelpers::getValue('city', '') );
-//    update_user_meta( $user_id, 'public_cv', intval($public_cv));
-//}
-//add_action( 'personal_options_update', 'save_profile_fields' );
-//add_action( 'edit_user_profile_update', 'save_profile_fields' );
-
 add_action( 'show_user_profile', 'user_fields' );
 add_action( 'edit_user_profile', 'user_fields' );
 function user_fields( $user ) {

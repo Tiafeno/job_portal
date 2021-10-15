@@ -27,3 +27,10 @@ add_action('send_email_new_user', function($user_id = 0) {
     wp_mail($user->user_email, $subject, $content, $headers);
 
 }, 10, 1);
+
+
+add_action('send_mail_activated_account', function($user_id) {
+    if (!$user_id) return;
+    global $Liquid_engine;
+    // todo send mail to user
+}, 10, 1);

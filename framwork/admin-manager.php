@@ -29,7 +29,6 @@ final class AdminManager
         submit_button(__('Filter'), null, $which, false);
     }
 
-
     public function activated_user__filter($query)
     {
         global $pagenow;
@@ -41,7 +40,6 @@ final class AdminManager
             }
         }
     }
-
 
     public function user_head_table($column)
     {
@@ -98,6 +96,11 @@ final class AdminManager
             $user_id = (int)jpHelpers::getValue('user');
             // Mettre a jours la valeur
             update_metadata('user', $user_id, 'is_active', $value);
+
+            // Send mail to user
+            do_action('send_mail_activated_account', $user_id);
+
+            // Redirection
             wp_redirect(admin_url('users.php'));
         }
     }

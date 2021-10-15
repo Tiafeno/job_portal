@@ -203,6 +203,9 @@ function pre_process_registration() {
     }
 }
 
+/**
+ *
+ */
 add_action('init', 'process_validate_user_email', 1);
 function process_validate_user_email() {
     global $jj_messages;
@@ -225,6 +228,9 @@ function process_validate_user_email() {
     }
 }
 
+/**
+ *
+ */
 add_action('init', 'process_resend_verify_user_email', 1);
 function process_resend_verify_user_email() {
     global $jj_messages;

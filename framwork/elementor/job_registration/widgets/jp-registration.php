@@ -59,7 +59,7 @@ class JobRegistration_Widget extends Widget_Base {
     }
 
     protected function render() {
-        global $Liquid_engine, $errors;
+        global $Liquid_engine, $jj_errors;
         $home_url = home_url('/');
         if (is_user_logged_in()) {
             // is logged user
@@ -73,7 +73,7 @@ class JobRegistration_Widget extends Widget_Base {
             ->render([
                 'nonce' => $nonce,
                 'action' =>  $current_page_url . '?reg=true',
-                'errors' => $errors,
+                'errors' => $jj_errors,
                 'form' => [
                     'role' => \jpHelpers::getValue('role', ''),
                     'first_name' => \jpHelpers::getValue('first_name', ''),

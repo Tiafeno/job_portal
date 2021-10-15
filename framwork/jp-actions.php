@@ -147,7 +147,7 @@ add_action('init', function () {
  */
 add_action('init', 'pre_process_registration', 1);
 function pre_process_registration() {
-    global $errors;
+    global $jj_errors;
     //if (!is_singular()) return;
     if (\jpHelpers::getValue('_wpnonce', false)) {
         // Enregistrer les informations utilisateur
@@ -169,12 +169,12 @@ function pre_process_registration() {
             // Check if user exist
             if (email_exists($email) || username_exists($email)) {
                 // User exist in bdd
-                $errors[] = ['type' => 'email', 'msg' => "Adresse email existe déja"];
+                $jj_errors[] = ['type' => 'email', 'msg' => "Adresse email existe déja"];
                 return;
             } else {
                 $response = wp_insert_user($args);
                 if (is_wp_error($response)) {
-                    $errors[] = ['type' => "global", "msg" => $response->get_error_message()];
+                    $jj_errors[] = ['type' => "global", "msg" => $response->get_error_message()];
                     return false;
                 }
             }
@@ -205,7 +205,47 @@ function pre_process_registration() {
 
 add_action('init', 'process_validate_user_email', 1);
 function process_validate_user_email() {
+    global $jj_messages;
+    $nonce = jpHelpers::getValue('verify_email_nonce', false);
+    if (!$nonce) return false;
+    if (wp_verify_nonce($nonce, 'jobjiaby_verify_email')) {
+        $email = jpHelpers::getValue('e'); // email base64 encrypt
+        $email = base64_decode($email);
+        if ($user_id = email_exists($email)) {
+            $is_verify = (int)get_user_meta($user_id, 'email_verify', true);
+            if ($is_verify) {
+                //$jj_messages[] = ['type' => 'success', 'msg' => "Votre compte est déja activer"];
+                return;
+            }
+            update_user_meta($user_id, 'email_verify', 1);
+            $jj_messages[] = ['type' => 'success', 'msg' => "Votre compte est activer"];
+        }
+    } else {
+        $jj_messages[] = ['type' => 'danger', 'msg' => "Lien invalide"];
+    }
+}
 
+add_action('init', 'process_resend_verify_user_email', 1);
+function process_resend_verify_user_email() {
+    global $jj_messages;
+    $user_id = get_current_user_id();
+    $is_verify = get_user_meta($user_id, 'email_verify', true);
+    if (!$is_verify || intval($is_verify) === 0) {
+        $link_nonce = wp_create_nonce("jobjiaby_resend_verify");
+        $jj_messages[] = [
+            'type' => 'warning',
+            'msg' =>  "Votre adresse email n'est pas encore valider",
+            'btn' => "Envoyer",
+            'btn_link' => home_url('/?resend_verify_nonce=' . $link_nonce)
+        ];
+    }
+
+    // Resend verify user email
+    $nonce = jpHelpers::getValue('resend_verify_nonce');
+    if (!$nonce) return false;
+    if (wp_verify_nonce($nonce, 'jobjiaby_resend_verify')) {
+        do_action('send_email_new_user', $user_id);
+    }
 }
 
 /**

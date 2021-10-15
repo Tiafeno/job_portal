@@ -102,7 +102,26 @@
     $custom_logo_id = get_theme_mod('custom_logo');
     $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
     ?>
+
     <nav class="navbar navbar-default navbar-mobile navbar-fixed <?= $navClass ?> bootsnav">
+        <?php
+        global $jj_messages;
+        // Afficher les messages
+        if (!empty($jj_messages)) {
+            foreach ($jj_messages as $message) {
+                ?>
+                <div class="alert text-center alert-<?= $message['type'] ?>" role="alert">
+                    <?= $message['msg'] ?>
+                    <?php
+                    if (isset($message['btn'])) {
+                        echo '<a href="'.$message['btn_link'].'" class="btn btn-outline-info">'.$message['btn'].'</a>';
+                    }
+                    ?>
+                </div>
+                <?php
+            }
+        }
+        ?>
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu"><i class="fa fa-bars"></i></button>

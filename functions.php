@@ -19,7 +19,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/framwork/jp-migration.php';
 
 // Gestion d'erreur
-$errors = [];
+$jj_errors = [];
+$jj_messages = [];
 
 \Liquid\Liquid::set('INCLUDE_PREFIX', '');
 $Liquid_engine = new Template(__DIR__ . '/templates');

@@ -54,23 +54,6 @@ jQuery(function ($) {
                     },
                     eventChangeEmployer: function (ev) {
                         ev.preventDefault();
-                        const employer = _.find(this.ptEmployers, {
-                            id: this.form.employer_id
-                        });
-                        if (_.isUndefined(employer)) return;
-                        this.form.company_id = employer.meta.company_id;
-                        const currentPost = new wp.api.models.Emploi({
-                            id: this.emploi.id
-                        });
-                        currentPost.fetch({
-                                data: {
-                                    context: 'edit'
-                                }
-                            })
-                            .then((employe) => {
-                                currentPost.set('employer', employer.id);
-                                currentPost.save().done(() => { });
-                            });
     
                     },
                     eventSearchEmployer: function (ev) {
@@ -81,7 +64,7 @@ jQuery(function ($) {
                         user.fetch({
                                 data: {
                                     context: 'view',
-                                    roles: ['employer'],
+                                    roles: ['company'],
                                     search: query
                                 }
                             })

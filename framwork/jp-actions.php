@@ -228,6 +228,9 @@ function process_validate_user_email() {
 add_action('init', 'process_resend_verify_user_email', 1);
 function process_resend_verify_user_email() {
     global $jj_messages;
+
+    if (!is_user_logged_in()) return;
+
     $user_id = get_current_user_id();
     $is_verify = get_user_meta($user_id, 'email_verify', true);
     if (!$is_verify || intval($is_verify) === 0) {

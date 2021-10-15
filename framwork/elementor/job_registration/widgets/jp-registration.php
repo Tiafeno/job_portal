@@ -59,17 +59,27 @@ class JobRegistration_Widget extends Widget_Base {
     }
 
     protected function render() {
-        global $Liquid_engine;
+        global $Liquid_engine, $errors;
         $home_url = home_url('/');
         if (is_user_logged_in()) {
             // is logged user
             echo "<p class='text-center'><a href='".$home_url."' target='_parent' class='btn btn-info'><i class='ti-back-left'></i> Page d'accueil</a> </p>";
             return;
         }
-
         // Nonce du formulaire d'inscription
         $nonce = wp_nonce_field('jobjiaby-register', '_wpnonce', true, false);
         $current_page_url = get_the_permalink();
-        echo $Liquid_engine->parseFile('job-registration')->render(['nonce' => $nonce, 'action' =>  $current_page_url . '?reg=true']);
+        echo $Liquid_engine->parseFile('job-registration')
+            ->render([
+                'nonce' => $nonce,
+                'action' =>  $current_page_url . '?reg=true',
+                'errors' => $errors,
+                'form' => [
+                    'role' => \jpHelpers::getValue('role', ''),
+                    'first_name' => \jpHelpers::getValue('first_name', ''),
+                    'email' => \jpHelpers::getValue('email', ''),
+                    'phone' => \jpHelpers::getValue('phone', '')
+                ]
+            ]);
     }
 }

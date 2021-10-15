@@ -7,6 +7,7 @@ require_once 'api_rest.php';
 require_once 'admin-manager.php';
 require_once 'menu-walker.php';
 require_once 'service-providers.php';
+require_once 'error-handler.php';
 
 require_once 'jp-helpers.php';
 require_once 'jp-actions.php';

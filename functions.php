@@ -143,29 +143,7 @@ add_action('pre_get_posts', function (WP_Query $query) {
     return $query;
 });
 
-/**
- * Cette action permet de se connecter au site
- */
-add_action('init', function () {
-    if (!isset($_POST['jp-login-nonce'])) return;
-    $nonce = trim($_POST['jp-login-nonce']);
-    $nonce_verify = wp_verify_nonce($nonce, 'jp-login-action');
-    if ($nonce_verify) {
-        $remember = isset($_POST['remember']) ? true : false;
-        $info = array();
-        $info['user_login'] = $_POST['log'];
-        $info['user_password'] = $_POST['pwd'];
-        $info['remember'] = $remember;
-        $user_signon = wp_signon($info, false);
-        if (!is_wp_error($user_signon)) {
-            // redirection dans l'espace client
-            wp_set_current_user( $user_signon->ID );
-            wp_set_auth_cookie( $user_signon->ID, $remember, false );
-            //do_action( 'wp_login', $user_signon->user_login );
-            wp_redirect(home_url('/espace-client'));
-        }
-    }
-});
+
 
 //function save_profile_fields( $user_id ) {
 //    if ( !current_user_can( 'edit_user', $user_id ) ) :

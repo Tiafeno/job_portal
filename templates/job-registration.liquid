@@ -4,17 +4,30 @@
         <div class="log-box">
             <h3>Crée votre compte</h3>
             <p>Accédez à nos services</p>
+
+            {% for error in errors %}
+                {% if error.type == 'global' %}
+                    <div class="alert alert-warning" role="alert">
+                        {{ error.msg }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
             <form class="log-form mrg-top-40" id="register-form" action="{{ action }}" method="post">
                 <div class="row">
                     <div class="col-md-4 col-sm-6 col-xs-12" style="margin-bottom: 10px">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="role" id="role_candidate" value="candidate">
+                            <input class="form-check-input" type="radio" name="role" {% if form.role == 'candidate' %}
+                                checked
+                            {% endif %} id="role_candidate" value="candidate">
                             <label class="form-check-label" for="role_candidate"><b>Candidate</b></label>
                         </div>
                     </div>
                     <div class="col-md-6 col-sm-6 col-xs-12" style="margin-bottom: 10px">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="role" id="role_employer" value="employer" required>
+                            <input class="form-check-input" type="radio" {% if form.role == 'employer'  %}
+                                checked
+                            {% endif %} name="role" id="role_employer" value="employer" required>
                             <label class="form-check-label" for="role_employer"><b>Employeur</b> ou <b>Recruteur</b></label>
                         </div>
                     </div>
@@ -23,13 +36,19 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Nom et prénom</label>
-                            <input type="text" id="first_name" autocomplete="false" name="first_name" class="form-control" placeholder="Name" required>
+                            <input type="text" id="first_name" value="{{ form.first_name }}" autocomplete="false" name="first_name" class="form-control" placeholder="Name" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Adresse email</label>
-                            <input type="email" name="email" class="form-control" value="" placeholder="Email" required>
+                            <input type="email" name="email" class="form-control" value="{{ form.email }}" placeholder="Email" required>
+
+                            {% for error in errors %}
+                                {% if error.type == 'email' %}
+                                    <label class="font-12 error">{{ error.msg }}</label>
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -37,19 +56,21 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Mot de passe</label>
-                            <input type="password" id="password" name="password" autocomplete="false" minlength="5" class="form-control" value="" placeholder="********" required>
+                            <input type="password" id="password" name="password" autocomplete="false" minlength="5"
+                                   class="form-control" value="" required>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Confirmer votre mot de passe</label>
-                            <input type="password"  name="confirm_password" autocomplete="false" minlength="5" class="form-control" value="" placeholder="********" required>
+                            <input type="password"  name="confirm_password" autocomplete="false" minlength="5" class="form-control" value=""
+                                   required>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Numéro de téléphone</label>
-                            <input type="text" name="phone" id="phone" class="form-control" onkeypress="if(event.keyCode === 32)
+                            <input type="text" name="phone" id="phone" value="{{ form.phone }}" class="form-control" onkeypress="if(event.keyCode === 32)
                            return false;" placeholder="Exp: 03X XX XXX XX">
                         </div>
                     </div>

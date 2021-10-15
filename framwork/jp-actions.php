@@ -5,6 +5,7 @@ use JP\Framwork\Elements\jpCandidate;
 if (!defined('ABSPATH')) {
     exit;
 }
+$errors = [];
 $no_reply_email = "no-reply@jobjiaby.com>";
 add_action('init', function () {
     // Permet de se connecter avec AJAX
@@ -147,6 +148,7 @@ add_action('init', function () {
  */
 add_action('init', 'pre_process_registration', 1);
 function pre_process_registration() {
+    global $errors;
     //if (!is_singular()) return;
     if (\jpHelpers::getValue('_wpnonce', false)) {
         // Enregistrer les informations utilisateur
@@ -168,17 +170,17 @@ function pre_process_registration() {
             // Check if user exist
             if (email_exists($email) || username_exists($email)) {
                 // User exist in bdd
-                $response = email_exists($email);
+                $errors[] = ['type' => 'email', 'msg' => "Adresse email existe déja"];
+                return;
             } else {
                 $response = wp_insert_user($args);
-                if (is_wp_error($response)) {  return false; }
+                if (is_wp_error($response)) {
+                    $errors[] = ['type' => "global", "msg" => $response->get_error_message()];
+                    return false;
+                }
             }
-            if (!is_numeric($response)) {
-                echo "Value isn't numeric";
-                return false;
-            }
-            $user_id = $response;
-            $phone_number = $_POST['phone'];
+            $user_id = (int)$response;
+            $phone_number = jpHelpers::getValue('phone');
             if ($role === 'candidate') {
                 // Pour les candidat
                 $candidate = new jpCandidate($user_id);
@@ -200,5 +202,29 @@ function pre_process_registration() {
     }
 }
 
+
+/**
+ * Cette action permet de se connecter au site
+ */
+add_action('init', function () {
+    if (!isset($_POST['jp-login-nonce'])) return;
+    $nonce = trim($_POST['jp-login-nonce']);
+    $nonce_verify = wp_verify_nonce($nonce, 'jp-login-action');
+    if ($nonce_verify) {
+        $remember = isset($_POST['remember']) ? true : false;
+        $info = array();
+        $info['user_login'] = $_POST['log'];
+        $info['user_password'] = $_POST['pwd'];
+        $info['remember'] = $remember;
+        $user_signon = wp_signon($info, false);
+        if (!is_wp_error($user_signon)) {
+            // redirection dans l'espace client
+            wp_set_current_user( $user_signon->ID );
+            wp_set_auth_cookie( $user_signon->ID, $remember, false );
+            //do_action( 'wp_login', $user_signon->user_login );
+            wp_redirect(home_url('/espace-client'));
+        }
+    }
+});
 
 

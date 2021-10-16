@@ -5,10 +5,26 @@ final class AdminManager
     public function __construct()
     {
         add_action('restrict_manage_users', [$this, 'add_activated__filter']);
-        add_filter('pre_get_users', [$this, 'activated_user__filter']);
+        add_action('pre_user_query', [$this, 'pre_user_query']);
 
         add_filter('manage_users_columns', [&$this, 'user_head_table']);
         add_filter('manage_users_custom_column', [&$this, 'manage_user_table'], 10, 3);
+
+        add_filter('manage_jp-jobs_posts_columns', function($columns) {
+            return array_merge($columns, ['company' => __('Entreprise', 'textdomain')]);
+        });
+
+        add_action('manage_jp-jobs_posts_custom_column', function($column_key, $post_id) {
+            // todo show company for this annonce
+            if ($column_key == 'company') {
+                $duration = get_post_meta($post_id, 'duration', true);
+                $select = '<select name="company" style="float:none;">%s</select>';
+                $option = '<option value="%d" %s>%s</option>';
+
+                echo (!empty($duration)) ? sprintf(__('%s minutes', 'textdomain'), $duration) : __('Unknown', 'textdomain');
+            }
+        }, 10, 2);
+
         add_action('admin_init', [&$this, 'init']);
         add_action('admin_enqueue_scripts', [&$this, 'admin_enqueue']);
     }
@@ -16,30 +32,31 @@ final class AdminManager
 
     public function add_activated__filter($which)
     {
+        $value = jpHelpers::getValue('activation', null);
         // create sprintf templates for <select> and <option>s
         $st = '<select name="activation" style="float:none;">%s</select>';
-        $ot = '<option value="%d" >%s</option>';
+        $ot = '<option value="%d" %s>%s</option>';
         // generate <option> and <select> code
-        $options = implode('', array_map(function ($i) use ($ot) {
+        $options = implode('', array_map(function ($i) use ($ot, $value) {
             $name = ($i == 0) ? 'Deactivate' : 'Activate';
-            return sprintf($ot, $i, $name);
+            return sprintf($ot, $i, $value == $i ? "checked" : "", $name);
         }, [0, 1]));
         $select = sprintf($st, $options);
         echo $select;
         // output <select> and submit button
-        submit_button(__('Filter'), null, $which, false);
+        submit_button(__('Trouver'), null, $which, false);
     }
 
-    public function activated_user__filter($query)
+    public function pre_user_query($query)
     {
-        global $pagenow;
-        if (is_admin() && 'users.php' == $pagenow) {
-            if ($section = $_GET['activation']) {
-                $meta_query = [['key' => 'is_active', 'value' => $section, 'compare' => 'LIKE']];
-                $query->set('meta_key', 'is_active');
-                $query->set('meta_query', $meta_query);
-            }
-        }
+        //global $pagenow;
+        global $wpdb;
+        $action = jpHelpers::getValue('activation', null);
+        if ($action != '0' && $action != '1') return $query;
+        $query->query_where = "WHERE {$wpdb->users}.ID IN (
+            SELECT {$wpdb->usermeta}.user_id FROM $wpdb->usermeta 
+                WHERE {$wpdb->usermeta}.meta_key = 'is_active' AND {$wpdb->usermeta}.meta_value = '{$action}')";
+        return $query;
     }
 
     public function user_head_table($column)

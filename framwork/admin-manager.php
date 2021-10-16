@@ -39,7 +39,7 @@ final class AdminManager
                 $select .= '<input type="hidden" name="controller" value="update_emploie_company" />';
                 $select .= '<button type="submit" class="btn btn-sm btn-success">Update</button>';
                 $select .= '</form>';
-                return $select;
+                echo $select;
             }
         }, 10, 2);
 

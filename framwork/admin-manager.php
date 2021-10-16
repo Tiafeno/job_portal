@@ -24,7 +24,7 @@ final class AdminManager
 
                 $post_company_id = get_post_meta($post_id, 'company_id', true);
                 $post_company_id = $post_company_id ? intval($post_company_id) : 0;
-                $option = '';
+                $option = '<option value=""></option>';
                 $select = "<form method='post'>";
                 $select .= '<select name="company" style="float:none;">%s</select>';
 
@@ -37,7 +37,8 @@ final class AdminManager
 
                 $select = sprintf($select, $option);
                 $select .= '<input type="hidden" name="controller" value="update_emploie_company" />';
-                $select .= '<button type="submit" class="btn btn-sm btn-success">Update</button>';
+                $select .= '<input type="hidden" name="post_id" value="'.$post_id.'" />';
+                $select .= '<input type="submit" value="Envoyer" class="button button-primary">';
                 $select .= '</form>';
                 echo $select;
             }
@@ -151,7 +152,32 @@ final class AdminManager
         // Cette condition permet d'ajouter une entreprise pour une annonce
         if ($controller === 'update_emploie_company') {
             $company_id = jpHelpers::getValue('company', 0);
+            $post_id = jpHelpers::getValue('post_id', 0);
+            if ($company_id) {
 
+                // add employer id
+                $employer_query = new WP_User_Query([
+                    'role'          => 'employer',
+                    'meta_query'    => array(
+                        'relation'  => 'AND',
+                        array(
+                            'key'     => 'company_id',
+                            'value'   => $company_id,
+                            'compare' => '='
+                        )
+                    )
+                ]);
+                if ($employer_query->get_results()) {
+                    $results = $employer_query->get_results();
+                    $employer = $results[0]; // Get first result
+                    if ($employer instanceof WP_User) {
+                        // add company id
+                        update_post_meta($post_id, 'company_id', $company_id);
+                        update_post_meta($post_id, 'employer_id', $employer->ID);
+                    }
+                }
+
+            }
         }
     }
 

@@ -15,13 +15,31 @@ final class AdminManager
         });
 
         add_action('manage_jp-jobs_posts_custom_column', function($column_key, $post_id) {
-            // todo show company for this annonce
             if ($column_key == 'company') {
-                $duration = get_post_meta($post_id, 'duration', true);
-                $select = '<select name="company" style="float:none;">%s</select>';
-                $option = '<option value="%d" %s>%s</option>';
+                $args = [
+                    'role' => 'employer',
+                    'number' => 100
+                ];
+                $employers = new WP_User_Query($args);
 
-                echo (!empty($duration)) ? sprintf(__('%s minutes', 'textdomain'), $duration) : __('Unknown', 'textdomain');
+                $post_company_id = get_post_meta($post_id, 'company_id', true);
+                $post_company_id = $post_company_id ? intval($post_company_id) : 0;
+                $option = '';
+                $select = "<form method='post'>";
+                $select .= '<select name="company" style="float:none;">%s</select>';
+
+                if ( ! empty( $employers->get_results() ) ) {
+                    foreach ( $employers->get_results() as $employer ) {
+                        $checked = $post_company_id === $employer->ID ? "checked" : '';
+                        $option .= sprintf('<option value="%d" %s>%s</option>', $employer->ID, $checked, $employer->display_name);
+                    }
+                }
+
+                $select = sprintf($select, $option);
+                $select .= '<input type="hidden" name="controller" value="update_emploie_company" />';
+                $select .= '<button type="submit" class="btn btn-sm btn-success">Update</button>';
+                $select .= '</form>';
+                return $select;
             }
         }, 10, 2);
 
@@ -115,9 +133,7 @@ final class AdminManager
 
     public function init()
     {
-        /**
-         * Cette action permet d'activer ou desactiver une utilisateur
-         */
+        // Cette action permet d'activer ou desactiver une utilisateur
         $controller = jpHelpers::getValue('controller');
         if ($controller === 'user_activation') {
             $name = jpHelpers::getValue('name');
@@ -131,6 +147,11 @@ final class AdminManager
 
             // Redirection
             wp_redirect(admin_url('users.php'));
+        }
+        // Cette condition permet d'ajouter une entreprise pour une annonce
+        if ($controller === 'update_emploie_company') {
+            $company_id = jpHelpers::getValue('company', 0);
+
         }
     }
 

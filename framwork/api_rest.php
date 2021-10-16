@@ -114,17 +114,13 @@ add_action('rest_api_init', function () {
     // Add custom field in job post type
     register_rest_field( ['jp-jobs'], 'company', array(
         'get_callback' => function( $job_arr ) {
-            $employer_id = get_post_meta($job_arr['id'], 'employer_id', true);
-            $employer_id = intval($employer_id);
+            $employer_id = (int)get_post_meta($job_arr['id'], 'employer_id', true);
             $request = new WP_REST_Request();
             $request->set_param('context', 'view');
             $company_id = get_user_meta($employer_id, 'company_id', true);
-            $company_id = intval($company_id);
-            if (0 === $company_id) {
-                return 0;
-            }
+            if (0 === (int)$company_id || !$company_id)  return 0;
             $company_controller = new WP_REST_Users_Controller();
-            $Company = new WP_User($company_id);
+            $Company = new WP_User((int)$company_id);
             return $company_controller->prepare_item_for_response($Company, $request)->data;
         },
         // Pour modifier, cette function reçois la valeur entier (company_id)

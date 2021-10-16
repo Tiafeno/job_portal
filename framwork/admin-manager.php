@@ -30,7 +30,7 @@ final class AdminManager
 
                 if ( ! empty( $employers->get_results() ) ) {
                     foreach ( $employers->get_results() as $employer ) {
-                        $checked = $post_company_id === $employer->ID ? "checked" : '';
+                        $checked = $post_company_id === $employer->ID ? "selected" : '';
                         $option .= sprintf('<option value="%d" %s>%s</option>', $employer->ID, $checked, $employer->display_name);
                     }
                 }

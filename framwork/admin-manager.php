@@ -44,9 +44,9 @@ final class AdminManager
 
     public function user_head_table($column)
     {
-        $column['is_active'] = 'Active';
-        $column['employer'] = 'Relation';
-        $column['verify_email'] = 'Verifier';
+        $column['is_active'] = 'Activation';
+        $column['employer'] = 'Emp. / Ent.';
+        $column['verify_email'] = 'Email v.';
         return $column;
     }
 

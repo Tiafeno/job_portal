@@ -10,6 +10,7 @@ final class AdminManager
         add_filter('manage_users_columns', [&$this, 'user_head_table']);
         add_filter('manage_users_custom_column', [&$this, 'manage_user_table'], 10, 3);
         add_action('admin_init', [&$this, 'init']);
+        add_action('admin_enqueue_scripts', 'admin_enqueue');
     }
 
 
@@ -45,6 +46,7 @@ final class AdminManager
     {
         $column['is_active'] = 'Active';
         $column['employer'] = 'Relation';
+        $column['verify_email'] = 'Verifier';
         return $column;
     }
 
@@ -60,7 +62,9 @@ final class AdminManager
                 $is_active = get_metadata('user', $user->ID, 'is_active', true);
                 $action_name = $is_active ? "deactivated" : "activated";
                 $btn_class = $is_active ? '' : "button-primary";
-                return "<a class='activation button $btn_class' href='" . admin_url("users.php?controller=user_activation&amp;user=$user->ID&amp;name=$action_name") . "'>" . ucfirst($action_name) . "</a>";
+                $user_activation_url = admin_url("users.php?controller=user_activation&amp;user=$user->ID&amp;name=$action_name");
+                return "<a class='activation button $btn_class' href='" . $user_activation_url . "'>" . ucfirst($action_name) . "</a>";
+
             case 'employer':
                 $current_user_role = reset($user->roles);
                 if (!in_array($current_user_role, ['company', 'employer'])) {
@@ -70,6 +74,7 @@ final class AdminManager
                 if ('employer' === $current_user_role) {
                     $uId = get_metadata('user', $user_id, 'company_id', true);
                 }
+                // For company
                 if ('company' === $current_user_role) {
                     $uId = get_metadata('user', $user_id, 'employer_id', true);
                 }
@@ -78,7 +83,11 @@ final class AdminManager
                 $edit_link = get_edit_user_link($user_relation->ID);
                 return "<a href='$edit_link' target='_blank' class='button button-primary' >$user_relation->display_name</a>";
 
-                break;
+            case 'verify_email':
+                $is_verify = get_metadata('user', $user->ID, 'email_verify', true);
+                $value = (!$is_verify || 0 === intval($is_verify)) ? "Non" : "Oui";
+                return sprintf("<span class='user-email-status %s'>%s</span>",
+                    $value === "Non" ? "user-no-verify" : "user-verify", $value);
             default:
         }
         return $val;
@@ -98,11 +107,16 @@ final class AdminManager
             update_metadata('user', $user_id, 'is_active', $value);
 
             // Send mail to user
-            do_action('send_mail_activated_account', $user_id);
+            if (1 === $value) do_action('send_mail_activated_account', $user_id);
 
             // Redirection
             wp_redirect(admin_url('users.php'));
         }
+    }
+
+    public function admin_enqueue($hook) {
+        //if ( 'users.php' != $hook ) return;
+        wp_enqueue_style( 'admin-jobjiaby', get_stylesheet_directory_uri() . '/assets/css/admin.css', [], true);
     }
 }
 

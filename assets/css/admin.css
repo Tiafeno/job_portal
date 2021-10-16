@@ -1,0 +1,12 @@
+.user-no-verify {
+    background-color: red;
+}
+
+.user-verify {
+    background-color: #2fd50c;
+}
+
+.user-email-status {
+    color: aliceblue;
+    padding: 5px 10px 5px 10px;
+}

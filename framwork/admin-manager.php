@@ -10,7 +10,7 @@ final class AdminManager
         add_filter('manage_users_columns', [&$this, 'user_head_table']);
         add_filter('manage_users_custom_column', [&$this, 'manage_user_table'], 10, 3);
         add_action('admin_init', [&$this, 'init']);
-        add_action('admin_enqueue_scripts', 'admin_enqueue');
+        add_action('admin_enqueue_scripts', [&$this, 'admin_enqueue']);
     }
 
 

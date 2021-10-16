@@ -17,7 +17,7 @@ final class AdminManager
         add_action('manage_jp-jobs_posts_custom_column', function($column_key, $post_id) {
             if ($column_key == 'company') {
                 $args = [
-                    'role' => 'employer',
+                    'role' => 'company',
                     'number' => 100
                 ];
                 $employers = new WP_User_Query($args);

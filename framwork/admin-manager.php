@@ -53,10 +53,11 @@ final class AdminManager
     public function manage_user_table($val, $column_name, $user_id)
     {
         $user = new WP_User($user_id);
+        $current_user_role = reset($user->roles);
         $no_required = "-";
         switch ($column_name) {
             case 'is_active' :
-                if (!in_array($user->roles[0], ['candidate', 'company'])) {
+                if (!in_array($current_user_role, ['candidate', 'company'])) {
                     return $no_required;
                 }
                 $is_active = get_metadata('user', $user->ID, 'is_active', true);
@@ -66,7 +67,6 @@ final class AdminManager
                 return "<a class='activation button $btn_class' href='" . $user_activation_url . "'>" . ucfirst($action_name) . "</a>";
 
             case 'employer':
-                $current_user_role = reset($user->roles);
                 if (!in_array($current_user_role, ['company', 'employer'])) {
                     return $no_required;
                 }
@@ -84,6 +84,9 @@ final class AdminManager
                 return "<a href='$edit_link' target='_blank' class='button button-primary' >$user_relation->display_name</a>";
 
             case 'verify_email':
+                if (!in_array($current_user_role, ['candidate', 'employer'])) {
+                    return $no_required;
+                }
                 $is_verify = get_metadata('user', $user->ID, 'email_verify', true);
                 $value = (!$is_verify || 0 === intval($is_verify)) ? "Non" : "Oui";
                 return sprintf("<span class='user-email-status %s'>%s</span>",

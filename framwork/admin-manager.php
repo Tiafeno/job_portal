@@ -7,9 +7,11 @@ final class AdminManager
         add_action('restrict_manage_users', [$this, 'add_activated__filter']);
         add_action('pre_user_query', [$this, 'pre_user_query']);
 
+        // User column
         add_filter('manage_users_columns', [&$this, 'user_head_table']);
         add_filter('manage_users_custom_column', [&$this, 'manage_user_table'], 10, 3);
 
+        // Jobs or annonce columns
         add_filter('manage_jp-jobs_posts_columns', function($columns) {
             return array_merge($columns, ['company' => __('Entreprise', 'textdomain')]);
         });
@@ -30,11 +32,10 @@ final class AdminManager
 
                 if ( ! empty( $employers->get_results() ) ) {
                     foreach ( $employers->get_results() as $employer ) {
-                        $checked = $post_company_id === $employer->ID ? "selected" : '';
+                        $checked = ($post_company_id === $employer->ID) ? "selected" : '';
                         $option .= sprintf('<option value="%d" %s>%s</option>', $employer->ID, $checked, $employer->display_name);
                     }
                 }
-
                 $select = sprintf($select, $option);
                 $select .= '<input type="hidden" name="controller" value="update_emploie_company" />';
                 $select .= '<input type="hidden" name="post_id" value="'.$post_id.'" />';
@@ -155,7 +156,7 @@ final class AdminManager
             $post_id = jpHelpers::getValue('post_id', 0);
             if ($company_id) {
 
-                // add employer id
+                // Add employer id
                 $employer_query = new WP_User_Query([
                     'role'          => 'employer',
                     'meta_query'    => array(
@@ -171,12 +172,11 @@ final class AdminManager
                     $results = $employer_query->get_results();
                     $employer = $results[0]; // Get first result
                     if ($employer instanceof WP_User) {
-                        // add company id
+                        // Add company id
                         update_post_meta($post_id, 'company_id', $company_id);
                         update_post_meta($post_id, 'employer_id', $employer->ID);
                     }
                 }
-
             }
         }
     }

@@ -110,7 +110,7 @@
         if (!empty($jj_messages)) {
             foreach ($jj_messages as $message) {
                 ?>
-                <div class="alert text-center alert-<?= $message['type'] ?>" role="alert" style="padding: 4px">
+                <div class="alert text-center alert-<?= $message['type'] ?>" role="alert" style="padding: 4px; margin-bottom: 0px">
                     <?= $message['msg'] ?>
                     <?php
                     if (isset($message['btn'])) {

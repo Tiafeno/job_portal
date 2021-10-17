@@ -168,9 +168,7 @@ add_action('rest_api_init', function () {
         // Send response data
         wp_send_json_success($candidate);
     }
-    /**
-     * Récuperer la liste des candidates
-     */
+    // Postuler pour un offre et recuperer la liste des candidates qui ont postuler
     register_rest_route('job/v2', '/(?P<job_id>\d+)/apply', [
         array(
             'methods' => WP_REST_Server::CREATABLE,
@@ -300,12 +298,12 @@ add_action('rest_api_init', function () {
             ]
         ]
     ]);
+    // Recuperer le candidate
     register_rest_route('job/v2', '/candidate/(?P<id_candidate>\d+)', [
         [
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
                 $candidate_id = intval($request->get_param('id_candidate'));
-
                 // Create request
                 $req = new WP_REST_Request();
                 $req->set_param('context', 'edit');
@@ -328,6 +326,7 @@ add_action('rest_api_init', function () {
             ]
         ]
     ]);
+    // Recuperer les entreprises
     register_rest_route('job/v2', '/companies', [
         array(
             'methods' => WP_REST_Server::READABLE,
@@ -355,6 +354,7 @@ add_action('rest_api_init', function () {
             }
         ),
     ]);
+    // Recuperer une entreprise
     register_rest_route('job/v2', '/companies/(?P<company_id>\d+)', [
         array(
             'methods' => WP_REST_Server::READABLE,

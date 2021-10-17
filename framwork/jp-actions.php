@@ -57,7 +57,7 @@ add_action('init', function () {
         if (is_user_logged_in()) {
             wp_send_json_error(["msg" => "Vous ne pouvez pas effectuer cette action"]);
         }
-        $email = jpHelpers::getValue('email');
+        $email = Tools::getValue('email');
         if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             wp_send_json_error(["msg" => "Paramétre non valide"]);
         }
@@ -149,18 +149,18 @@ add_action('init', 'pre_process_registration', 1);
 function pre_process_registration() {
     global $jj_errors;
     //if (!is_singular()) return;
-    if (\jpHelpers::getValue('_wpnonce', false)) {
+    if (\Tools::getValue('_wpnonce', false)) {
         // Enregistrer les informations utilisateur
         if (wp_verify_nonce($_POST['_wpnonce'], 'jobjiaby-register')) {
-            $email = \jpHelpers::getValue('email', null);
+            $email = \Tools::getValue('email', null);
             if (is_null($email) || empty($_POST['role'])) { return false; }
             $role = esc_attr($_POST['role']); //candidate or employer
-            $password = \jpHelpers::getValue('password');
+            $password = \Tools::getValue('password');
             if (!$password) return;
             $args = [
                 'user_pass' => $password,
                 'nickname' => $email,
-                'first_name' => \jpHelpers::getValue('first_name', ''),
+                'first_name' => \Tools::getValue('first_name', ''),
                 'last_name' => '',
                 'user_login' => $email,
                 'user_email' => $email,
@@ -179,7 +179,7 @@ function pre_process_registration() {
                 }
             }
             $user_id = (int)$response;
-            $phone_number = jpHelpers::getValue('phone');
+            $phone_number = Tools::getValue('phone');
             if ($role === 'candidate') {
                 // Pour les candidat
                 $candidate = new jpCandidate($user_id);
@@ -209,10 +209,10 @@ function pre_process_registration() {
 add_action('init', 'process_validate_user_email', 1);
 function process_validate_user_email() {
     global $jj_messages;
-    $nonce = jpHelpers::getValue('verify_email_nonce', false);
+    $nonce = Tools::getValue('verify_email_nonce', false);
     if (!$nonce) return false;
     if (wp_verify_nonce($nonce, 'jobjiaby_verify_email')) {
-        $email = jpHelpers::getValue('e'); // email base64 encrypt
+        $email = Tools::getValue('e'); // email base64 encrypt
         $email = base64_decode($email);
         if ($user_id = email_exists($email)) {
             $is_verify = (int)get_user_meta($user_id, 'email_verify', true);
@@ -250,7 +250,7 @@ function process_resend_verify_user_email() {
     }
 
     // Resend verify user email
-    $nonce = jpHelpers::getValue('resend_verify_nonce');
+    $nonce = Tools::getValue('resend_verify_nonce');
     if (!$nonce) return false;
     if (wp_verify_nonce($nonce, 'jobjiaby_resend_verify')) {
         do_action('send_email_new_user', $user_id);
@@ -261,7 +261,7 @@ function process_resend_verify_user_email() {
  * Cette action permet de se connecter au site
  */
 add_action('init', function () {
-    $nonce = jpHelpers::getValue('jp-login-nonce', false);
+    $nonce = Tools::getValue('jp-login-nonce', false);
     if (!$nonce) return;
     $nonce_verify = wp_verify_nonce($nonce, 'jp-login-action');
     if ($nonce_verify) {

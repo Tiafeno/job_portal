@@ -17,7 +17,7 @@ trait Configs {
     }
 }
 
-class jpHelpers {
+class Tools {
     use Configs;
     public function __construct() {}
     public static function getInstance() {

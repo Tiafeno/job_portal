@@ -52,7 +52,7 @@ final class AdminManager
 
     public function add_activated__filter($which)
     {
-        $value = jpHelpers::getValue('activation', null);
+        $value = Tools::getValue('activation', null);
         // create sprintf templates for <select> and <option>s
         $st = '<select name="activation" style="float:none;">%s</select>';
         $ot = '<option value="%d" %s>%s</option>';
@@ -71,7 +71,7 @@ final class AdminManager
     {
         //global $pagenow;
         global $wpdb;
-        $action = jpHelpers::getValue('activation', null);
+        $action = Tools::getValue('activation', null);
         if ($action != '0' && $action != '1') return $query;
         $query->query_where = "WHERE {$wpdb->users}.ID IN (
             SELECT {$wpdb->usermeta}.user_id FROM $wpdb->usermeta 
@@ -136,11 +136,11 @@ final class AdminManager
     public function init()
     {
         // Cette action permet d'activer ou desactiver une utilisateur
-        $controller = jpHelpers::getValue('controller');
+        $controller = Tools::getValue('controller');
         if ($controller === 'user_activation') {
-            $name = jpHelpers::getValue('name');
+            $name = Tools::getValue('name');
             $value = ($name === 'deactivated') ? 0 : 1;
-            $user_id = (int)jpHelpers::getValue('user');
+            $user_id = (int)Tools::getValue('user');
             // Mettre a jours la valeur
             update_metadata('user', $user_id, 'is_active', $value);
 
@@ -152,8 +152,8 @@ final class AdminManager
         }
         // Cette condition permet d'ajouter une entreprise pour une annonce
         if ($controller === 'update_emploie_company') {
-            $company_id = jpHelpers::getValue('company', 0);
-            $post_id = jpHelpers::getValue('post_id', 0);
+            $company_id = Tools::getValue('company', 0);
+            $post_id = Tools::getValue('post_id', 0);
             if ($company_id) {
 
                 // Add employer id

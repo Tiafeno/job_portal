@@ -422,7 +422,7 @@ add_action('rest_api_init', function () {
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
-                $configs = jpHelpers::getInstance()->get_app_configs();
+                $configs = Tools::getInstance()->get_app_configs();
                 $account_pricing = $configs->pricing->account;
                 wp_send_json($account_pricing);
             },
@@ -435,7 +435,7 @@ add_action('rest_api_init', function () {
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
-                $configs = jpHelpers::getInstance()->get_app_configs();
+                $configs = Tools::getInstance()->get_app_configs();
                 $status = $configs->candidat_status;
                 wp_send_json($status);
             },
@@ -582,7 +582,7 @@ add_action('rest_api_init', function () {
                 $customer_id = intval($request->get_param('customer_id'));
                 $object_id = intval($request->get_param('object_id'));
                 $product_title = null;
-                $configs = jpHelpers::getInstance()->get_app_configs();
+                $configs = Tools::getInstance()->get_app_configs();
                 $date = new DateTime();
                 switch ($type) {
                     case 'account':

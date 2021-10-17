@@ -146,7 +146,7 @@ function user_fields( $user ) {
 add_action('acf/render_field/name=pricing', 'acf_pricing_field');
 function acf_pricing_field() {
     global $Liquid_engine;
-    $app_configs = jpHelpers::getInstance()->get_app_configs();
+    $app_configs = Tools::getInstance()->get_app_configs();
     $pricings = $app_configs->pricing->account;
     $args = [
         'pricings' => $pricings

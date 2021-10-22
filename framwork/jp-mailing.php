@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 add_action('send_email_new_user', function($user_id = 0) {
     if (!$user_id) return;
     global $Liquid_engine;
-    $subject = "Activation du compte - JOBJIABY";
+    $subject = "Activation de compte - JOBJIABY";
     $headers = [];
     $headers[] = 'Content-Type: text/html; charset=UTF-8';
     $headers[] = "From: Jobjiaby <no-reply@jobjiaby.com>";
@@ -25,7 +25,6 @@ add_action('send_email_new_user', function($user_id = 0) {
         'logo' => $logo[0]
     ]);
     wp_mail($user->user_email, $subject, $content, $headers);
-
 }, 10, 1);
 
 

@@ -148,6 +148,10 @@ add_action('init', function () {
 add_action('init', 'pre_process_registration', 1);
 function pre_process_registration() {
     global $jj_errors;
+
+    $confirmation_register = get_page_by_path('confirmation-register', OBJECT);
+    $page_id = $confirmation_register->ID;
+
     //if (!is_singular()) return;
     if (\Tools::getValue('_wpnonce', false)) {
         // Enregistrer les informations utilisateur
@@ -197,7 +201,7 @@ function pre_process_registration() {
             update_user_meta($user_id, 'email_verify', 0);
             do_action('send_email_new_user', $user_id); // Envoyer le mail
             // Redirection
-            wp_redirect(home_url('/'));
+            wp_redirect(get_the_permalink($page_id) . '?user_id='.$user_id);
             exit();
         }
     }

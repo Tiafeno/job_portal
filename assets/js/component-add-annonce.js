@@ -371,6 +371,7 @@
                     }
                     // Return if an error exist and company isn't activate
                     if (!lodash.isEmpty(this.errors) || !this.hasActiveCompany) return;
+                    this.submitForm();
                 },
                 submitForm: function () {
                     const self = this;

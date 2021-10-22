@@ -32,5 +32,19 @@ add_action('send_email_new_user', function($user_id = 0) {
 add_action('send_mail_activated_account', function($user_id) {
     if (!$user_id) return;
     global $Liquid_engine;
-    // todo send mail to user
+    $subject = "Validation de compte - JOBJIABY";
+    $headers = [];
+    $headers[] = 'Content-Type: text/html; charset=UTF-8';
+    $headers[] = "From: Jobjiaby <no-reply@jobjiaby.com>";
+
+    $custom_logo_id = get_theme_mod('custom_logo');
+    $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
+
+    $user = new WP_User($user_id);
+    $content = $Liquid_engine->parseFile('validation_account')->render([
+        'link' => home_url('/espace-client'),
+        'home_url' => home_url("/"),
+        'logo' => $logo[0]
+    ]);
+    wp_mail($user->user_email, $subject, $content, $headers);
 }, 10, 1);

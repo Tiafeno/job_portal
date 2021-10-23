@@ -3,6 +3,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+
 add_action('send_email_new_user', function($user_id = 0) {
     if (!$user_id) return;
     global $Liquid_engine;
@@ -28,7 +29,7 @@ add_action('send_email_new_user', function($user_id = 0) {
 }, 10, 1);
 
 
-add_action('send_mail_activated_account', function($user_id) {
+add_action('send_mail_activated_account', function($user_id, $template = '') {
     if (!$user_id) return;
     global $Liquid_engine;
     $subject = "Validation de compte - JOBJIABY";
@@ -40,10 +41,11 @@ add_action('send_mail_activated_account', function($user_id) {
     $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
 
     $user = new WP_User($user_id);
-    $content = $Liquid_engine->parseFile('validation_account')->render([
+    $filename = "{$template}_validation_account";
+    $content = $Liquid_engine->parseFile($filename)->render([
         'link' => home_url('/espace-client'),
         'home_url' => home_url("/"),
         'logo' => $logo[0]
     ]);
     wp_mail($user->user_email, $subject, $content, $headers);
-}, 10, 1);
+}, 10, 2);

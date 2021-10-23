@@ -18,11 +18,10 @@ final class AdminManager
 
         add_action('manage_jp-jobs_posts_custom_column', function($column_key, $post_id) {
             if ($column_key == 'company') {
-                $args = [
+                $employers = new WP_User_Query([
                     'role' => 'company',
                     'number' => 100
-                ];
-                $employers = new WP_User_Query($args);
+                ]);
 
                 $post_company_id = get_post_meta($post_id, 'company_id', true);
                 $post_company_id = $post_company_id ? intval($post_company_id) : 0;
@@ -47,6 +46,65 @@ final class AdminManager
 
         add_action('admin_init', [&$this, 'init']);
         add_action('admin_enqueue_scripts', [&$this, 'admin_enqueue']);
+    }
+
+    public function init()
+    {
+        // Cette action permet d'activer ou desactiver une utilisateur
+        $controller = Tools::getValue('controller');
+
+        // Cette condition permet de valider ou non un compte
+        if ($controller === 'user_activation') {
+            $name = Tools::getValue('name');
+            $value = ($name === 'deactivated') ? 0 : 1;
+            $user_id = (int)Tools::getValue('user');
+            // Mettre a jours la valeur
+            update_metadata('user', $user_id, 'is_active', $value);
+            // Verifier si c'est une entreprise
+            $user = new WP_User($user_id);
+            $template = in_array('company', $user->roles) ? 'company' : 'candidate';
+            if ('company' === $template) {
+                $employer_id = get_metadata('user', $user->ID, 'employer_id', true);
+                $user_id = intval($employer_id);
+                $template = 'company';
+            }
+
+            // Send mail to user
+            if (1 === $value) {
+                do_action('send_mail_activated_account', $user_id, $template);
+            }
+            wp_redirect(admin_url('users.php'));
+        }
+
+
+        // Cette condition permet d'ajouter une entreprise pour une annonce
+        if ($controller === 'update_emploie_company') {
+            $company_id = Tools::getValue('company', 0);
+            $post_id = Tools::getValue('post_id', 0);
+            if ($company_id) {
+                // Add employer id
+                $employer_query = new WP_User_Query([
+                    'role'          => 'employer',
+                    'meta_query'    => array(
+                        'relation'  => 'AND',
+                        array(
+                            'key'     => 'company_id',
+                            'value'   => $company_id,
+                            'compare' => '='
+                        )
+                    )
+                ]);
+                if ($employer_query->get_results()) {
+                    $results = $employer_query->get_results();
+                    $employer = $results[0]; // Get first result
+                    if ($employer instanceof WP_User) {
+                        // Add company id
+                        update_post_meta($post_id, 'company_id', $company_id);
+                        update_post_meta($post_id, 'employer_id', $employer->ID);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -100,9 +158,8 @@ final class AdminManager
                 $is_active = get_metadata('user', $user->ID, 'is_active', true);
                 $action_name = $is_active ? "deactivated" : "activated";
                 $btn_class = $is_active ? '' : "button-primary";
-                $user_activation_url = admin_url("users.php?controller=user_activation&amp;user=$user->ID&amp;name=$action_name");
+                $user_activation_url = admin_url("users.php?controller=user_activation&user=$user->ID&name=$action_name");
                 return "<a class='activation button $btn_class' href='" . $user_activation_url . "'>" . ucfirst($action_name) . "</a>";
-
             case 'employer':
                 if (!in_array($current_user_role, ['company', 'employer'])) {
                     return $no_required;
@@ -119,7 +176,6 @@ final class AdminManager
                 $user_relation = new WP_User(intval($uId));
                 $edit_link = get_edit_user_link($user_relation->ID);
                 return "<a href='$edit_link' target='_blank' class='button button-primary' >$user_relation->display_name</a>";
-
             case 'verify_email':
                 if (!in_array($current_user_role, ['candidate', 'employer'])) {
                     return $no_required;
@@ -133,53 +189,7 @@ final class AdminManager
         return $val;
     }
 
-    public function init()
-    {
-        // Cette action permet d'activer ou desactiver une utilisateur
-        $controller = Tools::getValue('controller');
-        if ($controller === 'user_activation') {
-            $name = Tools::getValue('name');
-            $value = ($name === 'deactivated') ? 0 : 1;
-            $user_id = (int)Tools::getValue('user');
-            // Mettre a jours la valeur
-            update_metadata('user', $user_id, 'is_active', $value);
 
-            // Send mail to user
-            if (1 === $value) do_action('send_mail_activated_account', $user_id);
-
-            // Redirection
-            wp_redirect(admin_url('users.php'));
-        }
-        // Cette condition permet d'ajouter une entreprise pour une annonce
-        if ($controller === 'update_emploie_company') {
-            $company_id = Tools::getValue('company', 0);
-            $post_id = Tools::getValue('post_id', 0);
-            if ($company_id) {
-
-                // Add employer id
-                $employer_query = new WP_User_Query([
-                    'role'          => 'employer',
-                    'meta_query'    => array(
-                        'relation'  => 'AND',
-                        array(
-                            'key'     => 'company_id',
-                            'value'   => $company_id,
-                            'compare' => '='
-                        )
-                    )
-                ]);
-                if ($employer_query->get_results()) {
-                    $results = $employer_query->get_results();
-                    $employer = $results[0]; // Get first result
-                    if ($employer instanceof WP_User) {
-                        // Add company id
-                        update_post_meta($post_id, 'company_id', $company_id);
-                        update_post_meta($post_id, 'employer_id', $employer->ID);
-                    }
-                }
-            }
-        }
-    }
 
     public function admin_enqueue($hook) {
         //if ( 'users.php' != $hook ) return;

@@ -18,26 +18,28 @@ final class AdminManager
 
         add_action('manage_jp-jobs_posts_custom_column', function($column_key, $post_id) {
             if ($column_key == 'company') {
-                $employers = new WP_User_Query([
+                $companies = new WP_User_Query([
                     'role' => 'company',
                     'number' => 100
                 ]);
 
-                $post_company_id = get_post_meta($post_id, 'company_id', true);
-                $post_company_id = $post_company_id ? intval($post_company_id) : 0;
+                $employer_id = (int)get_post_meta($post_id, 'employer_id', true);
+                $post_company_id = (int)get_metadata('user', $employer_id, 'company_id', true);
                 $option = '<option value=""></option>';
                 $select = "<form method='post'>";
                 $select .= '<select name="company" style="float:none;">%s</select>';
 
-                if ( ! empty( $employers->get_results() ) ) {
-                    foreach ( $employers->get_results() as $employer ) {
-                        $checked = ($post_company_id === $employer->ID) ? "selected" : '';
-                        $option .= sprintf('<option value="%d" %s>%s</option>', $employer->ID, $checked, $employer->display_name);
+                if ( ! empty( $companies->get_results() ) ) {
+                    foreach ( $companies->get_results() as $company ) {
+                        $checked = ($post_company_id === $company->ID) ? "selected='selected'" : '';
+                        $option .= sprintf('<option value="%d" %s>%s</option>', $company->ID, $checked, $company->display_name);
                     }
                 }
                 $select = sprintf($select, $option);
                 $select .= '<input type="hidden" name="controller" value="update_emploie_company" />';
                 $select .= '<input type="hidden" name="post_id" value="'.$post_id.'" />';
+                $select .= '<input type="hidden" name="employer_id" value="'.$employer_id.'" />';
+                $select .= '<input type="hidden" name="company_id" value="'.$post_company_id.'" />';
                 $select .= '<input type="submit" value="Envoyer" class="button button-primary">';
                 $select .= '</form>';
                 echo $select;

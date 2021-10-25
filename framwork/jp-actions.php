@@ -267,8 +267,7 @@ function process_resend_verify_user_email() {
 add_action('init', function () {
     $nonce = Tools::getValue('jp-login-nonce', false);
     if (!$nonce) return;
-    $nonce_verify = wp_verify_nonce($nonce, 'jp-login-action');
-    if ($nonce_verify) {
+    if (wp_verify_nonce($nonce, 'jp-login-action')) {
         $remember = isset($_POST['remember']) ? true : false;
         $info = array();
         $info['user_login'] = $_POST['log'];

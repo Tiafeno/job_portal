@@ -155,7 +155,7 @@
                             </a>
                         </li>
                         <li class="br-right">
-                            <a class="btn-signup red-btn" onclick="showLoginModal()">
+                            <a class="btn-signup red-btn" href="<?= home_url('/login') ?>">
                                 <i class="login-icon ti-user"></i>
                                 Connexion
                             </a>

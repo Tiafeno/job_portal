@@ -385,10 +385,10 @@ const paramKeys = Object.keys(params); // return array of keys
                     }
                     // Promise response
                     const archivesPromise = this.Request
-                        .per_page(self.per_page)
-                        .page(self.page)
+                        .per_page(this.per_page)
+                        .page(this.page)
                         .get();
-                    self.loadArchive = true;
+                    this.loadArchive = true;
                     archivesPromise.then(function (response) {
                         // Si la reponse est vide
                         if (_.isEmpty(response)) {

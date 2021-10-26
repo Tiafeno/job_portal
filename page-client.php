@@ -424,9 +424,9 @@ get_header();
                         <tr>
                             <th></th>
                             <th>ID</th>
-                            <th>Designation</th>
+                            <th>Désignation</th>
                             <th>Date de publication</th>
-                            <th>Status</th>
+                            <th>Statuts</th>
                         </tr>
                     </thead>
                     <tbody>

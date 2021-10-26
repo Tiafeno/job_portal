@@ -74,7 +74,7 @@ const getFileReader = (file) => {
         Vue.filter('jobStatus', function (value) {
             if (!value) return 'Inconnue'
             value = value.toString()
-            return value === 'pending' ? 'En attente de validation' : (value === 'private' ? 'Supprimer' : 'Publier');
+            return value === 'pending' ? 'En attente de validation' : (value === 'private' ? 'Supprimer' : 'Publiée');
         });
         Vue.filter('cvStatus', function (user) {
             if (!user) return 'Inconnue';

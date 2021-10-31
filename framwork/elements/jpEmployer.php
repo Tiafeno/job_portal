@@ -28,13 +28,10 @@ class jpEmployer extends \WP_User
         $company_id = intval($company_id);
         return get_user_by('ID', $company_id);
     }
-}
 
-class EmployerHelper {
-    public function __construct() {
-
-    }
-    public static function getInstance() {
-        return new self();
+    public function get_company_object() {
+        $company = $this->get_company();
+        if (!$company) return new \WP_Error('', "Aucun entreprise");
+        return new jpCompany($company->ID);
     }
 }

@@ -78,7 +78,6 @@ final class AdminManager
             wp_redirect(admin_url('users.php'));
         }
 
-
         // Cette condition permet d'ajouter une entreprise pour une annonce
         if ($controller === 'update_emploie_company') {
             $company_id = Tools::getValue('company', 0);
@@ -106,6 +105,11 @@ final class AdminManager
                     }
                 }
             }
+        }
+
+        // TODO: Permet de rendre visible le candidate pour l'employer
+        if ($controller === 'apply_validate') {
+
         }
     }
 

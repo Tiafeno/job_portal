@@ -17,6 +17,7 @@ class jpJobs
 
     public function __construct(\WP_Post $post)
     {
+
         $this->post = $post;
         $this->ID = $this->post->ID;
     }
@@ -59,6 +60,10 @@ class jpJobs
         return $this->post;
     }
 
+    /**
+     * Recuperer le responsable pour cette annonce
+     * @return false|\WP_User
+     */
     public function get_employer()
     {
         $employer = get_user_by('ID', $this->employer_id);
@@ -67,18 +72,9 @@ class jpJobs
 
     }
 
-}
-
-// Gestionnaire
-final class JobHandler
-{
-    public function __construct()
-    {
+    public function get_employer_object() {
+        $employer = $this->get_employer();
+        if (!$employer) return new \WP_Error('', "Aucun employer");
+        return new jpEmployer($employer->ID);
     }
-}
-
-
-final class JobModel
-{
-
 }

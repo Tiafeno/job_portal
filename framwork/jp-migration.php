@@ -1,4 +1,7 @@
 <?php
+/**
+ * Job apply table
+ */
 add_action('after_switch_theme', function() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'job_apply';
@@ -15,3 +18,7 @@ add_action('after_switch_theme', function() {
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $sql );
 });
+
+/**
+ * Pricing
+ */

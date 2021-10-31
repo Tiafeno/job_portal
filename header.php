@@ -155,7 +155,7 @@
                             </a>
                         </li>
                         <li class="br-right">
-                            <a class="btn-signup red-btn" href="<?= home_url('/login') ?>">
+                            <a class="btn-signup red-btn" href="<?= home_url('/connexion') ?>">
                                 <i class="login-icon ti-user"></i>
                                 Connexion
                             </a>

@@ -126,6 +126,7 @@ add_action('init', function () {
         wp_set_password($password, $user_id);
         wp_send_json_success("Mot de passe modifier avec succès");
     });
+
     add_action('wp_ajax_ad_handler_apply', function () {
         global $wpdb;
         $candidate_id = intval($_GET['cid']);
@@ -208,7 +209,7 @@ function pre_process_registration() {
 }
 
 /**
- *
+ * Processus d'activation d'adresse email du client
  */
 add_action('init', 'process_validate_user_email', 1);
 function process_validate_user_email() {
@@ -221,7 +222,7 @@ function process_validate_user_email() {
         if ($user_id = email_exists($email)) {
             $is_verify = (int)get_user_meta($user_id, 'email_verify', true);
             if ($is_verify) {
-                //$jj_messages[] = ['type' => 'success', 'msg' => "Votre compte est déja activer"];
+                // Compte déja actif
                 return;
             }
             update_user_meta($user_id, 'email_verify', 1);
@@ -233,7 +234,8 @@ function process_validate_user_email() {
 }
 
 /**
- *
+ * Cette processus permet d'afficher une message si l'adresse email du client n'est pas encore valide.
+ * Il permet aussi de renvoyer le mail de verification d'adresse.
  */
 add_action('init', 'process_resend_verify_user_email', 1);
 function process_resend_verify_user_email() {
@@ -241,6 +243,7 @@ function process_resend_verify_user_email() {
 
     if (!is_user_logged_in()) return;
 
+    // Afficher la banniere si le compte n'est pas encore verifié
     $user_id = get_current_user_id();
     $is_verify = get_user_meta($user_id, 'email_verify', true);
     if (!$is_verify || intval($is_verify) === 0) {
@@ -261,27 +264,20 @@ function process_resend_verify_user_email() {
     }
 }
 
-/**
- * Cette action permet de se connecter au site
- */
-add_action('init', function () {
-    $nonce = Tools::getValue('jp-login-nonce', false);
-    if (!$nonce) return;
-    if (wp_verify_nonce($nonce, 'jp-login-action')) {
-        $remember = isset($_POST['remember']) ? true : false;
-        $info = array();
-        $info['user_login'] = $_POST['log'];
-        $info['user_password'] = $_POST['pwd'];
-        $info['remember'] = $remember;
-        $user_signon = wp_signon($info, false);
-        if (!is_wp_error($user_signon)) {
-            // redirection dans l'espace client
-            wp_set_current_user( $user_signon->ID );
-            wp_set_auth_cookie( $user_signon->ID, $remember, false );
-            //do_action( 'wp_login', $user_signon->user_login );
-            wp_redirect(home_url('/espace-client'));
-        }
+add_action('save_post_jp-jobs', function($post_id, WP_Post $post) {
+    if (define('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
     }
-});
+    // is published
+    if ($post->post_status === 'publish'):
+        $is_published = get_post_meta($post_id, '_is_published', true); // int 1 or 0 or nothing
+        if (!$is_published || 0 == $is_published) {
+            do_action('send_mail_when_publish_emploi', $post_id);
+            update_post_meta($post_id, '_is_published', 1);
+        }
+    endif;
+
+}, 20, 2);
+
 
 

@@ -76,6 +76,15 @@ class jpCandidate extends \WP_User
         return (bool) $is_active;
     }
 
+    /**
+     * @structure
+     * Array [
+     *  ''
+     *
+     * ]
+     *
+     * @return array|mixed
+     */
     public function getExperiences() {
         $exp_encode = get_user_meta($this->ID, 'experiences', true);
         $experiences = $exp_encode ? json_decode($exp_encode) : [];

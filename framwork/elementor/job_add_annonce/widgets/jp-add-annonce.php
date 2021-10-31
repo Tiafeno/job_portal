@@ -4,7 +4,6 @@ namespace JobAddAnnonce\Widgets;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Elementor\Widget_Base;
-use jobLogin\Widgets\jobLogin_Widget;
 
 class JobAddAnnonce_Widget extends Widget_Base
 {
@@ -58,16 +57,6 @@ class JobAddAnnonce_Widget extends Widget_Base
     protected function render()
     {
         global $Liquid_engine;
-
-//        if (!is_user_logged_in()) {
-//            $login_widget = new jobLogin_Widget();
-//            //apply_filters( 'elementor/widget/render_content', string $widget_content, ElementorWidget_Base $this )
-//            $nonce = wp_create_nonce('jp-login-action');
-//            $msg = "Connectez vous avant de pouvoir publier une annonce";
-//            $render = $Liquid_engine->parseFile('job-login')->render(['nonce' => $nonce, 'msg' => $msg ]);
-//            echo apply_filters( 'elementor/widget/render_content', $render, $login_widget );
-//            return true;
-//        }
 
         $current_user = wp_get_current_user();
         if (in_array('employer', $current_user->roles)) {

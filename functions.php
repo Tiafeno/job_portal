@@ -1,7 +1,23 @@
 <?php
+require_once __DIR__ . '/vendor/autoload.php';
+
+use JP\Framwork\Elements\jpJobs;
 use Liquid\Template;
 // Disable warning php error
 error_reporting(E_ERROR | E_PARSE);
+
+/**
+ * Page path (slug) with model
+ *
+ * Connexion [Login]: /connexion
+ * Mot de passe oublié [Forgot Password]: /forgot-password
+ * Espace client [Client Page]: /espace-client
+ * Page de confirmation d'enregistrement: /confirmation-register
+ * Candidate archives: /candidate
+ * Offre archives: /emploi
+ * Entreprise: /companies
+ *
+ */
 
 defined('DS') ? null : define('DS', DIRECTORY_SEPARATOR);
 defined('__SITENAME__') ? null: define('__SITENAME__', 'job_portal');
@@ -15,7 +31,6 @@ define('APPLY_TABLE', "{$wpdb->prefix}job_apply");
 define('APPLY_PURCHASE_TABLE', "{$wpdb->prefix}job_apply_purchase");
 
 require_once __DIR__ . '/framwork/loader.php'; // Load all elements
-require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/framwork/jp-migration.php';
 
 // Gestion d'erreur
@@ -112,6 +127,20 @@ function remove_admin_bar() {
     }
 }
 
+add_action( 'admin_init', 'allow_admin_area_to_admins_only');
+function allow_admin_area_to_admins_only() {
+    if( defined('DOING_AJAX') && DOING_AJAX ) {
+        //Allow ajax calls
+        return;
+    }
+    $user = wp_get_current_user();
+    if( empty( $user ) || !in_array( "administrator", (array) $user->roles ) ) {
+        //Redirect to main page if no user or if the user has no "administrator" role assigned
+        wp_redirect( get_site_url( ) );
+        exit();
+    }
+}
+
 /**
  * Cette action permet de bien configurer la recherche dans
  * la page search.php
@@ -182,11 +211,32 @@ add_action( 'admin_enqueue_scripts', function($hook_suffix) {
     }
 } );
 
+/**
+ * ACF Action
+ * Permet de rendre une interface graphique dans la page admin de l'emploie
+ */
 add_action('acf/render_field/name=editor', 'acf_emploi_editor_field');
 function acf_emploi_editor_field($field) {
-    global $Liquid_engine;
-    echo $Liquid_engine->parseFile('emploie/editor')->render([]);
-    return;
+    /**
+     * @field param
+     * Array (
+     * [ID] => 262
+     * [key] => field_6169df19507ef
+     * [label] => Information sur l'annonce
+     * [name] => acf[field_6169df19507ef]
+     * [prefix] => acf
+     * [type] => text
+     * [parent] => 261
+     * [_name] => editor)
+     */
+    global $Liquid_engine, $wpdb, $post;
+    $annonce = new jpJobs($post);
+    $table = $wpdb->prefix . 'job_apply';
+    // Verify if user has apply this job
+    $sql = $wpdb->prepare("SELECT * FROM $table WHERE job_id = %d ", $annonce->ID);
+    $apply_rows = $wpdb->get_results($sql, OBJECT);
+
+    echo $Liquid_engine->parseFile('emploie/editor')->render(['applies' => $apply_rows]);
 }
 
 

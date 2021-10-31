@@ -9,8 +9,8 @@ require_once 'menu-walker.php';
 require_once 'service-providers.php';
 
 require_once 'jp-helpers.php';
-require_once 'jp-actions.php';
 require_once 'jp-mailing.php';
+require_once 'jp-actions.php';
 
 // load widget
 require_once 'widgets/widget-social.php';

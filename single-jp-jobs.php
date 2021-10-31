@@ -7,50 +7,91 @@
  * @package WordPress
  */
 global $post;
+
+use JP\Framwork\Elements\jpCandidate;
 use JP\Framwork\Elements\jpJobs;
 
-wp_enqueue_script('comp-apply',get_stylesheet_directory_uri() . '/assets/js/component-apply.js',
-    ['vue-router', 'jp-custom'],null,true
-);
-wp_localize_script('comp-apply', 'apiSettings', [
-    'root' => esc_url_raw(rest_url()),
-    'nonce' => wp_create_nonce('wp_rest'),
-    'isLogged' => is_user_logged_in(),
-    'jobId' => $post->ID
-]);
+$logger = new stdClass(); // type[error, success], message
+
+add_action('apply_annonce', 'apply_annonce_fn', 10, 1);
+function apply_annonce_fn(stdClass &$log) {
+    global $wpdb;
+    $apply_nonce = Tools::getValue('apply_nonce', false);
+    if ($apply_nonce && wp_verify_nonce($apply_nonce, 'jobjiaby-apply-nonce')) {
+        // verifier si le client est connecter
+        if (!is_user_logged_in()) {
+            $current_page_url = get_the_permalink(get_the_ID());
+            wp_redirect(home_url('connexion?redir='.esc_url($current_page_url)));
+        }
+        $current_user_id = get_current_user_id();
+        $user = new jpCandidate($current_user_id);
+        // Only candidate access for this endpoint
+        if (!in_array('candidate', (array)$user->roles)) {
+            //The user haven't the "candidate" role
+            $log->type = 'error';
+            $log->message = "Seul un candidate peut postuler pour cette annonce";
+            return;
+        }
+        if (!$user->hasCV()) {
+            $log->type = 'error';
+            $log->message = "Vous n'avez pas encore un CV. Veuillez remplir votre CV dans l'espace client";
+            return;
+        }
+        if (!$user->isPublic()) {
+            $log->type = 'error';
+            $log->message = "Votre CV est en attente de validation. Veuillez ressayer plutard";
+            return;
+        }
+        $job_id = (int) Tools::getValue('job_id', 0);
+        if (0 === $job_id) return false;
+        $table = $wpdb->prefix . 'job_apply';
+        // Verify if user has apply this job
+        $sql = "SELECT * FROM $table WHERE job_id = %d AND candidate_id = %d";
+        $key_check_row = $wpdb->get_results($wpdb->prepare($sql, intval($job_id), intval($current_user_id)));
+        if (!$key_check_row) {
+            // Get post employer id
+            $employer_id = get_post_meta($job_id, "employer_id", true);
+            $employer_id = $employer_id ? intval($employer_id) : 0;
+            // Insert table
+            $addApplyRequest = $wpdb->insert($table, [
+                'job_id' => $job_id,
+                'candidate_id' => intval($current_user_id),
+                'employer_id' => $employer_id
+            ]);
+            $wpdb->flush();
+            if ($addApplyRequest) {
+                // Envoyer un mail à l'employeur et à l'admin
+                do_action('send_mail_when_user_apply', $job_id, $current_user_id);
+
+                $log->type = 'success';
+                $log->message = "Votre candidature à bien été envoyé avec succès";
+                return;
+            }
+            $log->type = 'error';
+            $log->message = "Une erreur s'est produit pendant l'opération";
+            return;
+        }
+        $log->type = 'error';
+        $log->message = "Vous avez déja postuler pour cette annonce";
+        return;
+    }
+
+}
+do_action('apply_annonce', $logger);
 
 get_header();
 
 /* Start the Loop */
-while ( have_posts() ) : the_post();
+while (have_posts()) : the_post();
 
-$job = new jpJobs($post);
-$experience = $job->experience; // meta data
-$salary = $job->get_reset_term('salaries')->name;
-$salary = $salary ? floatval($salary) : 0;
-$region = $job->get_reset_term('region');
-$category = $job->get_reset_term('category');
-?>
-<script type="text/x-template" id="apply-job">
-    <div>
-<!--        <div v-if="!isLogged">-->
-<!--            <a class="btn btn-primary btn-outlined"-->
-<!--               onclick="renderLoginModel()"-->
-<!--               data-toggle="modal"-->
-<!--               data-target="#signin">-->
-<!--                Se connecter-->
-<!--            </a>-->
-<!--        </div>-->
+    $job = new jpJobs($post);
+    $experience = $job->experience; // meta data
+    $salary = $job->get_reset_term('salaries')->name;
+    $salary = $salary ? floatval($salary) : 0;
+    $region = $job->get_reset_term('region');
+    $category = $job->get_reset_term('category');
+    ?>
 
-        <p v-if="loading">Chargement en cours ...</p>
-        <div class="row" v-if="isLogged && message != null">
-            <p class="text-muted font-12 padd-l-5 padd-r-5" v-if="message.success !== null"
-               v-bind:class="{'alert-info': message.success,  'alert-danger': !message.success}">
-                {{ message.data }}
-            </p>
-        </div>
-    </div>
-</script>
     <!-- ====================== Start Job Detail 2 ================ -->
     <section class=" padd-top-100 padd-bot-60">
         <div class="container">
@@ -68,24 +109,24 @@ $category = $job->get_reset_term('category');
                                 <div class="col-md-8 user_job_detail" style="border: none !important">
 
                                     <?php if ($salary !== 0 && false) : ?>
-                                    <div class="col-sm-12 mrg-bot-10"> <i class="ti-credit-card padd-r-10"></i>
-                                        Plus de <?= number_format($salary, 2, ',', ' ') ?> MGA
-                                    </div>
+                                        <div class="col-sm-12 mrg-bot-10"><i class="ti-credit-card padd-r-10"></i>
+                                            Plus de <?= number_format($salary, 2, ',', ' ') ?> MGA
+                                        </div>
                                     <?php endif; ?>
 
                                     <?php if ($job->get_reset_term('job_type')->slug !== 'undefined'): ?>
-                                    <div class="col-sm-12 mrg-bot-10"> <i class="ti-calendar padd-r-10"></i>
-                                        <span class="full-type"><?= $job->get_reset_term('job_type')->name; ?></span>
-                                    </div>
+                                        <div class="col-sm-12 mrg-bot-10"><i class="ti-calendar padd-r-10"></i>
+                                            <span class="full-type"><?= $job->get_reset_term('job_type')->name; ?></span>
+                                        </div>
                                     <?php endif; ?>
 
                                     <?php if ($region->slug !== 'undefined'): ?>
-                                    <div class="col-sm-12 mrg-bot-10"> <i class="ti-location-pin padd-r-10"></i>
-                                        <?= $region->name; ?>
-                                    </div>
+                                        <div class="col-sm-12 mrg-bot-10"><i class="ti-location-pin padd-r-10"></i>
+                                            <?= $region->name; ?>
+                                        </div>
                                     <?php endif; ?>
 
-                                    <div class="col-sm-12 mrg-bot-10"> <i class="ti-shield padd-r-10"></i>
+                                    <div class="col-sm-12 mrg-bot-10"><i class="ti-shield padd-r-10"></i>
                                         <?php
                                         echo (0 === intval($experience)) ? '0 - 3 mois Exp.' : $experience . ' ans Exp.';
                                         ?>
@@ -103,42 +144,66 @@ $category = $job->get_reset_term('category');
                         </div>
                     </div>
 
-<!--                    <div class="detail-wrapper">-->
-<!--                        <div class="detail-wrapper-header">-->
-<!--                            <h4>Job Skill</h4>-->
-<!--                        </div>-->
-<!--                        <div class="detail-wrapper-body">-->
-<!--                            <ul class="detail-list">-->
-<!--                                <li>Contrary to popular belief, Lorem Ipsum is not simply random text </li>-->
-<!--                                <li>Latin professor at Hampden-Sydney College in Virginia </li>-->
-<!--                                <li>looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage ideas </li>-->
-<!--                                <li>The standard chunk of Lorem Ipsum used since the 1500s is reproduced </li>-->
-<!--                                <li>accompanied by English versions from the 1914 translation by H. Rackham </li>-->
-<!--                            </ul>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="detail-wrapper ">-->
-<!--                        <div class="detail-wrapper-header">-->
-<!--                            <h4>Location</h4>-->
-<!--                        </div>-->
-<!--                        <div class="detail-wrapper-body">-->
-<!--                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3430.566512514854!2d76.8192921147794!3d30.702470481647698!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390fecca1d6c0001%3A0xe4953728a502a8e2!2sChandigarh!5e0!3m2!1sen!2sin!4v1520136168627" width="100%" height="320" frameborder="0" style="border:0" allowfullscreen></iframe>-->
-<!--                        </div>-->
-<!--                    </div>-->
+                    <!--                    <div class="detail-wrapper">-->
+                    <!--                        <div class="detail-wrapper-header">-->
+                    <!--                            <h4>Job Skill</h4>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="detail-wrapper-body">-->
+                    <!--                            <ul class="detail-list">-->
+                    <!--                                <li>Contrary to popular belief, Lorem Ipsum is not simply random text </li>-->
+                    <!--                                <li>Latin professor at Hampden-Sydney College in Virginia </li>-->
+                    <!--                                <li>looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage ideas </li>-->
+                    <!--                                <li>The standard chunk of Lorem Ipsum used since the 1500s is reproduced </li>-->
+                    <!--                                <li>accompanied by English versions from the 1914 translation by H. Rackham </li>-->
+                    <!--                            </ul>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
+                    <!--                    <div class="detail-wrapper ">-->
+                    <!--                        <div class="detail-wrapper-header">-->
+                    <!--                            <h4>Location</h4>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="detail-wrapper-body">-->
+                    <!--                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3430.566512514854!2d76.8192921147794!3d30.702470481647698!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390fecca1d6c0001%3A0xe4953728a502a8e2!2sChandigarh!5e0!3m2!1sen!2sin!4v1520136168627" width="100%" height="320" frameborder="0" style="border:0" allowfullscreen></iframe>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
                     <div id="apply-app">
-                        <div class="sidebar padd-top-40" >
+                        <div class="sidebar padd-top-40">
                             <div>
-                                Si cette offre vous intéresse, veuillez vous inscrire à notre site et créez votre compte gratuitement. Vous pourrez ainsi postuler à toutes les offres qui vous correspondent, disponibles dans votre espace client.
-                                Cliquez ensuite sur le bouton <span class="font-bold">je postule</span> en dessous de l’offre pour envoyer votre candidature.
+                                Si cette offre vous intéresse, veuillez vous inscrire à notre site et créez votre compte
+                                gratuitement. Vous pourrez ainsi postuler à toutes les offres qui vous correspondent,
+                                disponibles dans votre espace client.
+                                Cliquez ensuite sur le bouton <span class="font-bold">je postule</span> en dessous de
+                                l’offre pour envoyer votre candidature.
                                 Une fois fait , votre CV sera transmis directement aux recruteurs.
                                 <div class="mrg-bot-20"></div>
-                                <p>N'oubliez pas de bien remplir votre CV (expériences professionnelles + formations) pour augmenter votre chance d'être recruté.</p>
+                                <p>N'oubliez pas de bien remplir votre CV (expériences professionnelles + formations)
+                                    pour augmenter votre chance d'être recruté.</p>
 
                             </div>
                             <!-- Start: Job Overview -->
                             <div class="mrg-top-15">
                                 <div class="widget-boxed-body">
-                                    <router-view></router-view>
+                                    <form action="" method="post" novalidate>
+                                        <?php $nonce = wp_create_nonce('jobjiaby-apply-nonce') ?>
+                                        <input type="hidden" name="job_id" value="<?= $job->ID ?>">
+                                        <input type="hidden" name="apply_nonce" value="<?= $nonce ?>">
+                                        <button type="submit" class="btn btn-job theme-btn btn-outlined ">Je postuler
+                                        </button>
+                                    </form>
+                                    <div class="row">
+                                        <?php
+                                            $logger_vars = get_object_vars($logger);
+                                            if (!empty($logger_vars)) {
+                                                ?>
+                                                <p class="text-muted font-12 padd-l-5 padd-r-5 <?= $logger->type == 'success' ? 'alert-info' : 'alert-danger' ?> " >
+                                                    <?= $logger->message ?>
+                                                </p>
+                                                    <?php
+                                            }
+                                        ?>
+
+                                    </div>
+
                                 </div>
                             </div>
                             <!-- End: Job Overview -->
@@ -154,68 +219,69 @@ $category = $job->get_reset_term('category');
             $args = [
                 'post_type' => 'jp-jobs',
                 'post_status' => ['publish'],
-                'post__not_in' => [get_the_ID()], // current post id
+                'post__not_in' => [get_the_ID()], // exclude the current post id
                 'tax_query' => array(
                     'relation' => 'OR',
                     array(
                         'taxonomy' => 'region',
-                        'terms'    => $region->term_id,
+                        'terms' => $region->term_id,
                     ),
                     array(
                         'taxonomy' => 'category',
-                        'terms'    => $category->term_id,
+                        'terms' => $category->term_id,
                     ),
                 ),
             ];
             $query_posts = new WP_Query($args);
-            if ( $query_posts->have_posts() ) : ?>
+            if ($query_posts->have_posts()) : ?>
 
-            <div class="row mrg-top-40">
-                <div class="col-md-12">
-                    <h4 class="mrg-bot-30">Annonce similaire</h4>
+                <div class="row mrg-top-40">
+                    <div class="col-md-12">
+                        <h4 class="mrg-bot-30">Annonce similaire</h4>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <!-- the loop -->
-                <?php while ( $query_posts->have_posts() ) : $query_posts->the_post();
-                    $current_job = new jpJobs($query_posts->post);
-                ?>
-                    <!-- Single Job -->
-                    <div class="col-md-3 col-sm-6">
-                        <div class="utf_grid_job_widget_area"> <span class="job-type full-type">
+                <div class="row">
+                    <!-- the loop -->
+                    <?php while ($query_posts->have_posts()) : $query_posts->the_post();
+                        $current_job = new jpJobs($query_posts->post);
+                        ?>
+                        <!-- Single Job -->
+                        <div class="col-md-3 col-sm-6">
+                            <div class="utf_grid_job_widget_area"> <span class="job-type full-type">
                                 <?= $job->get_reset_term('job_type')->name; ?>
                             </span>
-                            <div class="utf_job_like">
-                                <label class="toggler toggler-danger">
-                                    <input type="checkbox" checked>
-                                    <i class="fa fa-heart"></i>
-                                </label>
-                            </div>
-                            <div class="u-content">
-                                <div class="avatar box-80"> <a href="employer-detail.html">  </a> </div>
-                                <h5><a href="employer-detail.html"><?php the_title() ?></a></h5>
-                                <p class="text-muted">
-                                    <?= $job->get_reset_term('region')->name; ?>
-                                    <?= $current_job->address ? ', '. $current_job->address : ''  ?>
-                                </p>
-                            </div>
-                            <div class="utf_apply_job_btn_item">
-                                <a href="<?= get_the_permalink() ?>" target="-_parent" class="btn job-browse-btn btn-radius br-light">Je postule</a>
+                                <div class="utf_job_like">
+                                    <label class="toggler toggler-danger">
+                                        <input type="checkbox" checked>
+                                        <i class="fa fa-heart"></i>
+                                    </label>
+                                </div>
+                                <div class="u-content">
+                                    <div class="avatar box-80"><a href="employer-detail.html"> </a></div>
+                                    <h5><a href="employer-detail.html"><?php the_title() ?></a></h5>
+                                    <p class="text-muted">
+                                        <?= $job->get_reset_term('region')->name; ?>
+                                        <?= $current_job->address ? ', ' . $current_job->address : '' ?>
+                                    </p>
+                                </div>
+                                <div class="utf_apply_job_btn_item">
+                                    <a href="<?= get_the_permalink() ?>" target="-_parent"
+                                       class="btn job-browse-btn btn-radius br-light">Je postule</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                <?php endwhile; ?>
-                <!-- end of the loop -->
-                <?php wp_reset_postdata(); ?>
-            </div>
-            <?php else : ?>
-            <div class="row">
-                <div class="col-md-12">
-<!--                    <p>--><?php //_e( 'Sorry, no posts matched your criteria.' ); ?><!--</p>-->
+                    <?php endwhile; ?>
+                    <!-- end of the loop -->
+                    <?php wp_reset_postdata(); ?>
                 </div>
-            </div>
+            <?php else : ?>
+                <div class="row">
+                    <div class="col-md-12">
+                        <!--                    <p>-->
+                        <?php //_e( 'Sorry, no posts matched your criteria.' ); ?><!--</p>-->
+                    </div>
+                </div>
             <?php endif; ?>
-
 
 
         </div>

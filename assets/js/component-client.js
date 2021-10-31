@@ -131,17 +131,24 @@ const getFileReader = (file) => {
                     $('input#upload-avatar').trigger('click');
                 },
                 upload: async function () {
+                    this.loading = true;
                     await this.wpapi.media()
                         // Specify a path to the file you want to upload, or a Buffer
-                        .file(this.avatarFile).create({
+                        .file(this.avatarFile)
+                        .create({
                             title: "",
                             alt_text: "",
                             description: this.userid,
                         }).then(uploadMedia => {
-                            // Your media is now uploaded: let's associate it with a post
-                            this.wpapi.users().id(this.userid).update({avatar: uploadMedia.id}).then(resp => {
-                                alertify.notify("Photo de profil mis a jour avec succes", 'success');
-                            });
+                            this.__putUserAvatar(uploadMedia);
+                        });
+                },
+                __putUserAvatar: function(media) {
+                    // Your media is now uploaded: let's associate it with a post
+                    this.wpapi.users().id(this.userid).update({avatar: media.id})
+                        .then(resp => {
+                            this.loading = false;
+                            alertify.notify("Photo de profil mis a jour avec succes", 'success');
                         });
                 }
             },

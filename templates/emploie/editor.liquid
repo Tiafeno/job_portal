@@ -1,65 +1,38 @@
-
-{% comment %} Candidate {% endcomment %}
-<script type="text/x-template" id="comp-editor-template">
-    <div>
-        <div class="lds-roller" v-if="loading">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
+<section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
+    <h2 class="ui aligned left header">
+        <div class="content">
+            Mes annonces
         </div>
-        <form class="ui four segment pilled form" @submit="submitForm" v-if="emploi !== null">
-            <h4 class="ui dividing header">Information</h4>
-            <div class="field">
-                
-                <div class="two fields">
-                    <div class="field">
-                    <label for="experience">Experience</label>
-                        <select name="experience" v-model="form.experience" placeholder="Experience" class="ui dropdown form-control" required>
-                            <option :value="0" data-display="Experience">0 - 3 Mois</option>
-                            <option :value="year" v-for="year in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]">${year} ans</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label for="address">Adresse</label>
-                        <input type="text" name="address" v-model="form.address" placeholder="Adresse">
-                    </div>
-                </div>
-            </div>
+    </h2>
+    <div class="table-responsive">
+        <table class="ui compact celled definition table" v-if="annonces.length > 0 && !loading">
+            <thead class="full-width">
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Désignation</th>
+                <th>Date de publication</th>
+                <th>Statuts</th>
+            </tr>
+            </thead>
+            <tbody>
 
-            <div class="two fields">
-                <div class="field" id="employer-field">
-                    <label>Entreprise</label>
-                    <select name="employer_id" @change="eventChangeEmployer($event)" id="employer_id" v-model="form.employer_id" 
-                    class="ui normal fluid dropdown search ">
-                        <option :value="0" >Aucune entreprise</option>
-                        <option :value="employer.id" v-for="employer in ptEmployers">${ employer.name }</option>
-                    </select>
-                </div>
-            </div>
-            <button type="submit" class="ui positive button" :disabled="loading" tabindex="0">Enregistrer</button>
-        </form>
+                <tr v-for="annonce in annonces" v-if="annonces.length > 0">
+                    <td class="collapsing">
+                        <router-link class="mrg-5" :to="{ name: 'AnnonceDetails', params: {id: annonce.id} }"><i
+                                    class="ti-view-list"></i></router-link>
+                        <a v-if="annonce.status !== 'private'" class="cl-danger mrg-5" id="trash-annonce"
+                           @click="trashAnnonce($event, annonce.id)">
+                            <i class="fa fa-trash-o"></i>
+                        </a>
+                    </td>
+                    <td>{{ annonce.id }}</td>
+                    <td><a :href="annonce.link" target="_blank"> {{ annonce.title.rendered }} </a></td>
+                    <td><i class="ti-credit-card"></i> {{ annonce.date }}</td>
+                    <td><span class="badge badge-info">{{ annonce.status | jobStatus }}</span></td>
+                </tr>
+
+            </tbody>
+        </table>
     </div>
-    
-</script>
-
-<div id="emploi_app">
-    <section>
-        <div class="lds-roller" v-if="loading">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-        <comp-admin-emploi-editor v-if="post !== null" :u="post"></comp-admin-emploi-editor>
-    </section>
-
-</div>
+</section>

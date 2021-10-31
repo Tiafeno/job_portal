@@ -448,7 +448,7 @@ get_header();
                 </table>
             </div>
             <div class="clearfix"></div>
-            <a href="/add-annonce" class="btn btn-success">Ajouter une annonce</a>
+            <a href="<?= home_url('add-annonce') ?>" class="btn btn-success mrg-top-20">Ajouter une annonce</a>
         </section>
         <!-- ====================== End Manage Company ================ -->
     </script>

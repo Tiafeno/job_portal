@@ -1,8 +1,26 @@
 <?php
+
+use JP\Framwork\Elements\jpCandidate as jpCandidateAlias;
+
 if (!defined('ABSPATH')) {
     exit;
 }
-include_once 'api-rest-action.php'; // tous les actions dans l'API REST
+include_once 'api-rest-action.php'; // Tous les actions dans l'API REST
+
+function send_rest_user(WP_REST_Request $request) {
+    $user_id = intval($request->get_param('user_id'));
+
+    // Create request
+    $req = new WP_REST_Request();
+    $req->set_param('context', 'edit');
+
+    // Create REST API user controller
+    $user_controller = new WP_REST_Users_Controller();
+    $candidate = $user_controller->prepare_item_for_response(new WP_User($user_id), $req)->data;
+    // Send response data
+    wp_send_json_success($candidate);
+}
+
 // @source: https://github.com/WP-API/rest-filte
 add_action('rest_api_init', function () {
     foreach (get_post_types(array('show_in_rest' => true), 'objects') as $post_type) {
@@ -111,127 +129,9 @@ add_action('rest_api_init', function () {
             }
         ]);
     }
-    // Add custom field in job post type
-    register_rest_field( ['jp-jobs'], 'company', array(
-        'get_callback' => function( $job_arr ) {
-            $employer_id = (int)get_post_meta($job_arr['id'], 'employer_id', true);
-            $request = new WP_REST_Request();
-            $request->set_param('context', 'view');
-            $company_id = get_user_meta($employer_id, 'company_id', true);
-            if (0 === (int)$company_id || !$company_id)  return 0;
-            $company_controller = new WP_REST_Users_Controller();
-            $Company = new WP_User((int)$company_id);
-            return $company_controller->prepare_item_for_response($Company, $request)->data;
-        },
-        // Pour modifier, cette function reçois la valeur entier (company_id)
-        // 'update_callback' => function( $value, $job_obj ) {
-        //     $company_id = intval($value);
-        //     if (0 === $company_id)
-        //         return new WP_Error('rest_integer_failer',
-        //             "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
-        //     $employer_id = get_post_meta($job_obj->ID, 'employer_id', true);
-        //     $employer_id = intval($employer_id);
-        //     $ret = update_post_meta($employer_id->ID, 'company_id', $company_id);
-        //     if ( false === $ret ) {
-        //         return new WP_Error(
-        //             'rest_updated_failed',
-        //             __( 'Failed to update company id.' ),
-        //             array( 'status' => 500 )
-        //         );
-        //     }
-        //     return true;
-        // }
-    ) );
-    register_rest_field( ['jp-jobs'], 'employer', array(
-        'get_callback' => function( $job_arr ) {
-            $employer_id = get_post_meta($job_arr['id'], 'employer_id', true);
-            return intval($employer_id);
-        },
-        // Pour modifier, cette function reçois la valeur entier (company_id)
-        'update_callback' => function( $value, $job_obj ) {
-            $employer_id = intval($value);
-            if (0 === $employer_id)
-                return new WP_Error('rest_integer_failer',
-                    "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
-            update_post_meta($job_obj->ID, 'employer_id', $employer_id);
-            return true;
-        }
-    ) );
-    function send_rest_user(WP_REST_Request $request) {
-        $user_id = intval($request->get_param('user_id'));
-        // Create request
-        $req = new WP_REST_Request();
-        $req->set_param('context', 'edit');
-        // Create REST API user controller
-        $user_controller = new WP_REST_Users_Controller();
-        $candidate = $user_controller->prepare_item_for_response(new WP_User($user_id), $req)->data;
-        // Send response data
-        wp_send_json_success($candidate);
-    }
-    // Postuler pour un offre et recuperer la liste des candidates qui ont postuler
+
+    // Postuler pour un offre et recuperer la liste des candidates qui ont postuler...
     register_rest_route('job/v2', '/(?P<job_id>\d+)/apply', [
-        array(
-            'methods' => WP_REST_Server::CREATABLE,
-            'callback' => function (WP_REST_Request $request) {
-                global $wpdb;
-                // verifier si le client est connecter
-                if (!is_user_logged_in()) {
-                    wp_send_json_error("Veuillez vous connecter");
-                    return;
-                }
-                $current_user_id = get_current_user_id();
-                $user = new \JP\Framwork\Elements\jpCandidate($current_user_id);
-                // Only candidate access for this endpoint
-                if (!in_array('candidate', (array)$user->roles)) {
-                    //The user haven't the "candidate" role
-                    wp_send_json_error("Seul un candidate peut postuler pour cette annonce");
-                    return;
-                }
-                if (!$user->hasCV()) {
-                    wp_send_json_error("Vous n'avez pas encore un CV. Veuillez remplir votre CV dans l'espace client");
-                    return;
-                }
-                if (!$user->isPublic()) {
-                    wp_send_json_error("Votre CV est en attente de validation. Veuillez ressayer plutard");
-                    return;
-                }
-                $job_id = intval($request['job_id']);
-                $table = $wpdb->prefix . 'job_apply';
-                // Verify if user has apply this job
-                $sql = "SELECT * FROM $table WHERE job_id = %d AND candidate_id = %d";
-                $key_check_row = $wpdb->get_results($wpdb->prepare( $sql, intval($job_id), intval($current_user_id)));
-                if (!$key_check_row) {
-                    // Get post employer id
-                    $employer_id = get_post_meta($job_id, "employer_id", true);
-                    $employer_id = $employer_id ? intval($employer_id) : 0;
-                    // Insert table
-                    $addApplyRequest = $wpdb->insert($table, [
-                        'job_id' => $job_id,
-                        'candidate_id' => intval($current_user_id),
-                        'employer_id' => $employer_id
-                    ]);
-                    $wpdb->flush();
-                    if ($addApplyRequest) {
-                        wp_send_json_success("Envoyer avec succes");
-                        return;
-                    }
-                    wp_send_json_error("Une erreur s'est produit pendant l'opération");
-                    return;
-                }
-                wp_send_json_success("Vous avez déja postuler pour cette annonce");
-                return;
-            },
-            'permission_callback' => function ($data) {
-                return current_user_can('edit_posts');
-            },
-            'args' => [
-                'job_id' => array(
-                    'validate_callback' => function ($param, $request, $key) {
-                        return is_numeric($param);
-                    }
-                ),
-            ]
-        ),
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
@@ -597,7 +497,7 @@ add_action('rest_api_init', function () {
                     case 'ad-candidate':
                         break;
                     case 'cv':
-                        $candidate = new \JP\Framwork\Elements\jpCandidate($object_id);
+                        $candidate = new jpCandidateAlias($object_id);
                         $product_title = "CV_". $candidate->display_name . "_" . $customer_id;
                         break;
                     default:
@@ -676,7 +576,57 @@ add_action('rest_api_init', function () {
         ),
     ]);
 });
+
+/**
+ * Meta and fields
+ */
 add_action('rest_api_init', function() {
+    // Annnce or jobs
+    register_rest_field( ['jp-jobs'], 'company', array(
+        'get_callback' => function( $job_arr ) {
+            $employer_id = (int)get_post_meta($job_arr['id'], 'employer_id', true);
+            $request = new WP_REST_Request();
+            $request->set_param('context', 'view');
+            $company_id = get_user_meta($employer_id, 'company_id', true);
+            if (0 === (int)$company_id || !$company_id)  return 0;
+            $company_controller = new WP_REST_Users_Controller();
+            $Company = new WP_User((int)$company_id);
+            return $company_controller->prepare_item_for_response($Company, $request)->data;
+        },
+        // Pour modifier, cette function reçois la valeur entier (company_id)
+        // 'update_callback' => function( $value, $job_obj ) {
+        //     $company_id = intval($value);
+        //     if (0 === $company_id)
+        //         return new WP_Error('rest_integer_failer',
+        //             "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
+        //     $employer_id = get_post_meta($job_obj->ID, 'employer_id', true);
+        //     $employer_id = intval($employer_id);
+        //     $ret = update_post_meta($employer_id->ID, 'company_id', $company_id);
+        //     if ( false === $ret ) {
+        //         return new WP_Error(
+        //             'rest_updated_failed',
+        //             __( 'Failed to update company id.' ),
+        //             array( 'status' => 500 )
+        //         );
+        //     }
+        //     return true;
+        // }
+    ) );
+    register_rest_field( ['jp-jobs'], 'employer', array(
+        'get_callback' => function( $job_arr ) {
+            $employer_id = get_post_meta($job_arr['id'], 'employer_id', true);
+            return intval($employer_id);
+        },
+        // Pour modifier, cette function reçois la valeur entier (company_id)
+        'update_callback' => function( $value, $job_obj ) {
+            $employer_id = intval($value);
+            if (0 === $employer_id)
+                return new WP_Error('rest_integer_failer',
+                    "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
+            update_post_meta($job_obj->ID, 'employer_id', $employer_id);
+            return true;
+        }
+    ) );
     // Avatar
     register_rest_field('user', 'avatar', [
         'get_callback' => function($user_arr) {
@@ -782,7 +732,8 @@ add_action('rest_api_init', function() {
             return true;
         }
     ]);
-    //Entreprise
+
+    //Entreprise....
     register_meta('user', 'country', [
         'type' =>  'integer',
         'single' => true,
@@ -847,7 +798,8 @@ add_action('rest_api_init', function() {
             return true;
         }
     ]);
-    // Employer
+
+    // Employer....
     register_meta('user', 'company_id', [
         'type' =>  'integer',
         'single' => true,
@@ -856,7 +808,8 @@ add_action('rest_api_init', function() {
             return true;
         }
     ]);
-    // Candidate
+
+    // Candidate....
     register_meta('user', 'reference', [
         'type' =>  'string',
         'single' => true,

@@ -20,18 +20,17 @@ get_header();
             <div class="ui two column centered grid" style="margin-top: 3em">
                 <div class="column">
                     <h2 class="mb-4">
-                        N'oubliez pas de confirmer votre email
+                        Veuillez confirmer votre email pour valider votre inscription
                     </h2>
                     <p class="mb-5">
-                        <strong>Un email de confirmation va vous parvenir d'ici quelques minutes.</strong>
+                        Vous allez recevoir une email de confirmation d'ici quelques minutes.
+                            Allez dans votre boîte de réception.
                     </p>
                     <div class="bg-gray-100 mb-5 p-3">
-                        <p>
-                            <strong>L'email que vous avez renseigné est&nbsp;:</strong>
-                        </p>
-                        <p class="m-0"><?= $user->user_email ?></p></div>
-                    <p><strong>Si vous n'avez pas reçu cet email, merci de vérifier dans votre boîte SPAM ou
-                            INDÉSIRABLES.</strong></p>
+                        <pre  class="mb-5"><?= $user->user_email ?></pre></div>
+                    <p class="padd-top-15">
+                        Si vous ne recevez rien dans votre boîte de réception, veuillez vérifier votre dossier de courrier indésirable, SPAM.
+                    </p>
                 </div>
             </div>
         </div>

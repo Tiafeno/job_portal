@@ -113,7 +113,6 @@ final class AdminManager
         }
     }
 
-
     public function add_activated__filter($which)
     {
         $value = Tools::getValue('activation', null);

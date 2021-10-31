@@ -96,7 +96,7 @@ while (have_posts()) : the_post();
     <section class=" padd-top-100 padd-bot-60">
         <div class="container">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-12 padd-top-40">
                     <h3 class="mrg-bot-25"><?= the_title() ?></h3>
                 </div>
             </div>
@@ -183,6 +183,19 @@ while (have_posts()) : the_post();
                             <!-- Start: Job Overview -->
                             <div class="mrg-top-15">
                                 <div class="widget-boxed-body">
+                                    <div class="row">
+                                        <?php
+                                        $logger_vars = get_object_vars($logger);
+                                        if (!empty($logger_vars)) {
+                                            ?>
+                                            <p class="text-muted alert <?= $logger->type == 'success' ? 'alert-info' : 'alert-danger' ?> " >
+                                                <?= $logger->message ?>
+                                            </p>
+                                            <?php
+                                        }
+                                        ?>
+
+                                    </div>
                                     <form action="" method="post" novalidate>
                                         <?php $nonce = wp_create_nonce('jobjiaby-apply-nonce') ?>
                                         <input type="hidden" name="job_id" value="<?= $job->ID ?>">
@@ -190,19 +203,7 @@ while (have_posts()) : the_post();
                                         <button type="submit" class="btn btn-job theme-btn btn-outlined ">Je postuler
                                         </button>
                                     </form>
-                                    <div class="row">
-                                        <?php
-                                            $logger_vars = get_object_vars($logger);
-                                            if (!empty($logger_vars)) {
-                                                ?>
-                                                <p class="text-muted font-12 padd-l-5 padd-r-5 <?= $logger->type == 'success' ? 'alert-info' : 'alert-danger' ?> " >
-                                                    <?= $logger->message ?>
-                                                </p>
-                                                    <?php
-                                            }
-                                        ?>
 
-                                    </div>
 
                                 </div>
                             </div>

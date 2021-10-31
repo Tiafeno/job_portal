@@ -72,7 +72,7 @@ get_header();
     </style>
     <script type="text/x-template" id="client-layout">
         <!-- ================ Profile Settings ======================= -->
-        <section class="padd-top-40 padd-bot-80">
+        <section class="padd-top-80 padd-bot-80">
             <div class="container">
                 <div class="row">
                     <div class="col-md-3">

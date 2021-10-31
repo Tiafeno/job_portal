@@ -28,7 +28,7 @@ if ($nonce):
             //do_action( 'wp_login', $user_signon->user_login );
 
             // Create redirection
-            $url = !empty($redirect_url) ? $redirect_url : $default_redir_url;
+            $url = !empty($redirect_url) ? $redirect_url : home_url($default_redir_url);
             wp_redirect($url);
         } else {
             $error = $user_signon;
@@ -39,6 +39,7 @@ endif;
 // Create nonce
 $nonce = wp_create_nonce('login-action');
 $forgot_pwd_url = home_url('/forgot-password');
+$register_url = home_url('/register');
 
 get_header();
 ?>
@@ -74,6 +75,10 @@ get_header();
                                 <input type="hidden" name="login-nonce" value="<?= $nonce ?>"/>
                                 <input type="hidden" name="redir" value="<?= esc_url($redirect_url) ?>"/>
                                 <button type="submit" class="btn theme-btn full-width btn-m">Se connecter</button>
+                            </div>
+                            <div class="form-group text-center">
+                                <p class="mrg-top-20">Vous ne possédez pas encore de compte ?
+                                    <a href="<?= $register_url ?>" class="font-bold">Créer un compte</a> </p>
                             </div>
                         </form>
                     </div>

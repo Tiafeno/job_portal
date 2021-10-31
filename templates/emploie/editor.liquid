@@ -1,36 +1,29 @@
 <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
-    <h2 class="ui aligned left header">
-        <div class="content">
-            Mes annonces
-        </div>
-    </h2>
+
     <div class="table-responsive">
-        <table class="ui compact celled definition table" v-if="annonces.length > 0 && !loading">
+        <table class="ui compact celled definition table">
             <thead class="full-width">
             <tr>
-                <th></th>
                 <th>ID</th>
+                <th>Nom & Prenom</th>
                 <th>Désignation</th>
                 <th>Date de publication</th>
                 <th>Statuts</th>
             </tr>
             </thead>
             <tbody>
-
-                <tr v-for="annonce in annonces" v-if="annonces.length > 0">
-                    <td class="collapsing">
-                        <router-link class="mrg-5" :to="{ name: 'AnnonceDetails', params: {id: annonce.id} }"><i
-                                    class="ti-view-list"></i></router-link>
-                        <a v-if="annonce.status !== 'private'" class="cl-danger mrg-5" id="trash-annonce"
-                           @click="trashAnnonce($event, annonce.id)">
-                            <i class="fa fa-trash-o"></i>
-                        </a>
+            {% for user in candidates %}
+                <tr>
+                    <td>
+                        {{ user.id }}
                     </td>
-                    <td>{{ annonce.id }}</td>
-                    <td><a :href="annonce.link" target="_blank"> {{ annonce.title.rendered }} </a></td>
-                    <td><i class="ti-credit-card"></i> {{ annonce.date }}</td>
-                    <td><span class="badge badge-info">{{ annonce.status | jobStatus }}</span></td>
+                    <td>{{ user.name }}</td>
+                    <td><a href="annonce.link" target="_blank">  </a></td>
+                    <td><i class="ti-credit-card"></i> </td>
+                    <td><span class="badge badge-info"></span></td>
                 </tr>
+            {% endfor %}
+
 
             </tbody>
         </table>

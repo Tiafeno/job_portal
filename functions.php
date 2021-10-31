@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
+use JP\Framwork\Elements\jpCandidate;
 use JP\Framwork\Elements\jpJobs;
 use Liquid\Template;
 // Disable warning php error
@@ -16,6 +17,7 @@ error_reporting(E_ERROR | E_PARSE);
  * Candidate archives: /candidate
  * Offre archives: /emploi
  * Entreprise: /companies
+ * Enregistrement: /register
  *
  */
 
@@ -230,13 +232,21 @@ function acf_emploi_editor_field($field) {
      * [_name] => editor)
      */
     global $Liquid_engine, $wpdb, $post;
-    $annonce = new jpJobs($post);
     $table = $wpdb->prefix . 'job_apply';
     // Verify if user has apply this job
-    $sql = $wpdb->prepare("SELECT * FROM $table WHERE job_id = %d ", $annonce->ID);
+    $sql = $wpdb->prepare("SELECT * FROM {$table} WHERE job_id = %d ", $post->ID);
     $apply_rows = $wpdb->get_results($sql, OBJECT);
-
-    echo $Liquid_engine->parseFile('emploie/editor')->render(['applies' => $apply_rows]);
+    $candidates = [];
+    foreach ($apply_rows as $row) {
+        $candidate = new jpCandidate(intval($row->candidate_id));
+        array_push($candidates, [
+            'id' => $candidate->ID,
+            'name' => $candidate->display_name,
+        ]);
+    }
+    echo $Liquid_engine
+            ->parseFile('emploie/editor')
+            ->render(['candidates' => $candidates]);
 }
 
 

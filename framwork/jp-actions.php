@@ -248,9 +248,10 @@ function process_resend_verify_user_email() {
     $is_verify = get_user_meta($user_id, 'email_verify', true);
     if (!$is_verify || intval($is_verify) === 0) {
         $link_nonce = wp_create_nonce("jobjiaby_resend_verify");
+        $user = new WP_User($user_id);
         $jj_messages[] = [
             'type' => 'warning',
-            'msg' =>  "Votre adresse email n'est pas encore valider",
+            'msg' =>  "{$user->display_name}, veuillez consulter {$user->user_email} pour terminer le processus d'inscription.",
             'btn' => "Envoyer",
             'btn_link' => home_url('/?resend_verify_nonce=' . $link_nonce)
         ];

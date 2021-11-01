@@ -13,11 +13,12 @@ error_reporting(E_ERROR | E_PARSE);
  * Connexion [Login]: /connexion
  * Mot de passe oublié [Forgot Password]: /forgot-password
  * Espace client [Client Page]: /espace-client
- * Page de confirmation d'enregistrement: /confirmation-register
+ * Page de confirmation d'enregistrement: /confirmation-register?user_id={id}
  * Candidate archives: /candidate
  * Offre archives: /emploi
  * Entreprise: /companies
  * Enregistrement: /register
+ * Candidat CV: /candidate-cv?eid={employer_id}&cid={candidate_id}tk={tk}
  *
  */
 
@@ -43,8 +44,14 @@ $jj_messages = [];
 $Liquid_engine = new Template(__DIR__ . '/templates');
 $Liquid_engine->setCache(new \Liquid\Cache\Local());
 
-// Create filter
-$Liquid_engine->registerFilter('taxonomy', function($taxonomy_name) {
+/*
+ * ***************************************************
+ * ***************  Liquid Filters *******************
+ * *************************************************
+ */
+
+$engine = &$Liquid_engine;
+$engine->registerFilter('taxonomy', function($taxonomy_name) {
     $result = get_terms([
         'taxonomy' => $taxonomy_name,
         'hide_empty' => false,
@@ -54,7 +61,15 @@ $Liquid_engine->registerFilter('taxonomy', function($taxonomy_name) {
     if (is_wp_error($result) || !is_array($result)) return [];
     return $result;
 });
+$engine->registerFilter('get_candidate_link', function($candidate_id) {
+    return home_url("/candidate/#/candidate/{$candidate_id}");
+});
 
+//*****************************************************
+
+load_theme_textdomain(__SITENAME__, get_template_directory() . '/languages');
+
+// Add theme.liquid file content in balise head
 add_action('wp_head', function() {
     global $Liquid_engine;
     $forgot_pwd_url = home_url('/forgot-password');
@@ -64,8 +79,7 @@ add_action('wp_head', function() {
     ]);
 });
 
-load_theme_textdomain(__SITENAME__, get_template_directory() . '/languages');
-
+// Themes support and register sidebar
 add_action('after_setup_theme', function () {
     /** @link https://codex.wordpress.org/Post_Thumbnails */
     add_theme_support('post-thumbnails');
@@ -120,7 +134,6 @@ add_action('init', function() {
     do_action('register_services');
 });
 
-
 // or install this plugin: https://wordpress.org/plugins/admin-bar-dashboard-control/
 add_action('after_setup_theme', 'remove_admin_bar');
 function remove_admin_bar() {
@@ -172,25 +185,14 @@ function user_fields( $user ) {
     echo $Liquid_engine->parseFile('admin/extra-profil-information')->render([]);
 }
 
-// Cette action permet d'afficher des contenues dynamique
-// et aussi gerer les abonnements
-add_action('acf/render_field/name=pricing', 'acf_pricing_field');
-function acf_pricing_field() {
-    global $Liquid_engine;
-    $app_configs = Tools::getInstance()->get_app_configs();
-    $pricings = $app_configs->pricing->account;
-    $args = [
-        'pricings' => $pricings
-    ];
-    echo $Liquid_engine->parseFile('pricings/pricing-layout')->render($args);
-}
-
-
 add_action('admin_enqueue_scripts', function($hook) {
+    global $post;
+
     wp_enqueue_script('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/alertify.min.js', ['jquery'], null, true);
     wp_enqueue_style('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/css/alertify.css');
     wp_enqueue_style('job-portal', get_stylesheet_directory_uri() . '/assets/css/job-portal.css', [], null);
     wp_register_script('wpapi', get_stylesheet_directory_uri() . '/assets/js/wpapi/wpapi.js', [], null, true); // dev
+
     if ('user-edit.php' === $hook || 'post.php' == $hook || 'post-new.php' == $hook ) {
         wp_register_script('axios', get_stylesheet_directory_uri() . '/assets/js/axios.min.js', [], null, true); // dev
         wp_register_script('medium-editor', get_stylesheet_directory_uri() . '/assets/js/vuejs/medium-editor.min.js', [], null, true); // dev
@@ -198,27 +200,32 @@ add_action('admin_enqueue_scripts', function($hook) {
         wp_register_script('semantic', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/semantic.min.js', ['jquery'], null, true);
         wp_enqueue_style('semantic-ui', get_stylesheet_directory_uri() . '/assets/plugins/semantic-ui/semantic.css');
     }
-}, 10);
 
-add_action( 'admin_enqueue_scripts', function($hook_suffix) {
-    if( 'post.php' == $hook_suffix || 'post-new.php' == $hook_suffix ) {
-        global $post;
+    if( 'post.php' == $hook || 'post-new.php' == $hook ) {
         wp_enqueue_script('admin-emploie', get_stylesheet_directory_uri() . '/assets/js/admin-emploie.js',
-        ['jquery', 'wp-api','wpapi', 'vuejs', 'medium-editor', 'alertify', 'lodash', 'axios', 'semantic']);
+            ['jquery', 'wp-api','wpapi', 'vuejs', 'medium-editor', 'alertify', 'lodash', 'axios', 'semantic']);
         wp_localize_script('admin-emploie', 'WPAPIEmploiSettings', [
             'root' => esc_url_raw(rest_url()),
             'nonce' => wp_create_nonce('wp_rest'),
             'postId' => intval($post->ID),
         ]);
     }
-} );
+}, 10);
+
+
 
 /**
- * ACF Action
  * Permet de rendre une interface graphique dans la page admin de l'emploie
  */
-add_action('acf/render_field/name=editor', 'acf_emploi_editor_field');
-function acf_emploi_editor_field($field) {
+add_action('admin_init', function() {
+    add_meta_box('candidature', __( 'Candidature', 'textdomain' ),'candidature_view' ,
+        'jp-jobs',
+        'advanced',
+        'high'
+    );
+});
+
+function candidature_view($field) {
     /**
      * @field param
      * Array (
@@ -239,15 +246,36 @@ function acf_emploi_editor_field($field) {
     $candidates = [];
     foreach ($apply_rows as $row) {
         $candidate = new jpCandidate(intval($row->candidate_id));
-        array_push($candidates, [
-            'id' => $candidate->ID,
-            'name' => $candidate->display_name,
-        ]);
+        $candidates[] = get_object_vars($candidate);
     }
+    print_r($candidates);
     echo $Liquid_engine
             ->parseFile('emploie/editor')
             ->render(['candidates' => $candidates]);
 }
+
+
+/*
+ * ***************************************************
+ * *******************  ACF Action *******************
+ * ***************************************************
+ */
+
+/**
+ * Cette action permet d'afficher des contenues dynamique
+ * et aussi gerer les abonnements
+ */
+add_action('acf/render_field/name=pricing', 'acf_pricing_field');
+function acf_pricing_field() {
+    global $Liquid_engine;
+    $app_configs = Tools::getInstance()->getSchemas();
+    $pricings = $app_configs->pricing->account;
+    $args = [
+        'pricings' => $pricings
+    ];
+    echo $Liquid_engine->parseFile('pricings/pricing-layout')->render($args);
+}
+
 
 
 

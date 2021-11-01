@@ -12,7 +12,10 @@ if (is_user_logged_in()) {
 
 
 $nonce = Tools::getValue('login-nonce', false);
+$username = Tools::getValue('log', '');
+$password = Tools::getValue('pwd', '');
 $error = null;
+
 if ($nonce):
     $default_redir_url = '/espace-client';
     if (wp_verify_nonce($nonce, 'login-action')) {
@@ -59,11 +62,11 @@ get_header();
                         <!-- Nav tabs -->
                         <form method="post" action="<?= home_url('/connexion') ?>">
                             <div class="form-group">
-                                <input type="text" name="log" class="form-control" value=""
+                                <input type="text" name="log" class="form-control" value="<?= $username ?>"
                                        placeholder="Votre adresse email" required>
                             </div>
                             <div class="form-group">
-                                <input type="password" name="pwd" value="" class="form-control"
+                                <input type="password" name="pwd" value="<?= $password ?>" class="form-control"
                                        placeholder="Mot de passe" required>
                             </div>
                             <div class="form-group"> <span class="custom-checkbox">

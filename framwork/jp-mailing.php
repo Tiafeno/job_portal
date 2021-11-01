@@ -85,9 +85,9 @@ add_action('send_mail_when_user_apply', function($job_id = 0, $candidate_id = 0)
 
     $content = $Liquid_engine->parseFile('mails/notice_employer_when_candidate_apply')->render([
         'espace_client_url' => home_url('/espace-client'),
-        'company' => $company,
-        'candidate' => $candidate,
-        'job' => $annonce,
+        'company' => get_object_vars($company),
+        'candidate' => get_object_vars($candidate),
+        'job' => get_object_vars($annonce),
         'home_url' => home_url("/"),
         'logo' => $logo[0]
     ]);
@@ -128,8 +128,8 @@ add_action('send_mail_when_publish_emploi', function($job_id) {
 
     $annonce = $job->get_post();
     $content = $Liquid_engine->parseFile('mails/notice_publish_annonce')->render([
-        'company' => $company,
-        'job' => $annonce,
+        'company' => get_object_vars($company),
+        'job' => get_object_vars($annonce),
         'home_url' => home_url("/"),
         'logo' => $logo[0]
     ]);

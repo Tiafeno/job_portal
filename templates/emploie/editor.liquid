@@ -1,30 +1,27 @@
 <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
 
     <div class="table-responsive">
-        <table class="ui compact celled definition table">
+        <table class="ui compact inverted blue table">
             <thead class="full-width">
             <tr>
-                <th>ID</th>
+                <th>Reference</th>
                 <th>Nom & Prenom</th>
-                <th>Désignation</th>
                 <th>Date de publication</th>
                 <th>Statuts</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
             {% for user in candidates %}
                 <tr>
-                    <td>
-                        {{ user.id }}
+                    <td class="selectable">
+                        <a href="{{ user.ID | get_candidate_link }}" target="_blank">CV{{ user.ID }}</a>
                     </td>
-                    <td>{{ user.name }}</td>
-                    <td><a href="annonce.link" target="_blank">  </a></td>
-                    <td><i class="ti-credit-card"></i> </td>
-                    <td><span class="badge badge-info"></span></td>
+                    <td>{{ user.data.display_name }}</td>
+                    <td>{{ user.data.user_registered }}</td>
+                    <td></td>
                 </tr>
             {% endfor %}
-
-
             </tbody>
         </table>
     </div>

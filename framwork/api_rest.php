@@ -322,7 +322,7 @@ add_action('rest_api_init', function () {
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
-                $configs = Tools::getInstance()->get_app_configs();
+                $configs = Tools::getInstance()->getSchemas();
                 $account_pricing = $configs->pricing->account;
                 wp_send_json($account_pricing);
             },
@@ -335,7 +335,7 @@ add_action('rest_api_init', function () {
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
-                $configs = Tools::getInstance()->get_app_configs();
+                $configs = Tools::getInstance()->getSchemas();
                 $status = $configs->candidat_status;
                 wp_send_json($status);
             },
@@ -482,7 +482,7 @@ add_action('rest_api_init', function () {
                 $customer_id = intval($request->get_param('customer_id'));
                 $object_id = intval($request->get_param('object_id'));
                 $product_title = null;
-                $configs = Tools::getInstance()->get_app_configs();
+                $configs = Tools::getInstance()->getSchemas();
                 $date = new DateTime();
                 switch ($type) {
                     case 'account':
@@ -655,6 +655,7 @@ add_action('rest_api_init', function() {
             return update_user_meta($user_obj->ID, 'is_active', intval($value));
         }
     ]);
+
     register_rest_field('user', 'has_cv', [
         'get_callback' => function($user_arr) {
             $user_id = intval($user_arr['id']);
@@ -668,20 +669,22 @@ add_action('rest_api_init', function() {
             return update_user_meta($user_obj->ID, 'has_cv', $value);
         }
     ]);
+
+    // Status du candidate (je cherche...)
     register_rest_field('user', 'cv_status', [
         'get_callback' => function($user_arr) {
             $user_id = intval($user_arr['id']);
             $user_object = new WP_User($user_id);
             $roles = $user_object->roles;
             if (!in_array('candidate', $roles)) return 0;
-            $is_active = get_metadata('user', $user_id, 'cv_status', true);
-            return intval($is_active);
+            $status = get_metadata('user', $user_id, 'cv_status', true);
+            return intval($status);
         },
         'update_callback' => function($value, $user_obj) {
             return update_user_meta($user_obj->ID, 'cv_status', intval($value));
         }
     ]);
-    // Experiences du candidat
+    // Experiences du candidate
     register_rest_field('user', 'experiences', [
         'get_callback' => function($user_arr) {
             $user_id = intval($user_arr['id']);

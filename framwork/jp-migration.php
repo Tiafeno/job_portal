@@ -5,6 +5,10 @@
 add_action('after_switch_theme', function() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'job_apply';
+    /**
+     * purchased - Cette variable permet de savoir si l'employer à acheter le CV
+     * status -  En attente (0), afficher (1), desactiver (2)
+     */
     $sql = "CREATE TABLE IF NOT EXISTS $table_name (
 		ID bigint(20) NOT NULL AUTO_INCREMENT,
 		job_id bigint(20) NOT NULL,

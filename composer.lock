@@ -77,16 +77,16 @@
         },
         {
             "name": "liquid/liquid",
-            "version": "1.4.24",
+            "version": "1.4.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kalimatas/php-liquid.git",
-                "reference": "b55e8681fc0167fdc4596ae6d4a5c91af5c43bea"
+                "reference": "763a95a38d98378db2bad53d236a456b1e980c9a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kalimatas/php-liquid/zipball/b55e8681fc0167fdc4596ae6d4a5c91af5c43bea",
-                "reference": "b55e8681fc0167fdc4596ae6d4a5c91af5c43bea",
+                "url": "https://api.github.com/repos/kalimatas/php-liquid/zipball/763a95a38d98378db2bad53d236a456b1e980c9a",
+                "reference": "763a95a38d98378db2bad53d236a456b1e980c9a",
                 "shasum": ""
             },
             "require": {
@@ -140,9 +140,9 @@
             ],
             "support": {
                 "issues": "https://github.com/kalimatas/php-liquid/issues",
-                "source": "https://github.com/kalimatas/php-liquid/tree/1.4.24"
+                "source": "https://github.com/kalimatas/php-liquid/tree/1.4.25"
             },
-            "time": "2021-09-17T23:01:13+00:00"
+            "time": "2021-11-04T13:16:06+00:00"
         },
         {
             "name": "lodash-php/lodash-php",

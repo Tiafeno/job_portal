@@ -191,7 +191,7 @@ const paramKeys = Object.keys(params); // return array of keys
                 // Pagination view: http://pagination.js.org/docs/index.html
                 $('#pagination-archive').pagination({
                     dataSource: self.source,
-                    pageSize: self.pagesize,
+                    pageSize: 1,
                     ulClassName: 'pagination',
                     className: '',
                     callback: function (data, pagination) {
@@ -463,9 +463,9 @@ const paramKeys = Object.keys(params); // return array of keys
                         }
                     });
                     const categoriesRequest = this.axiosInstance.get('categories?per_page=80&hide_empty=false');
-                    const typesRequest = this.axiosInstance.get('job_type?per_page=50');
-                    const salaryRequest = this.axiosInstance.get('salaries?per_page=50');
-                    const regionRequest = this.axiosInstance.get('region?per_page=50');
+                    const typesRequest = this.axiosInstance.get('job_type?per_page=50&hide_empty=true');
+                    const salaryRequest = this.axiosInstance.get('salaries?per_page=50&hide_empty=true');
+                    const regionRequest = this.axiosInstance.get('region?per_page=50&hide_empty=true');
                     this.loading = true;
                     await axios.all([typesRequest, categoriesRequest, salaryRequest, regionRequest]).then(axios.spread(
                         (...responses) => {

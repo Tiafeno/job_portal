@@ -190,11 +190,11 @@ get_header();
                                 v-if="typeof taxonomies.Regions === 'object'"
                                 v-on:changed="applyFilter">
                         </filter-region>
-                        <filter-salary
+                        <!-- <filter-salary
                                 v-bind:salaries="taxonomies.Salaries"
                                 v-if="typeof taxonomies.Salaries === 'object'"
                                 v-on:changed="applyFilter">
-                        </filter-salary>
+                        </filter-salary> -->
                     </div>
                     <!-- Start Job List -->
                     <div class="col-md-7 col-sm-12">

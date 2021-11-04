@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/framwork/cron.php';
+require_once __DIR__ . '/framework/cron.php';
 
-use JP\Framwork\Elements\jpCandidate;
-use JP\Framwork\Elements\jpJobs;
+use JP\Framework\Elements\jpCandidate;
+use JP\Framework\Elements\jpJobs;
 use Liquid\Template;
 // Disable warning php error
 error_reporting(E_ERROR | E_PARSE);
@@ -34,8 +34,8 @@ global $wpdb;
 define('APPLY_TABLE', "{$wpdb->prefix}job_apply");
 define('APPLY_PURCHASE_TABLE', "{$wpdb->prefix}job_apply_purchase");
 
-require_once __DIR__ . '/framwork/loader.php'; // Load all elements
-require_once __DIR__ . '/framwork/jp-migration.php';
+require_once __DIR__ . '/framework/loader.php'; // Load all elements
+require_once __DIR__ . '/framework/jp-migration.php';
 
 // Gestion d'erreur
 $jj_errors = [];

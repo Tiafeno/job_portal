@@ -1,6 +1,6 @@
 <?php
 
-use JP\Framwork\Elements\jpCandidate as jpCandidateAlias;
+use JP\Framework\Elements\jpCandidate as jpCandidateAlias;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -261,7 +261,7 @@ add_action('rest_api_init', function () {
             'callback' => function (WP_REST_Request $request) {
                 $object_id = $request->get_param('company_id');
                 $object_id = intval($object_id);
-                if (\JP\Framwork\Elements\jpCompany::is_company($object_id)) {
+                if (\JP\Framework\Elements\jpCompany::is_company($object_id)) {
                     $request = new WP_REST_Request();
                     $request->set_param('user_id', $object_id);
                     send_rest_user($request);
@@ -288,7 +288,7 @@ add_action('rest_api_init', function () {
             'callback' => function (WP_REST_Request $request) {
                 $object_id = $request->get_param('company_id');
                 $object_id = intval($object_id);
-                if (\JP\Framwork\Elements\jpCompany::is_company($object_id)) {
+                if (\JP\Framework\Elements\jpCompany::is_company($object_id)) {
                     global $wpdb;
                     /**
                      * Recuperer l'employer de cette entreprise, pour être utiliser dans la page entreprise

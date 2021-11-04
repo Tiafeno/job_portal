@@ -70,7 +70,7 @@ the_search_query();
                             foreach ($posts as $post):
                                 $post instanceof WP_Post;
                                 // WP_Post object
-                                $job = new \JP\Framwork\Elements\jpJobs($post);
+                                $job = new \JP\Framework\Elements\jpJobs($post);
                                 $experience = $job->experience; // meta data
                                 $region = $job->get_reset_term('region');
                                 $category = $job->get_reset_term('category');

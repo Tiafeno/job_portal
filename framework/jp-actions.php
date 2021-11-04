@@ -1,6 +1,6 @@
 <?php
 
-use JP\Framwork\Elements\jpCandidate;
+use JP\Framework\Elements\jpCandidate;
 
 if (!defined('ABSPATH')) {
     exit;

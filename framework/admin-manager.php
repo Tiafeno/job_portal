@@ -40,7 +40,7 @@ final class AdminManager
                 $select .= '<input type="hidden" name="post_id" value="'.$post_id.'" />';
                 $select .= '<input type="hidden" name="employer_id" value="'.$employer_id.'" />';
                 $select .= '<input type="hidden" name="company_id" value="'.$post_company_id.'" />';
-                $select .= '<input type="submit" value="Envoyer" class="button button-primary">';
+                $select .= '<input type="submit" value="Save" class="button button-primary">';
                 $select .= '</form>';
                 echo $select;
             }

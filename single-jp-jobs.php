@@ -8,8 +8,8 @@
  */
 global $post;
 
-use JP\Framwork\Elements\jpCandidate;
-use JP\Framwork\Elements\jpJobs;
+use JP\Framework\Elements\jpCandidate;
+use JP\Framework\Elements\jpJobs;
 
 $logger = new stdClass(); // type[error, success], message
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace JP\Framwork\Elements;
+namespace JP\Framework\Elements;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -130,7 +130,7 @@ class jpCandidate extends \WP_User
     public function profile_update($args = [])
     {
         foreach ($args as $arg_key => $value) {
-            if (property_exists('\\JP\\Framwork\\Elements\\jpCandidate', $arg_key)) {
+            if (property_exists('\\JP\\Framework\\Elements\\jpCandidate', $arg_key)) {
                 update_user_meta($this->ID, $arg_key, $value);
             }
         }

@@ -4,12 +4,6 @@ const paramKeys = Object.keys(params); // return array of keys
 
 (function ($, _) {
     $().ready(function () {
-        const jobapiAxiosInstance = axios.create({
-            baseURL: archiveApiSettings.root + 'job/v2',
-            headers: {
-                'X-WP-Nonce': archiveApiSettings.nonce
-            }
-        });
         const __compRegion = {
             props: ['regions'],
             template: "#filter-region-template",
@@ -190,8 +184,8 @@ const paramKeys = Object.keys(params); // return array of keys
                 }
                 // Pagination view: http://pagination.js.org/docs/index.html
                 $('#pagination-archive').pagination({
-                    dataSource: self.source,
-                    pageSize: self.pagesize,
+                    dataSource: this.source,
+                    pageSize: this.pagesize,
                     ulClassName: 'pagination',
                     className: '',
                     callback: function (data, pagination) {

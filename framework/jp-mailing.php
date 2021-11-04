@@ -1,7 +1,7 @@
 <?php
 
-use JP\Framwork\Elements\jpCandidate;
-use JP\Framwork\Elements\jpJobs;
+use JP\Framework\Elements\jpCandidate;
+use JP\Framework\Elements\jpJobs;
 
 if (!defined('ABSPATH')) {
     exit;

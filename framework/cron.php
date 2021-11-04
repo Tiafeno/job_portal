@@ -1,7 +1,7 @@
 <?php
-namespace JP\Framwork;
+namespace JP\Framework;
 
-use JP\Framwork\Model\jModel;
+use JP\Framework\Model\jModel;
 
 class jCron {
     public function __construct() {}

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace JP\Framwork\Elements;
+namespace JP\Framework\Elements;
 use function _\indexOf;
 
 if (!defined('ABSPATH')) {
@@ -55,7 +55,7 @@ final class jpCompany extends \WP_User
 
     public function profile_update($args = []) {
         foreach ($args as $arg_key => $value) {
-            if (property_exists('\\JP\\Framwork\\Elements\\jpCompany', $arg_key)) {
+            if (property_exists('\\JP\\Framework\\Elements\\jpCompany', $arg_key)) {
                 update_user_meta($this->ID, $arg_key, $value);
             }
         }

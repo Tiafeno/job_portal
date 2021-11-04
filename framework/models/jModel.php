@@ -1,7 +1,7 @@
 <?php
 
 
-namespace JP\Framwork\Model;
+namespace JP\Framework\Model;
 
 if (!defined('ABSPATH')) {
     exit;

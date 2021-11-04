@@ -39,7 +39,7 @@ get_header();
                                     <comp-avatar :class_css="'img-responsive'" :user="item.company"></comp-avatar>
                                 </a>
                             </div>
-                            <h5><a v-bind:href="item.link">{{item.title.rendered}}</a></h5>
+                            <h5><a v-bind:href="item.link" :title="item.title.rendered">{{ item.title_truncate }}</a></h5>
                             <p class="text-muted">{{item.meta.address}}</p>
                         </div>
                         <div class="utf_apply_job_btn_item">
@@ -54,7 +54,7 @@ get_header();
         </div>
     </script>
     <!-- jobs company template-->
-    <script type="text/x-template" id="company-archive-item">
+    <script id="company-archive-item" type="text/x-template" >
         <!-- ================ Companies Jobs ======================= -->
         <section class="padd-top-30">
             <div class="container">
@@ -84,7 +84,7 @@ get_header();
         </section>
     </script>
     <!--Single company template-->
-    <script type="text/x-template" id="company-details">
+    <script id="company-details" type="text/x-template" >
         <div>
 
             <!-- ================ Company Profile ======================= -->
@@ -101,20 +101,18 @@ get_header();
                 </div>
                 <div class="container" v-if="!loading && company != null">
                     <div class="user_acount_info">
-                        <div class="col-md-4 col-sm-6">
-                            <div class="emp-pic">
-                                <comp-avatar :class_css="'img-responsive width-270'" :user="company"></comp-avatar>
+                        <div class="col-md-2 col-sm-6">
+                            <div class="emp-pic ">
+                                <comp-avatar :class_css="'img-responsive width-140'" :user="company"></comp-avatar>
                             </div>
                         </div>
                         <div class="col-md-8 col-sm-6">
                             <div class="emp-des">
                                 <h3>{{company.name}}</h3>
-                                <span class="theme-cl">Lorem upsum</span>
+                                <span class="theme-cl">{{company.description}}</span>
                                 <ul class="employer_detail_item">
-                                    <li><i class="ti-credit-card padd-r-10"></i>{{company.meta.address}}, {{company.meta.city}}</li>
-                                    <li><i class="ti-mobile padd-r-10"></i>Lorem upsum</li>
-                                    <li><i class="ti-pencil-alt padd-r-10"></i>Lorem upsum</li>
-                                    <li><i class="ti-shield padd-r-10"></i>Lorem upsum dotme</li>
+                                    <li style="width: inherit"><i class="ti-credit-card padd-r-10"></i>{{company.meta.address}}, {{company.meta.city}}</li>
+
                                 </ul>
                             </div>
                         </div>

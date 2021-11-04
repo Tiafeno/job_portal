@@ -79,6 +79,7 @@ function apply_annonce_fn(stdClass &$log) {
 }
 do_action('apply_annonce', $logger);
 
+
 get_header();
 
 /* Start the Loop */
@@ -221,7 +222,7 @@ while (have_posts()) : the_post();
                 'post_type' => 'jp-jobs',
                 'post_status' => ['publish'],
                 'post__not_in' => [get_the_ID()], // exclude the current post id
-                'posts_per_page' => 6,
+                'posts_per_page' => 7,
                 'tax_query' => array(
                     'relation' => 'OR',
                     array(
@@ -244,12 +245,13 @@ while (have_posts()) : the_post();
                 </div>
                 <div class="row">
                     <!-- the loop -->
-                    <?php while ($query_posts->have_posts()) : $query_posts->the_post();
+                    <?php while ($query_posts->have_posts()) :
+                        $query_posts->the_post();
                         $current_job = new jpJobs($query_posts->post);
-                        $title =  mb_substr(get_the_title(), 0, 30, 'UTF-8');
+                        $title = truncate(get_the_title(), 21, '...');
                         ?>
                         <!-- Single Job -->
-                        <div class="col-md-4 col-sm-6">
+                        <div class="col-md-3 col-sm-6">
                             <div class="utf_grid_job_widget_area"> <span class="job-type full-type">
                                 <?= $job->get_reset_term('job_type')->name; ?>
                             </span>
@@ -261,7 +263,7 @@ while (have_posts()) : the_post();
                                 </div>
                                 <div class="u-content">
                                     <div class="avatar box-80"><a href="<?= get_the_permalink() ?>"> </a></div>
-                                    <h5><a href="<?= get_the_permalink() ?>"><?= $title ?></a></h5>
+                                    <h5><a title="<?= get_the_title() ?>" href="<?= get_the_permalink() ?>"><?= $title ?></a></h5>
                                     <p class="text-muted">
                                         <?= $job->get_reset_term('region')->name; ?>
                                         <?= $current_job->address ? ', ' . $current_job->address : '' ?>
@@ -273,7 +275,9 @@ while (have_posts()) : the_post();
                                 </div>
                             </div>
                         </div>
-                    <?php endwhile; ?>
+                    <?php
+                        unset($title);
+                    endwhile; ?>
                     <!-- end of the loop -->
                     <?php wp_reset_postdata(); ?>
                 </div>

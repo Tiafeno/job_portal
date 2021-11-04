@@ -95,7 +95,7 @@
                     _build: function(jobs) {
                         this.jobs = _.map(jobs, job => {
                             const title = job.title.rendered;
-                            job.title.rendered = _.truncate(title, {length: 30, separator: ' '});
+                            job.title.rendered = _.truncate(title, {length: 17, separator: '...'});
                             return job;
                         });
                     },

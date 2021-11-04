@@ -90,7 +90,11 @@
                         }
                     }).then(resp => {
                         try {
-                            this.jobs = lodash.clone(resp);
+                            this.jobs = lodash.map(resp, (job) => {
+                                const title = job.title.rendered;
+                                job.title_truncate = lodash.truncate(title, {length: 21, separator: '...'});
+                                return job;
+                            });
                             this.loading = false;
                         } catch (e) {
                             console.warn(e);

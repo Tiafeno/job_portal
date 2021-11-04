@@ -221,6 +221,7 @@ while (have_posts()) : the_post();
                 'post_type' => 'jp-jobs',
                 'post_status' => ['publish'],
                 'post__not_in' => [get_the_ID()], // exclude the current post id
+                'posts_per_page' => 6,
                 'tax_query' => array(
                     'relation' => 'OR',
                     array(
@@ -245,9 +246,10 @@ while (have_posts()) : the_post();
                     <!-- the loop -->
                     <?php while ($query_posts->have_posts()) : $query_posts->the_post();
                         $current_job = new jpJobs($query_posts->post);
+                        $title =  mb_substr(get_the_title(), 0, 30, 'UTF-8');
                         ?>
                         <!-- Single Job -->
-                        <div class="col-md-3 col-sm-6">
+                        <div class="col-md-4 col-sm-6">
                             <div class="utf_grid_job_widget_area"> <span class="job-type full-type">
                                 <?= $job->get_reset_term('job_type')->name; ?>
                             </span>
@@ -258,8 +260,8 @@ while (have_posts()) : the_post();
                                     </label>
                                 </div>
                                 <div class="u-content">
-                                    <div class="avatar box-80"><a href="employer-detail.html"> </a></div>
-                                    <h5><a href="employer-detail.html"><?php the_title() ?></a></h5>
+                                    <div class="avatar box-80"><a href="<?= get_the_permalink() ?>"> </a></div>
+                                    <h5><a href="<?= get_the_permalink() ?>"><?= $title ?></a></h5>
                                     <p class="text-muted">
                                         <?= $job->get_reset_term('region')->name; ?>
                                         <?= $current_job->address ? ', ' . $current_job->address : '' ?>
@@ -267,7 +269,7 @@ while (have_posts()) : the_post();
                                 </div>
                                 <div class="utf_apply_job_btn_item">
                                     <a href="<?= get_the_permalink() ?>" target="-_parent"
-                                       class="btn job-browse-btn btn-radius br-light">Je postule</a>
+                                       class="btn job-browse-btn btn-radius br-light">VOIR L'OFFRE</a>
                                 </div>
                             </div>
                         </div>

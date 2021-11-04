@@ -70,10 +70,12 @@ class jpCandidate extends \WP_User
         $configs = \Tools::getInstance()->getSchemas();
         $config_status = $configs->candidat_status;
         $status = get_user_meta($this->ID, 'cv_status', true);
-        $collection = new ArrayCollection($config_status);
-        $this->status = $collection->filter(function ($el) use ($status) {
-            return $status == $el->_id;
-        })->first();
+        if (is_array($config_status)) {
+            $collection = new ArrayCollection($config_status);
+            $this->status = $collection->filter(function ($el) use ($status) {
+                return $status == $el->_id;
+            })->first();
+        }
 
         // Candidate Region
         $region_id = get_metadata('user', $this->ID, 'region', true);
@@ -86,12 +88,15 @@ class jpCandidate extends \WP_User
         $languages = get_metadata('user', $this->ID, 'languages', true);
         try {
             $languages = json_decode($languages);
-            $langCollection = new ArrayCollection($languages);
-            $this->languages = $langCollection->map(function($lang) {
-                $lTerm = get_term(intval($lang), 'language');
-                if ($lTerm instanceof \WP_Term)  return $lTerm;
-                return null;
-            })->toArray();
+            if (is_array($languages)) {
+                $langCollection = new ArrayCollection($languages);
+                $this->languages = $langCollection->map(function($lang) {
+                    $lTerm = get_term(intval($lang), 'language');
+                    if ($lTerm instanceof \WP_Term)  return $lTerm;
+                    return null;
+                })->toArray();
+            }
+            
         } catch (\JsonException $e) {
             $this->languages = "";
         }

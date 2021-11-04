@@ -4,7 +4,7 @@ Theme URI:    http://falicrea.net
 Author:       Falicrea Inc.
 Author URI:   https://falicrea.net
 Description:  Designed and developed by Falicrea
-Version:      1.5.0
+Version:      1.5.0.1
 License:      GNU General Public License v2 or later
 License URI:  https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain:  itjob
@@ -167,7 +167,7 @@ a.btn.call-btn {
     text-align:center;
     border: none;
     border-radius: 0;
-    background-image: url(../../assets/img/single_page_header.png);
+    background-color: #02cfc7;
     background-position: center top;
     background-size: cover;
     position:relative;
@@ -497,7 +497,6 @@ button.btn.dropdown-toggle.btn-default {
     height: 14px;
     line-height: 14px;
     vertical-align: text-top;
-    background-image: url(../img/glyphicons-halflings.png);
     background-position: 14px 14px;
     background-repeat: no-repeat;
 }
@@ -511,7 +510,6 @@ button.btn.dropdown-toggle.btn-default {
     height: 14px;
     line-height: 14px;
     vertical-align: text-top;
-    background-image: url(../img/glyphicons-halflings.png);
     background-repeat: no-repeat;
 }
 .btn-group .icon-indent-right {
@@ -809,7 +807,6 @@ h2 span.theme-cl{
     padding:10px;
 }
 .theme-overlap {
-    background: url(../img/slider_bg.jpg);
     background-position: center !important;
     background-size: cover !important;
     position: relative;
@@ -1972,7 +1969,7 @@ html body .label-default {
     font-size: 16px;
     padding: 11px 17px;
     border: none;
-    background-color: red  background-color:red;
+    background-color: red;
     outline: none;
 }
 .file-upload-button {
@@ -4984,7 +4981,6 @@ Icons Style
     height: 100%;
     opacity: 0.5;
     display: inline-block;
-    background: url(../../assets/img/city_bg.png) no-repeat;
     background-size: contain;
     background-position:bottom center;
 }
@@ -5200,12 +5196,10 @@ label {
     width: 100%;
     height: 100%;
     z-index: 9999;
-    background: url(../../assets/img/page-loading.gif) center no-repeat #fff;
     background-size: auto;
     background-size: 100px;
 }
 .scrollup {
-    background: rgba(0, 0, 0, 0) url(../../assets/img/top-move.png) no-repeat scroll 0 0;
     bottom: 28px;
     display: none;
     height: 40px;

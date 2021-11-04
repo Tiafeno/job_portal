@@ -190,10 +190,8 @@ const paramKeys = Object.keys(params); // return array of keys
                     className: '',
                     callback: function (data, pagination) {
                     },
-                    beforePageOnClick: function (el) {
-                        const page = el.currentTarget;
-                        const data = page.dataset;
-                        self.$emit('change-route-page', parseInt(data.num), 'page');
+                    beforePaging: function (page) {
+                        self.$emit('change-route-page', parseInt(page), 'page');
                     }
                 });
             },

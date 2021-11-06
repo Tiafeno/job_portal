@@ -3,7 +3,7 @@ namespace JP\Framework\Traits;
 
 trait DemandeTypeTrait {
     public static $tableName;
-    private static function getTableName() {
+    public static function getTableName() {
         global $wpdb;
         return self::$tableName = $wpdb->prefix . 'demande_type';
     }

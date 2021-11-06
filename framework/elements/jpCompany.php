@@ -42,15 +42,34 @@ final class jpCompany extends \WP_User
     // Utiliser l'action 'profile_update' https://developer.wordpress.org/reference/hooks/profile_update/
     public $company_name;
     public $address;
-    public $region; // int - Reference with taxonomy 'Region'
-    public $country; // int - Reference with taxonomy 'country'
+    public $region = null; // int - Reference with taxonomy 'Region'
+    public $country = null; // int - Reference with taxonomy 'country'
     public $city;
     public $nif;
     public $stat;
-    public $activated = 1;
+    public $activated = 0;
 
     public function __construct($id = 0, $name = '', $site_id = '') {
         parent::__construct($id, $name, $site_id);
+
+        $this->company_name = $this->display_name;
+        $this->nif = get_user_meta($this->ID, 'nif', true);
+        $this->stat = get_user_meta($this->ID, 'stat', true);
+        $this->activated = $this->validated();
+
+        // Region
+        $region_id = get_metadata('user', $this->ID, 'region', true);
+        $region_term = get_term($region_id, 'region', OBJECT);
+        if ($region_term instanceof \WP_Term) {
+            $this->region = $region_term;
+        }
+
+        // Country
+        $country_id = get_metadata('user', $this->ID, 'country', true);
+        $country_term = get_term($country_id, 'country', OBJECT);
+        if ($country_term instanceof \WP_Term) {
+            $this->country = $country_term;
+        }
     }
 
     public function profile_update($args = []) {
@@ -70,8 +89,8 @@ final class jpCompany extends \WP_User
         return false;
     }
 
-    public function is_active() {
-        $is_active = get_user_meta($this->ID, 'is_active', false); // int|bool
-        return boolval($is_active);
+    public function validated() {
+        $validated = get_user_meta($this->ID, 'validated', false); // int|bool
+        return $validated ? boolval($validated) : false;
     }
 }

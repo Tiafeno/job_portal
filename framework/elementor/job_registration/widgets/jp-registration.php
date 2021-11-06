@@ -75,10 +75,10 @@ class JobRegistration_Widget extends Widget_Base {
                 'action' =>  $current_page_url . '?reg=true',
                 'errors' => $jj_errors,
                 'form' => [
-                    'role' => \Tools::getValue('role', ''),
-                    'first_name' => \Tools::getValue('first_name', ''),
-                    'email' => \Tools::getValue('email', ''),
-                    'phone' => \Tools::getValue('phone', '')
+                    'role' => \jTools::getValue('role', ''),
+                    'first_name' => \jTools::getValue('first_name', ''),
+                    'email' => \jTools::getValue('email', ''),
+                    'phone' => \jTools::getValue('phone', '')
                 ]
             ]);
     }

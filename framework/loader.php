@@ -8,9 +8,9 @@ require_once 'admin-manager.php';
 require_once 'menu-walker.php';
 require_once 'service-providers.php';
 
-require_once 'jp-helpers.php';
-require_once 'jp-mailing.php';
-require_once 'jp-actions.php';
+require_once 'JTools.php';
+require_once 'jMailing.php';
+require_once 'jActions.php';
 
 // load widget
 require_once 'widgets/widget-social.php';
@@ -22,10 +22,13 @@ add_action('init', function() {
     }
 });
 
-// Load Controller
+// Traits
+require 'traits/DemandeTrait.php';
+require 'traits/DemandeTypeTrait.php';
+require 'traits/ProfilAccessTrait.php';
 
 // Class object
-require 'elements/jpCandidate.php';
+require 'elements/jCandidate.php';
 require 'elements/jpCompany.php';
 require 'elements/jpEmployer.php';
 require 'elements/jpJobs.php';

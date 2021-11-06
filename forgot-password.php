@@ -205,7 +205,7 @@ get_header();
         })(jQuery);
     </script>
 <?php
-$forgot_password =  Tools::getValue( 'forgot_password', 0 );
+$forgot_password =  jTools::getValue( 'forgot_password', 0 );
 ?>
     <section class="padd-bot-80">
         <div class="container padd-top-40">

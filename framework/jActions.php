@@ -1,6 +1,8 @@
 <?php
 
-use JP\Framework\Elements\jpCandidate;
+use JP\Framework\Elements\jCandidate;
+use JP\Framework\Traits\DemandeTrait;
+use JP\Framework\Traits\DemandeTypeTrait;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -57,7 +59,7 @@ add_action('init', function () {
         if (is_user_logged_in()) {
             wp_send_json_error(["msg" => "Vous ne pouvez pas effectuer cette action"]);
         }
-        $email = Tools::getValue('email');
+        $email = jTools::getValue('email');
         if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             wp_send_json_error(["msg" => "Paramétre non valide"]);
         }
@@ -82,7 +84,7 @@ add_action('init', function () {
     add_action('forgot_my_password', 'forgot_my_password', 10, 2);
     function forgot_my_password($email, $key)
     {
-        global $Liquid_engine, $no_reply_email;
+        global $engine, $no_reply_email;
         $to = $email;
         $User = get_user_by('email', $to);
         $subject = "Réinitialiser votre mot de passe - JOBJIABY";
@@ -92,7 +94,7 @@ add_action('init', function () {
         $content = '';
         $custom_logo_id = get_theme_mod('custom_logo');
         $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
-        $content .= $Liquid_engine->parseFile('forgot-password')->render([
+        $content .= $engine->parseFile('forgot-password')->render([
             'forgot_link' => home_url('/forgot-password') . "?key={$key}&account={$User->user_login}&action=resetpass",
             'home_url' => home_url("/"),
             'logo' => $logo[0]
@@ -127,6 +129,7 @@ add_action('init', function () {
         wp_send_json_success("Mot de passe modifier avec succès");
     });
 
+    // Tous les offres que le candidats à postuler
     add_action('wp_ajax_ad_handler_apply', function () {
         global $wpdb;
         $candidate_id = intval($_GET['cid']);
@@ -154,18 +157,18 @@ function pre_process_registration() {
     $page_id = $confirmation_register->ID;
 
     //if (!is_singular()) return;
-    if (\Tools::getValue('_wpnonce', false)) {
+    if (jTools::getValue('_wpnonce', false)) {
         // Enregistrer les informations utilisateur
         if (wp_verify_nonce($_POST['_wpnonce'], 'jobjiaby-register')) {
-            $email = \Tools::getValue('email', null);
-            if (is_null($email) || empty($_POST['role'])) { return false; }
-            $role = esc_attr($_POST['role']); //candidate or employer
-            $password = \Tools::getValue('password');
+            $email = jTools::getValue('email', null);
+            $role = jTools::getValue('role', null);
+            if (is_null($email) || is_null($role)) { return false; }
+            $password = jTools::getValue('password');
             if (!$password) return;
             $args = [
                 'user_pass' => $password,
                 'nickname' => $email,
-                'first_name' => \Tools::getValue('first_name', ''),
+                'first_name' => jTools::getValue('first_name', ''),
                 'last_name' => '',
                 'user_login' => $email,
                 'user_email' => $email,
@@ -184,14 +187,17 @@ function pre_process_registration() {
                 }
             }
             $user_id = (int)$response;
-            $phone_number = Tools::getValue('phone');
+            $phone_number = jTools::getValue('phone');
+            // For candidate only...
             if ($role === 'candidate') {
                 // Pour les candidat
-                $candidate = new jpCandidate($user_id);
+                $candidate = new jCandidate($user_id);
                 $candidate->profile_update([
                     'phones' => esc_sql($phone_number),
-                    'is_active' => 0,
-                    'has_cv' => 0,
+                    'validated' => 0, // not active user
+                    'has_cv' => 0, // and don't have CV
+                    'blocked' => 0,
+                    'cv_status' => 1,
                 ]);
             } else {
                 // pour les employer
@@ -214,10 +220,10 @@ function pre_process_registration() {
 add_action('init', 'process_validate_user_email', 1);
 function process_validate_user_email() {
     global $jj_messages;
-    $nonce = Tools::getValue('verify_email_nonce', false);
+    $nonce = jTools::getValue('verify_email_nonce', false);
     if (!$nonce) return false;
     if (wp_verify_nonce($nonce, 'jobjiaby_verify_email')) {
-        $email = Tools::getValue('e'); // email base64 encrypt
+        $email = jTools::getValue('e'); // email base64 encrypt
         $email = base64_decode($email);
         if ($user_id = email_exists($email)) {
             $is_verify = (int)get_user_meta($user_id, 'email_verify', true);
@@ -237,31 +243,86 @@ function process_validate_user_email() {
  * Cette processus permet d'afficher une message si l'adresse email du client n'est pas encore valide.
  * Il permet aussi de renvoyer le mail de verification d'adresse.
  */
-add_action('init', 'process_resend_verify_user_email', 1);
+add_action('wp_loaded', 'process_resend_verify_user_email', 1);
 function process_resend_verify_user_email() {
     global $jj_messages;
 
     if (!is_user_logged_in()) return;
 
-    // Afficher la banniere si le compte n'est pas encore verifié
     $user_id = get_current_user_id();
+    // Resend verify user email
+    $nonce = jTools::getValue('e-verify-nonce');
+    $verification = wp_verify_nonce($nonce, 'jobjiaby_resend_verify');
+    if ($nonce && $verification) {
+        // Send email
+        do_action('send_email_new_user', $user_id);
+        wp_redirect( get_site_url() );
+        exit();
+    }
+
+    // Afficher la banniere si le compte n'est pas encore verifié
     $is_verify = get_user_meta($user_id, 'email_verify', true);
     if (!$is_verify || intval($is_verify) === 0) {
         $link_nonce = wp_create_nonce("jobjiaby_resend_verify");
         $user = new WP_User($user_id);
         $jj_messages[] = [
             'type' => 'warning',
-            'msg' =>  "{$user->display_name}, veuillez consulter {$user->user_email} pour terminer le processus d'inscription.",
+            'msg' =>  "Bonjour {$user->display_name}, veuillez consulter {$user->user_email} pour terminer le processus d'inscription.",
             'btn' => "Envoyer",
-            'btn_link' => home_url('/?resend_verify_nonce=' . $link_nonce)
+            'btn_link' => home_url('/?e-verify-nonce=' . $link_nonce)
         ];
     }
+}
 
-    // Resend verify user email
-    $nonce = Tools::getValue('resend_verify_nonce');
-    if (!$nonce) return false;
-    if (wp_verify_nonce($nonce, 'jobjiaby_resend_verify')) {
-        do_action('send_email_new_user', $user_id);
+add_action('demande_handler', 'process_demande_handler');
+function process_demande_handler() {
+    $controller = jTools::getValue('controller', null);
+    if ($controller && $controller === 'DEMANDE') {
+        $method = jTools::getValue('method', null);
+        $type_demande = jTools::getValue('type_demande', null);
+        $user_id = get_current_user_id();
+
+        switch ($method) {
+            case 'CREATE':
+
+                switch ($type_demande) {
+                    case 'DMD_CANDIDAT':
+
+                        global $wpdb, $jj_messages;
+                        $candidate_id = jTools::getValue('candidate_id', null);
+                        $table = DemandeTrait::getTableName();
+                        $type_dmd_id = DemandeTypeTrait::getTypeId($type_demande);
+
+                        // Verifier si l'utiliateur à déja fait la demande
+                        $reference = md5("{$method}:{$type_demande}:{$user_id}:{$type_dmd_id}:{$candidate_id}");
+
+                        $queryReference = $wpdb->get_row("SELECT * FROM $table WHERE reference = '$reference'");
+                        $wpdb->flush();
+                        if ($queryReference) {
+                            $jj_messages[] = ['type' => 'warning', 'msg' => "Demande déja en cours"];
+                            break;
+                        }
+
+                        $data = [
+                            "candidate_id" => (int)$candidate_id,
+                        ];
+                        $data_request = (object) $data;
+                        $createDemande = $wpdb->insert($table, [
+                            'user_id' => $user_id,
+                            'type_demande_id' => $type_dmd_id,
+                            'reference' => $reference,
+                            'data_request' => serialize($data_request)
+                        ]);
+                        $wpdb->flush();
+                        if ($createDemande) {
+                            $jj_messages[] = ['type' => 'success', 'msg' => "Votre demande a été envoyer avec succès"];
+                        } else {
+                            $jj_messages[] = ['type' => 'danger', 'msg' => "Une erreur c'est produit pendant l'envoye de votre demande"];
+                        }
+                        break;
+                }
+                break;
+        }
     }
 }
 

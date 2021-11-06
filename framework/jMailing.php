@@ -1,14 +1,20 @@
 <?php
 
-use JP\Framework\Elements\jpCandidate;
+use JP\Framework\Elements\jCandidate;
 use JP\Framework\Elements\jpJobs;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-$admin_email = 'contact@falicrea.net';
-$dev_email = 'tiafenofnel@gmail.com';
+class jMailing {
+    public $admin_email = 'contact@falicrea.net';
+    public $dev_email = 'tiafenofnel@gmail.com';
+    public function __contruct() {}
+    public static function send($to, $subject, $content, $headers) {
+        return wp_mail($to, $subject, $content, $headers);
+    }
+}
 
 add_action('send_email_new_user', function($user_id = 0) {
     if (!$user_id) return;
@@ -26,14 +32,17 @@ add_action('send_email_new_user', function($user_id = 0) {
 
     $nonce = wp_create_nonce("jobjiaby_verify_email");
 
-    $content = $Liquid_engine->parseFile('mails/verify_email')->render([
-        'link' => home_url('/') . "?e={$e}&verify_email_nonce={$nonce}",
-        'home_url' => home_url("/"),
-        'logo' => $logo[0]
-    ]);
-    wp_mail($user->user_email, $subject, $content, $headers);
+    try {
+        $content = $Liquid_engine->parseFile('mails/verify_email')->render([
+            'link' => home_url('/') . "?e={$e}&verify_email_nonce={$nonce}",
+            'home_url' => home_url("/"),
+            'logo' => $logo[0]
+        ]);
+    } catch (Exception $e) {
+        return false;
+    }
+    jMailing::send($user->user_email, $subject, $content, $headers);
 }, 10, 1);
-
 
 add_action('send_mail_activated_account', function($user_id, $template = '') {
     if (!$user_id) return;
@@ -48,12 +57,16 @@ add_action('send_mail_activated_account', function($user_id, $template = '') {
 
     $user = new WP_User($user_id);
     $filename = "mails/{$template}_validation_account";
-    $content = $Liquid_engine->parseFile($filename)->render([
-        'link' => home_url('/espace-client'),
-        'home_url' => home_url("/"),
-        'logo' => $logo[0]
-    ]);
-    wp_mail($user->user_email, $subject, $content, $headers);
+    try {
+        $content = $Liquid_engine->parseFile($filename)->render([
+            'link' => home_url('/espace-client'),
+            'home_url' => home_url("/"),
+            'logo' => $logo[0]
+        ]);
+    } catch (Exception $e) {
+        return false;
+    }
+    jMailing::send($user->user_email, $subject, $content, $headers);
 }, 10, 2);
 
 add_action('send_mail_when_user_apply', function($job_id = 0, $candidate_id = 0) {
@@ -71,7 +84,7 @@ add_action('send_mail_when_user_apply', function($job_id = 0, $candidate_id = 0)
     if (is_wp_error($company)) return;
 
     // candidate
-    $candidate = new jpCandidate($candidate_id);
+    $candidate = new jCandidate($candidate_id);
 
     $subject = "Candidature - JOBJIABY";
     $headers = [];
@@ -83,23 +96,26 @@ add_action('send_mail_when_user_apply', function($job_id = 0, $candidate_id = 0)
 
     $annonce = $job->get_post();
 
-    $content = $Liquid_engine->parseFile('mails/notice_employer_when_candidate_apply')->render([
-        'espace_client_url' => home_url('/espace-client'),
-        'company' => get_object_vars($company),
-        'candidate' => get_object_vars($candidate),
-        'job' => get_object_vars($annonce),
-        'home_url' => home_url("/"),
-        'logo' => $logo[0]
-    ]);
+    try {
+        $content = $Liquid_engine->parseFile('mails/notice_employer_when_candidate_apply')->render([
+            'espace_client_url' => home_url('/espace-client'),
+            'company' => get_object_vars($company),
+            'candidate' => get_object_vars($candidate),
+            'job' => get_object_vars($annonce),
+            'home_url' => home_url("/"),
+            'logo' => $logo[0]
+        ]);
+    } catch (Exception $e) {
+        return false;
+    }
     $result = wp_mail($employer->user_email, $subject, $content, $headers);
     if ($result) {
-        global $dev_email, $admin_email;
         // Send to admin
-        $headers[] = "Cc: Dev <$dev_email>";
-        wp_mail($admin_email, $subject, $content, $headers);
+        $jmail = new jMailing();
+        $headers[] = "Cc: Dev <$jmail->dev_email>";
+        wp_mail($jmail->admin_email, $subject, $content, $headers);
     }
 }, 10, 2);
-
 
 /**
  * On publish job
@@ -134,4 +150,10 @@ add_action('send_mail_when_publish_emploi', function($job_id) {
         'logo' => $logo[0]
     ]);
     wp_mail($employer->user_email, $subject, $content, $headers);
+}, 10, 1);
+
+
+add_action('send_mail_demande_accepted', function($id_demande) {
+    // todo envoyer mail au client
+
 }, 10, 1);

@@ -78,7 +78,7 @@ const getFileReader = (file) => {
         });
         Vue.filter('cvStatus', function (user) {
             if (!user) return 'Inconnue';
-            const isPublic = user.is_active; // boolean
+            const isPublic = user.validated; // boolean
             const hasCV = user.meta.has_cv; // boolean
             if (!hasCV) return "Indisponible";
             return isPublic ? "Publier" : "En attent de validation";
@@ -506,7 +506,7 @@ const getFileReader = (file) => {
                     categories = lodash.isEmpty(categories) ? [] : JSON.parse(categories);
                     this.categories = lodash.clone(categories);
                     this.hasCV = !!this.currentUser.meta.has_cv;
-                    this.publicCV = !!this.currentUser.is_active;
+                    this.publicCV = !!this.currentUser.validated;
                     this.Loading = false;
                 });
                 // Education sortable list
@@ -759,7 +759,6 @@ const getFileReader = (file) => {
                 submitCV: function (ev) {
                     ev.preventDefault();
                     const self = this;
-                    let experiences = this.getMeta('experiences');
                     let educations = this.getMeta('educations');
                     this.errors = [];
                     if (lodash.isEmpty(this.languages)) {
@@ -780,16 +779,7 @@ const getFileReader = (file) => {
                     if (lodash.isEmpty(this.city)) {
                         this.errors.push(this.errorHandler('Ville'));
                     }
-                    // Verifier s'il y a une experience et education au minimum
-                    let msgExperienceEmpty = "Ajoutez au moins une experience dans votre CV";
-                    if (lodash.isEmpty(experiences)) {
-                        this.errors.push(msgExperienceEmpty);
-                    } else {
-                        experiences = JSON.parse(experiences);
-                        if (lodash.isEmpty(experiences)) {
-                            this.errors.push(msgExperienceEmpty);
-                        }
-                    }
+                    // Verifier s'il y a au moins une colonne pour l'education
                     let msgEducationEmpty = "Ajoutez au moins un parcour à votre CV";
                     if (lodash.isEmpty(educations)) {
                         this.errors.push(msgEducationEmpty);
@@ -811,7 +801,7 @@ const getFileReader = (file) => {
                         .update({
                             last_name: this.last_name,
                             first_name: this.first_name,
-                            is_active:  this.publicCV,
+                            validated:  this.publicCV,
                             meta: {
                                 phone: this.phone,
                                 address: this.address,
@@ -1112,10 +1102,7 @@ const getFileReader = (file) => {
                 this.jHTTPInstance.get(`${job_id}/apply`).then(response => {
                     const details = response.data;
                     if (details.success) {
-                        this.candidateApply = lodash.map(details.data.candidates, candidate => {
-                            candidate.link = clientApiSettings.page_candidate + '#/candidate/' + candidate.id;
-                            return candidate;
-                        });
+                        this.candidateApply = details.data.candidates;
                         this.job = lodash.clone(details.data.job);
                     }
                     this.loading = false;
@@ -1123,16 +1110,7 @@ const getFileReader = (file) => {
                     this.loading = false;
                 });
             },
-            methods: {
-                purchased: function (candidateId) {
-                    let _form = new FormData();
-                    _form.append('candidate_id', candidateId);
-                    this.jHTTPInstance.post(`${this.job.id}/purchase`, _form).then(resp => {
-                        console.log(resp);
-                    })
-
-                }
-            },
+            methods: {},
             computed: {}
         };
         const AdApplied = {

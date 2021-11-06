@@ -138,7 +138,7 @@ get_header();
                             <img :src="avatarSrc" class="img-responsive" alt="">
                         </a>
                     </div>
-                    <h4>{{item.title.rendered}}</h4>
+                    <h4><a :href="item.link" target="_parent">{{item.title.rendered}}</a> </h4>
                     <span class="com-tagline"><a :href="getCompanyUrl">{{ item.company.name }}</a></span>
                     <span class="pull-right vacancy-no">ID. <span class="v-count">{{item.id}}</span></span>
                 </div>

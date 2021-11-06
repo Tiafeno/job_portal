@@ -20,6 +20,8 @@ wp_localize_script('comp-client', 'clientApiSettings', [
     'page_candidate' => home_url('/candidate/')
 ]);
 
+do_action('demande_handler');
+
 get_header();
 ?>
     <style type="text/css">
@@ -208,7 +210,6 @@ get_header();
             <div class="" v-if="!loading">
                 <form class="c-form" @submit="checkForm" method="post" action="" novalidate>
                     <!-- General Information -->
-                    <div class=""><h4>General Information</h4></div>
                     <div class="row">
                         <div class="col-md-8 col-sm-8 col-xs-12 mrg-bot-30">
                             <div class="col-md-6 col-sm-6 col-xs-12">
@@ -605,7 +606,7 @@ get_header();
                                 <h4>FORMATIONS / DIPLÔMES</h4>
                             </div>
                             <div class="detail-wrapper-body" id="education-list">
-                                <comp-education v-for="education in getEducations" v-if="!Loading"
+                                <comp-education v-for="education in getEducations" v-if="getEducations.length > 0"
                                                 @edit="editEducation"
                                                 :key="education._id"
                                                 :item="education"
@@ -625,7 +626,7 @@ get_header();
                                 <h4>EXPÉRIENCES PROFESSIONNELLES </h4>
                             </div>
                             <div class="detail-wrapper-body" id="experience-list">
-                                <comp-experience v-for="experience in getExperiences" v-if="!Loading"
+                                <comp-experience v-for="experience in getExperiences" v-if="getExperiences.length > 0"
                                                  @edit="editExperience"
                                                  :key="experience._id"
                                                  :item="experience"
@@ -899,19 +900,31 @@ get_header();
                     <thead>
                     <tr>
                         <th>Reference</th>
-                        <th>Adresse</th>
+                        <th>Sexe</th>
+                        <th>Statut</th>
                         <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr v-for="candidate in candidateApply" v-if="candidateApply.length !== 0 && !loading">
-                        <td> {{ candidate.meta.reference }}</td>
-                        <td><i class="ti-credit-card"></i> {{ candidate.meta.address }}</td>
+                        <td> {{ candidate.reference }}</td>
+                        <td> {{ candidate.gender }}</td>
+                        <td><i class="ti-credit-card"></i> {{ candidate.status.name }}</td>
                         <td>
-                            <a class="cl-info mrg-5" :href="candidate.link" target="_blank"><i class="ti-info-alt"></i>
-                                Voir le candidat
+                            <a class="cl-info mrg-5" :href="candidate.profil_url" target="_blank">
+                                <i class="ti-info-alt"></i>
+                                Voir
                             </a>
-                            <button class="btn btn-info" @click="purchased(candidate.id)"> Purchase</button>
+                            <form method="post" action="">
+                                <input type="hidden" name="candidate_id" :value="candidate.ID">
+                                <input type="hidden" name="type_demande" value="DMD_CANDIDAT">
+                                <input type="hidden" name="controller" value="DEMANDE">
+                                <input type="hidden" name="method" value="CREATE">
+                                <button class="cl-info mrg-5" type="submit" >
+                                    <i class="ti-info-alt"></i>
+                                    Faire une demande
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     <tr v-if="candidateApply.length === 0 && !loading">
@@ -939,7 +952,7 @@ get_header();
                         <td> {{ job.title.rendered }}</td>
                         <td>
                             <a class="cl-info mrg-5" :href="job.link" target="_blank"><i class="ti-info-alt"></i>
-                                Voir l'offre
+                                Voir l'annonce
                             </a>
                         </td>
                     </tr>
@@ -954,9 +967,7 @@ get_header();
     <div class="padd-top-80 padd-bot-80">
         <div class="container">
             <div id="client">
-                <!--                <comp-login v-if="!isLogged && !Loading" @login-success="loggedIn"></comp-login>-->
                 <router-view></router-view>
-                <!--                <comp-client-profil v-if="!Loading && isLogged" :client="Client"></comp-client-profil>-->
             </div>
         </div>
     </div>

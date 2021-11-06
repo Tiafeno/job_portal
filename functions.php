@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/framework/cron.php';
+require_once __DIR__ . '/framework/jCron.php';
 
-use JP\Framework\Elements\jpCandidate;
+use JP\Framework\Elements\jCandidate;
 use JP\Framework\Elements\jpJobs;
 use Liquid\Template;
 // Disable warning php error
@@ -35,7 +35,7 @@ define('APPLY_TABLE', "{$wpdb->prefix}job_apply");
 define('APPLY_PURCHASE_TABLE', "{$wpdb->prefix}job_apply_purchase");
 
 require_once __DIR__ . '/framework/loader.php'; // Load all elements
-require_once __DIR__ . '/framework/jp-migration.php';
+require_once __DIR__ . '/framework/migration.php';
 
 // Gestion d'erreur
 $jj_errors = [];
@@ -246,7 +246,7 @@ function candidature_view($field) {
     $apply_rows = $wpdb->get_results($sql, OBJECT);
     $candidates = [];
     foreach ($apply_rows as $row) {
-        $candidate = new jpCandidate(intval($row->candidate_id));
+        $candidate = new jCandidate(intval($row->candidate_id));
         $candidates[] = get_object_vars($candidate);
     }
     print_r($candidates);
@@ -274,7 +274,7 @@ function truncate($string, $length, $dots = "...") {
 add_action('acf/render_field/name=pricing', 'acf_pricing_field');
 function acf_pricing_field() {
     global $Liquid_engine;
-    $app_configs = Tools::getInstance()->getSchemas();
+    $app_configs = jTools::getInstance()->getSchemas();
     $pricings = $app_configs->pricing->account;
     $args = [
         'pricings' => $pricings

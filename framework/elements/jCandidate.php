@@ -37,17 +37,20 @@ if (!defined('ABSPATH')) {
  * @property string $rich_editing
  * @property string $syntax_highlighting
  */
-class jpCandidate extends \WP_User
+class jCandidate extends \WP_User
 {
 
+    public $gender;
     public $reference;
     public $region; // Region
     public $status; // Je cherche...
-    public $is_active; // Check for this account is active or not
+    public $validated; // Check for this account is active or not
     public $has_cv = false;
-    public $drive_licences; // A, B, C & A`
+    public $blocked = false;
+    public $drive_licences = []; // A, B, C & A`
     public $languages = [];
     public $phone = '';
+    public $profil_url = null;
     public $mastered_technology = [];
     public $educations = [];
     public $experiences = [];
@@ -62,12 +65,13 @@ class jpCandidate extends \WP_User
     {
         parent::__construct($id, $name, $site_id);
 
-        $this->is_active = $this->is_active();
+        $this->validated = $this->validated();
         $this->phone = get_user_meta($this->ID, 'phone', true);
         // reference
         $this->reference = "CV{$this->ID}";
+
         // Candidate status
-        $configs = \Tools::getInstance()->getSchemas();
+        $configs = \jTools::getInstance()->getSchemas();
         $config_status = $configs->candidat_status;
         $status = get_user_meta($this->ID, 'cv_status', true);
         if (is_array($config_status)) {
@@ -84,6 +88,15 @@ class jpCandidate extends \WP_User
             $this->region = $region_term;
         }
 
+        // profil url
+        $this->profil_url = get_site_url(null, "/candidate/#/candidate/{$this->ID}");
+
+        // genre
+        $gender = get_metadata('user', $this->ID, 'gender', true);
+        if ($gender) {
+            $this->gender = ($gender === 'M.') ? 'Femme' : 'Monsieur';
+        }
+
         // Languages
         $languages = get_metadata('user', $this->ID, 'languages', true);
         try {
@@ -94,7 +107,7 @@ class jpCandidate extends \WP_User
                     $lTerm = get_term(intval($lang), 'language');
                     if ($lTerm instanceof \WP_Term)  return $lTerm;
                     return null;
-                })->toArray();
+                })->filter(function($term) { return !is_null($term); })->toArray();
             }
             
         } catch (\JsonException $e) {
@@ -103,6 +116,9 @@ class jpCandidate extends \WP_User
 
         // have cv
         $this->has_cv = $this->hasCV();
+
+        // blocked check
+        $this->blocked = $this->isBlocked();
 
         // Experiences
         $experiences = get_metadata('user', $this->ID, 'experiences', true);
@@ -130,12 +146,13 @@ class jpCandidate extends \WP_User
                 'metadata' => wp_get_attachment_metadata(intval($avatar_id)),
             ];
         }
+
     }
 
     public function profile_update($args = [])
     {
         foreach ($args as $arg_key => $value) {
-            if (property_exists('\\JP\\Framework\\Elements\\jpCandidate', $arg_key)) {
+            if (property_exists('\\JP\\Framework\\Elements\\jCandidate', $arg_key)) {
                 update_user_meta($this->ID, $arg_key, $value);
             }
         }
@@ -149,13 +166,18 @@ class jpCandidate extends \WP_User
 
     public function isPublic(): bool
     {
-        return $this->is_active();
+        return $this->validated();
     }
 
-    public function is_active(): bool
+    public function validated(): bool
     {
-        $is_active = get_user_meta($this->ID, 'is_active', true);
-        return !$is_active ? false : (bool)$is_active;
+        $validated = get_user_meta($this->ID, 'validated', true);
+        return !$validated ? false : (bool)$validated;
+    }
+
+    public function isBlocked(): bool {
+        $blocked = get_user_meta($this->ID, 'blocked', true);
+        return !$blocked ? false : (bool)$blocked;
     }
 
     /**
@@ -176,6 +198,15 @@ class jpCandidate extends \WP_User
         $edu_encode = get_user_meta($this->ID, 'educations', true);
         $educations = $edu_encode ? json_decode($edu_encode) : [];
         return $educations;
+    }
+
+    public function getObject($context = 'view') {
+        if ($context === 'edit') {
+            return get_object_vars($this);
+        }
+        $clone = $this;
+        unset($clone->allcaps, $this->data, $this->avatar);
+        return get_object_vars($clone);
     }
 
 }

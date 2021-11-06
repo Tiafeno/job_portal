@@ -8,7 +8,7 @@
  */
 global $post;
 
-use JP\Framework\Elements\jpCandidate;
+use JP\Framework\Elements\jCandidate;
 use JP\Framework\Elements\jpJobs;
 
 $logger = new stdClass(); // type[error, success], message
@@ -16,7 +16,7 @@ $logger = new stdClass(); // type[error, success], message
 add_action('apply_annonce', 'apply_annonce_fn', 10, 1);
 function apply_annonce_fn(stdClass &$log) {
     global $wpdb;
-    $apply_nonce = Tools::getValue('apply_nonce', false);
+    $apply_nonce = jTools::getValue('apply_nonce', false);
     if ($apply_nonce && wp_verify_nonce($apply_nonce, 'jobjiaby-apply-nonce')) {
         // verifier si le client est connecter
         if (!is_user_logged_in()) {
@@ -24,7 +24,7 @@ function apply_annonce_fn(stdClass &$log) {
             wp_redirect(home_url('connexion?redir='.esc_url($current_page_url)));
         }
         $current_user_id = get_current_user_id();
-        $user = new jpCandidate($current_user_id);
+        $user = new jCandidate($current_user_id);
         // Only candidate access for this endpoint
         if (!in_array('candidate', (array)$user->roles)) {
             //The user haven't the "candidate" role
@@ -32,6 +32,13 @@ function apply_annonce_fn(stdClass &$log) {
             $log->message = "Seul un candidate peut postuler pour cette annonce";
             return;
         }
+
+        if ($user->isBlocked()) {
+            $log->type = 'error';
+            $log->message = "Votre compte a été blocker par l'administrateur.";
+            return;
+        }
+
         if (!$user->hasCV()) {
             $log->type = 'error';
             $log->message = "Vous n'avez pas encore un CV. Veuillez remplir votre CV dans l'espace client";
@@ -42,7 +49,7 @@ function apply_annonce_fn(stdClass &$log) {
             $log->message = "Votre CV est en attente de validation. Veuillez ressayer plutard";
             return;
         }
-        $job_id = (int) Tools::getValue('job_id', 0);
+        $job_id = (int) jTools::getValue('job_id', 0);
         if (0 === $job_id) return false;
         $table = $wpdb->prefix . 'job_apply';
         // Verify if user has apply this job

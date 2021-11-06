@@ -93,8 +93,9 @@
                     this.loading = true;
                     this.request = this.$parent.Wordpress.users()
                         //.param('roles', 'candidate') // Not allow for client not logged in
-                        .param('is_active', 1)
+                        .param('validated', 1)
                         .param('has_cv', 1)
+                        .param('blocked', 0)
                         .perPage(this.per_page)
                         .page(this.page);
                     const categoriesRequest = this.wpAxiosInstance.get('categories?per_page=50');
@@ -104,8 +105,8 @@
                         }
                     )).catch(errors => { })
                     this.request.then(resp => {
-                        self._buildAnnonceHandler(resp);
-                        self.loading = false;
+                        this._buildAnnonceHandler(resp);
+                        this.loading = false;
                     });
                 },
                 _buildAnnonceHandler: function(wpResponse) {

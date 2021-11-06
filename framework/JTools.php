@@ -3,7 +3,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-
 trait Configs {
 
     /**
@@ -21,7 +20,7 @@ trait Configs {
     }
 }
 
-class Tools {
+class jTools {
 
     use Configs;
 
@@ -45,5 +44,8 @@ class Tools {
         return ! is_string( $returnValue ) ? $returnValue : stripslashes( $returnValue );
     }
 }
+
+
+
 
 

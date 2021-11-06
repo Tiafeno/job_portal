@@ -1,6 +1,6 @@
 <?php
 
-use JP\Framework\Elements\jpCandidate as jpCandidateAlias;
+use JP\Framework\Elements\jCandidate as jCandidateAlias;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -60,8 +60,8 @@ add_action('rest_api_init', function () {
     add_filter('rest_user_query', function ($args, $request) {
         $meta_query = ['relation' => 'AND'];
         // Rechercher si l'entreprise ou l'employer est actif
-        if (isset($request['is_active']) && !empty($request['is_active'])) {
-            $args = ['key' => 'is_active', 'value' => intval($request['is_active']), 'compare' => '='];
+        if (isset($request['validated']) && !empty($request['validated'])) {
+            $args = ['key' => 'validated', 'value' => intval($request['validated']), 'compare' => '='];
             array_push($meta_query, $args);
             unset($args);
         }
@@ -71,9 +71,9 @@ add_action('rest_api_init', function () {
             array_push($meta_query, $args);
             unset($args);
         }
-        // also is_active
+        // also validated
         if (isset($request['public_cv']) && !empty($request['public_cv'])) {
-            $args = ['key' => 'is_active', 'value' => intval($request['public_cv']), 'compare' => '='];
+            $args = ['key' => 'validated', 'value' => intval($request['public_cv']), 'compare' => '='];
             array_push($meta_query, $args);
             unset($args);
         }
@@ -143,25 +143,23 @@ add_action('rest_api_init', function () {
                 // Verify if user has apply this job
                 $job_sql = $wpdb->prepare("SELECT * FROM $table WHERE job_id = %d ", $job_id);
                 $job_rows = $wpdb->get_results($job_sql, OBJECT);
-                // Request params
-                $request = new WP_REST_Request();
-                $request->set_param('context', 'view');
                 // Create results object
-                $results = new stdClass();
-                $results->job = new stdClass();
-                $results->job->id = $job->ID;
-                $results->job->title = $job->post_title;
-                $results->candidates = [];
+                $response = [
+                    'job' => [
+                        'id' => $job->ID,
+                        'title' => $job->post_title
+                    ],
+                    'candidates' => []
+                ];
                 if ($job_rows) {
                     // Get candidate apply for this job
                     foreach ($job_rows as $job_row) {
-                        $usr_controller = new WP_REST_Users_Controller();
-                        $usr = new WP_User((int)$job_row->candidate_id);
-                        $candidate = $usr_controller->prepare_item_for_response($usr, $request)->data;
-                        $results->candidates[] = $candidate;
+                        $candidate_id = (int)$job_row->candidate_id;
+                        $jcandidate = new jCandidateAlias($candidate_id);
+                        $response['candidates'][] = $jcandidate->getObject();
                     }
                 }
-                wp_send_json_success($results);
+                wp_send_json_success($response);
             },
             'permission_callback' => function ($data) {
                 return current_user_can('edit_posts');
@@ -322,7 +320,7 @@ add_action('rest_api_init', function () {
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
-                $configs = Tools::getInstance()->getSchemas();
+                $configs = jTools::getInstance()->getSchemas();
                 $account_pricing = $configs->pricing->account;
                 wp_send_json($account_pricing);
             },
@@ -335,7 +333,7 @@ add_action('rest_api_init', function () {
         array(
             'methods' => WP_REST_Server::READABLE,
             'callback' => function (WP_REST_Request $request) {
-                $configs = Tools::getInstance()->getSchemas();
+                $configs = jTools::getInstance()->getSchemas();
                 $status = $configs->candidat_status;
                 wp_send_json($status);
             },
@@ -482,7 +480,7 @@ add_action('rest_api_init', function () {
                 $customer_id = intval($request->get_param('customer_id'));
                 $object_id = intval($request->get_param('object_id'));
                 $product_title = null;
-                $configs = Tools::getInstance()->getSchemas();
+                $configs = jTools::getInstance()->getSchemas();
                 $date = new DateTime();
                 switch ($type) {
                     case 'account':
@@ -497,7 +495,7 @@ add_action('rest_api_init', function () {
                     case 'ad-candidate':
                         break;
                     case 'cv':
-                        $candidate = new jpCandidateAlias($object_id);
+                        $candidate = new jCandidateAlias($object_id);
                         $product_title = "CV_". $candidate->display_name . "_" . $customer_id;
                         break;
                     default:
@@ -581,152 +579,30 @@ add_action('rest_api_init', function () {
  * Meta and fields
  */
 add_action('rest_api_init', function() {
-    // Annnce or jobs
-    register_rest_field( ['jp-jobs'], 'company', array(
-        'get_callback' => function( $job_arr ) {
-            $employer_id = (int)get_post_meta($job_arr['id'], 'employer_id', true);
-            $request = new WP_REST_Request();
-            $request->set_param('context', 'view');
-            $company_id = get_user_meta($employer_id, 'company_id', true);
-            if (0 === (int)$company_id || !$company_id)  return 0;
-            $company_controller = new WP_REST_Users_Controller();
-            $Company = new WP_User((int)$company_id);
-            return $company_controller->prepare_item_for_response($Company, $request)->data;
-        },
-        // Pour modifier, cette function reçois la valeur entier (company_id)
-        // 'update_callback' => function( $value, $job_obj ) {
-        //     $company_id = intval($value);
-        //     if (0 === $company_id)
-        //         return new WP_Error('rest_integer_failer',
-        //             "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
-        //     $employer_id = get_post_meta($job_obj->ID, 'employer_id', true);
-        //     $employer_id = intval($employer_id);
-        //     $ret = update_post_meta($employer_id->ID, 'company_id', $company_id);
-        //     if ( false === $ret ) {
-        //         return new WP_Error(
-        //             'rest_updated_failed',
-        //             __( 'Failed to update company id.' ),
-        //             array( 'status' => 500 )
-        //         );
-        //     }
-        //     return true;
-        // }
-    ) );
-    register_rest_field( ['jp-jobs'], 'employer', array(
-        'get_callback' => function( $job_arr ) {
-            $employer_id = get_post_meta($job_arr['id'], 'employer_id', true);
-            return intval($employer_id);
-        },
-        // Pour modifier, cette function reçois la valeur entier (company_id)
-        'update_callback' => function( $value, $job_obj ) {
-            $employer_id = intval($value);
-            if (0 === $employer_id)
-                return new WP_Error('rest_integer_failer',
-                    "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
-            update_post_meta($job_obj->ID, 'employer_id', $employer_id);
-            return true;
-        }
-    ) );
-    // Avatar
-    register_rest_field('user', 'avatar', [
-        'get_callback' => function($user_arr) {
-            $user_id = intval($user_arr['id']);
-            $id = get_metadata('user', $user_id, 'avatar_id', true);
-            $id = intval($id);
-            if (0 === $id) return '';
-            $attach = wp_get_attachment_metadata($id);
-            return ['attach_id' => $id ,'image' => $attach, 'upload_dir' => wp_upload_dir()];
-        },
-        'update_callback' => function($value, $user_obj) {
-            return update_user_meta($user_obj->ID, 'avatar_id', intval($value));
-        }
-    ]);
-    /**
-     * Cette champ permet de verifier si l'employer ou l'entreprise est validé ou pas.
-     * Il est aussi utiliser poour activer ou désactiver un utilisateur (employer ou candidat)
-     */
-    register_rest_field('user', 'is_active', [
-        'get_callback' => function($user_arr) {
-            $user_id = intval($user_arr['id']);
-            $is_active = get_metadata('user', $user_id, 'is_active', true);
-            return boolval($is_active);
-        },
-        'update_callback' => function($value, $user_obj) {
-            return update_user_meta($user_obj->ID, 'is_active', intval($value));
-        }
-    ]);
 
-    register_rest_field('user', 'has_cv', [
-        'get_callback' => function($user_arr) {
-            $user_id = intval($user_arr['id']);
-            $user_object = new WP_User($user_id);
-            $roles = $user_object->roles;
-            if (!in_array('candidate', $roles)) return false;
-            $has_cv = get_metadata('user', $user_id, 'has_cv');
-            return boolval($has_cv);
-        },
-        'update_callback' => function($value, $user_obj) {
-            return update_user_meta($user_obj->ID, 'has_cv', $value);
-        }
-    ]);
-
-    // Status du candidate (je cherche...)
-    register_rest_field('user', 'cv_status', [
-        'get_callback' => function($user_arr) {
-            $user_id = intval($user_arr['id']);
-            $user_object = new WP_User($user_id);
-            $roles = $user_object->roles;
-            if (!in_array('candidate', $roles)) return 0;
-            $status = get_metadata('user', $user_id, 'cv_status', true);
-            return intval($status);
-        },
-        'update_callback' => function($value, $user_obj) {
-            return update_user_meta($user_obj->ID, 'cv_status', intval($value));
-        }
-    ]);
-    // Experiences du candidate
-    register_rest_field('user', 'experiences', [
-        'get_callback' => function($user_arr) {
-            $user_id = intval($user_arr['id']);
-            $user_object = new WP_User($user_id);
-            $roles = $user_object->roles;
-            if (!in_array('candidate', $roles)) return false;
-            $experiences = get_metadata('user', $user_id, 'experiences', true);
-            $experiences = empty($experiences) ? json_encode([]) : json_decode($experiences);
-            return $experiences;
-        },
-        'update_callback' => function($value, $user_obj) {
-            // $value - Cette valeur est déja encodé en JSON
-            return update_user_meta($user_obj->ID, 'experiences', $value);
-        }
-    ]);
-    // Parcours scolaire ou formations du candidat
-    register_rest_field('user', 'educations', [
-        'get_callback' => function($user_arr) {
-            $user_id = intval($user_arr['id']);
-            $user_object = new WP_User($user_id);
-            $roles = $user_object->roles;
-            if (!in_array('candidate', $roles)) return false;
-            $educations = get_metadata('user', $user_id, 'educations', true);
-            $educations = empty($educations) ? json_encode([]) : json_decode($educations);
-            return $educations;
-        },
-        'update_callback' => function($value, $user_obj) {
-            // $value - Cette valeur est déja encodé en JSON
-            return update_user_meta($user_obj->ID, 'educations', $value);
-        }
-    ]);
-    // Cette valeur est pour identifier s'il a déja rempli son CV
-    register_meta('user', 'has_cv', [
-        'type' => 'boolean',
+    // user global
+    // Account validation
+    register_meta('user', 'validated', [
+        'type' => 'integer',
         'single' => true,
         'show_in_rest' => true,
         'auth_callback' => function () {
             return true;
         }
     ]);
+
+    // For blocked user
+    // empty or 0: not blocked, 1 is blocked
+    register_meta('user', 'blocked', [
+        'type' => 'integer',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function () {
+            return true;
+        }
+    ]);
+
     // Annonce
-    // Additional params at api_rest line 104
     register_meta('user', 'experience', [ // sans 's'
         'type' =>  'integer',
         'single' => true,
@@ -813,6 +689,26 @@ add_action('rest_api_init', function() {
     ]);
 
     // Candidate....
+
+    // Cette valeur est pour identifier s'il a déja rempli son CV
+    register_meta('user', 'has_cv', [
+        'type' => 'boolean',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function () {
+            return true;
+        }
+    ]);
+
+    // je cherche ...
+    register_meta('user', 'cv_status', [
+        'type' => 'integer',
+        'single' => true,
+        'show_in_rest' => true,
+        'auth_callback' => function () {
+            return true;
+        }
+    ]);
     register_meta('user', 'reference', [
         'type' =>  'string',
         'single' => true,
@@ -929,4 +825,156 @@ add_action('rest_api_init', function() {
      * based on public WP_Query parameters, adding back the "filter" parameter
      * that was removed from the API when it was merged into WordPress core.
      */
+
+    // Register rest fields
+    register_user_fields();
 });
+
+function register_user_fields() {
+    // Avatar
+    register_rest_field('user', 'avatar', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $id = get_metadata('user', $user_id, 'avatar_id', true);
+            $id = intval($id);
+            if (0 === $id) return '';
+            $attach = wp_get_attachment_metadata($id);
+            return ['attach_id' => $id ,'image' => $attach, 'upload_dir' => wp_upload_dir()];
+        },
+        'update_callback' => function($value, $user_obj) {
+            return update_user_meta($user_obj->ID, 'avatar_id', intval($value));
+        }
+    ]);
+    /**
+     * Cette champ permet de verifier si l'employer ou l'entreprise est validé ou pas.
+     * Il est aussi utiliser poour activer ou désactiver un utilisateur (employer ou candidat)
+     */
+    register_rest_field('user', 'validated', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $validated = get_metadata('user', $user_id, 'validated', true);
+            return boolval($validated);
+        },
+        'update_callback' => function($value, $user_obj) {
+            return update_user_meta($user_obj->ID, 'validated', intval($value));
+        }
+    ]);
+    register_rest_field('user', 'blocked', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $blocked = get_metadata('user', $user_id, 'blocked', true);
+            return intval($blocked);
+        },
+        'update_callback' => function($value, $user_obj) {
+            return update_user_meta($user_obj->ID, 'blocked', intval($value));
+        }
+    ]); // candidate and company account
+    // Le candidat posséde un cv ou pas
+    register_rest_field('user', 'has_cv', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $user_object = new WP_User($user_id);
+            $roles = $user_object->roles;
+            if (!in_array('candidate', $roles)) return false;
+            $has_cv = get_metadata('user', $user_id, 'has_cv');
+            return boolval($has_cv);
+        },
+        'update_callback' => function($value, $user_obj) {
+            return update_user_meta($user_obj->ID, 'has_cv', $value);
+        }
+    ]);
+    // Status du candidate (je cherche...)
+    register_rest_field('user', 'cv_status', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $user_object = new WP_User($user_id);
+            $roles = $user_object->roles;
+            if (!in_array('candidate', $roles)) return 0;
+            $status = get_metadata('user', $user_id, 'cv_status', true);
+            return intval($status);
+        },
+        'update_callback' => function($value, $user_obj) {
+            return update_user_meta($user_obj->ID, 'cv_status', intval($value));
+        }
+    ]);
+    // Experiences du candidate
+    register_rest_field('user', 'experiences', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $user_object = new WP_User($user_id);
+            $roles = $user_object->roles;
+            if (!in_array('candidate', $roles)) return false;
+            $experiences = get_metadata('user', $user_id, 'experiences', true);
+            $experiences = empty($experiences) ? json_encode([]) : json_decode($experiences);
+            return $experiences;
+        },
+        'update_callback' => function($value, $user_obj) {
+            // $value - Cette valeur est déja encodé en JSON
+            return update_user_meta($user_obj->ID, 'experiences', $value);
+        }
+    ]);
+    // Parcours scolaire ou formations du candidat
+    register_rest_field('user', 'educations', [
+        'get_callback' => function($user_arr) {
+            $user_id = intval($user_arr['id']);
+            $user_object = new WP_User($user_id);
+            $roles = $user_object->roles;
+            if (!in_array('candidate', $roles)) return false;
+            $educations = get_metadata('user', $user_id, 'educations', true);
+            $educations = empty($educations) ? json_encode([]) : json_decode($educations);
+            return $educations;
+        },
+        'update_callback' => function($value, $user_obj) {
+            // $value - Cette valeur est déja encodé en JSON
+            return update_user_meta($user_obj->ID, 'educations', $value);
+        }
+    ]);
+
+    // Annnce or jobs
+    register_rest_field( ['jp-jobs'], 'company', array(
+        'get_callback' => function( $job_arr ) {
+            $employer_id = (int)get_post_meta($job_arr['id'], 'employer_id', true);
+            $request = new WP_REST_Request();
+            $request->set_param('context', 'view');
+            $company_id = get_user_meta($employer_id, 'company_id', true);
+            if (0 === (int)$company_id || !$company_id)  return 0;
+            $company_controller = new WP_REST_Users_Controller();
+            $Company = new WP_User((int)$company_id);
+            return $company_controller->prepare_item_for_response($Company, $request)->data;
+        },
+        // Pour modifier, cette function reçois la valeur entier (company_id)
+        // 'update_callback' => function( $value, $job_obj ) {
+        //     $company_id = intval($value);
+        //     if (0 === $company_id)
+        //         return new WP_Error('rest_integer_failer',
+        //             "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
+        //     $employer_id = get_post_meta($job_obj->ID, 'employer_id', true);
+        //     $employer_id = intval($employer_id);
+        //     $ret = update_post_meta($employer_id->ID, 'company_id', $company_id);
+        //     if ( false === $ret ) {
+        //         return new WP_Error(
+        //             'rest_updated_failed',
+        //             __( 'Failed to update company id.' ),
+        //             array( 'status' => 500 )
+        //         );
+        //     }
+        //     return true;
+        // }
+    ) );
+    register_rest_field( ['jp-jobs'], 'employer', array(
+        'get_callback' => function( $job_arr ) {
+            $employer_id = get_post_meta($job_arr['id'], 'employer_id', true);
+            return intval($employer_id);
+        },
+        // Pour modifier, cette function reçois la valeur entier (company_id)
+        'update_callback' => function( $value, $job_obj ) {
+            $employer_id = intval($value);
+            if (0 === $employer_id)
+                return new WP_Error('rest_integer_failer',
+                    "L'indentifiant n'est pas un nombre valide", ['status' => 500]);
+            update_post_meta($job_obj->ID, 'employer_id', $employer_id);
+            return true;
+        }
+    ) );
+
+}

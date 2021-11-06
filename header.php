@@ -114,7 +114,7 @@
                     <?= $message['msg'] ?>
                     <?php
                     if (isset($message['btn'])) {
-                        echo '<a href="'.$message['btn_link'].'" class="btn btn-sm btn-info">'.$message['btn'].'</a>';
+                        echo '<a href="'.$message['btn_link'].'" class="btn btn-small">'.$message['btn'].'</a>';
                     }
                     ?>
                 </div>
@@ -149,15 +149,15 @@
                 <ul class="nav navbar-nav navbar-right">
                     <?php if (!is_user_logged_in()) : ?>
                         <li class="br-right">
-                            <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
-                                <i class="login-icon ti-archive"></i>
+                            <a class="btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
+                                <i class="login-icon ti-announcement"></i>
                                 Publiez une offre
                             </a>
                         </li>
                         <li class="br-right">
-                            <a class="btn-signup red-btn" href="<?= home_url('/connexion') ?>">
+                            <a class="btn " href="<?= home_url('/connexion') ?>">
                                 <i class="login-icon ti-user"></i>
-                                Connexion
+                                Mon compte
                             </a>
                         </li>
                         <?php else :
@@ -166,20 +166,21 @@
                         if (in_array('employer', $user->roles)) :
                         ?>
                             <li class="br-right">
-                                <a class="btn-signup red-btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
+                                <a class="btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
                                     <i class="login-icon ti-archive"></i>
                                     Publiez une offre
                                 </a>
                             </li>
                         <?php endif; ?>
                         <li class="sign-up">
-                            <a class=" btn-signup red-btn" href="<?= home_url('/espace-client') ?>">
+                            <a class="btn" href="<?= home_url('/espace-client') ?>">
                                 Espace client
                             </a>
                         </li>
                         <li>
-                            <a class="btn-danger btn red-btn" title="Déconnexion" href="<?= wp_logout_url(home_url('/')) ?>" style="font-size: 20px">
+                            <a class="btn" title="Déconnexion" href="<?= wp_logout_url(home_url('/')) ?>">
                                 <i class="fa fa-sign-out"></i>
+                                Déconnexion
                             </a>
                         </li>
                     <?php endif; ?>

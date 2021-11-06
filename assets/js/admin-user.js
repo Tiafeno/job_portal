@@ -68,7 +68,7 @@ jQuery(function ($) {
                     this.form.address = this.u.meta.address;
                     this.form.city = this.u.meta.city;
                     this.form.hasCV = this.u.has_cv;
-                    this.form.isActive = this.u.is_active;
+                    this.form.isActive = this.u.validated;
 
                     let currentLanguages = this.u.meta.languages;
                     currentLanguages = lodash.isEmpty(currentLanguages) ? [] : JSON.parse(currentLanguages);
@@ -84,7 +84,7 @@ jQuery(function ($) {
                     ev.preventDefault();
                     this.loading = true;
                     this.$parent.wpapi.users().id(WPAPIUserSettings.uId).update({
-                        is_active: this.form.isActive ? 1 : 0,
+                        validated: this.form.isActive ? 1 : 0,
                         meta: {
                             city: this.form.city,
                             address: this.form.address,
@@ -131,7 +131,7 @@ jQuery(function ($) {
                     // populate form
                     this.form.address = this.u.meta.address;
                     this.form.city = this.u.meta.city;
-                    this.form.isActive = this.u.is_active;
+                    this.form.isActive = this.u.validated;
                     this.form.nif = this.u.meta.nif;
                     this.form.stat = this.u.meta.stat;
                 },
@@ -139,7 +139,7 @@ jQuery(function ($) {
                     ev.preventDefault();
                     this.loading = true;
                     this.$parent.wpapi.users().id(WPAPIUserSettings.uId).update({
-                        is_active: this.form.isActive ? 1 : 0,
+                        validated: this.form.isActive ? 1 : 0,
                         meta: {
                             city: this.form.city,
                             address: this.form.address,

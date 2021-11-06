@@ -181,7 +181,8 @@
                         roles: ['company'],
                         description: item.description,
                         avatar: fileId,
-                        is_active: 0, // Ne pas activer l'entreprise pour être en attente de validation
+                        validated: 0, // Ne pas activer l'entreprise pour être en attente de validation
+                        blocked: 0, // Ne pas blocked l'utilisateur
                         meta: {
                             country: item.country,
                             category: item.category,
@@ -326,7 +327,7 @@
                 },
                 isActiveCompany: async function (idCompany) {
                     const company = await this.WPAPI.users().id(idCompany).get();
-                    this.hasActiveCompany = !!company.is_active;
+                    this.hasActiveCompany = !!company.validated;
                     this.loading = false;
                 },
                 initComponent: async function () {
@@ -369,6 +370,13 @@
                     if (lodash.isEmpty(this.inputs.address)) {
                         this.errorHandler('Adresse');
                     }
+
+                    // Verifier si l'utilisateur est blocke
+                    if (this.me.blocked == 1) {
+                        alertify.alert('Information', "Votre compte a été bloquer par l'administrateur");
+                        return;
+                    }
+
                     // Return if an error exist and company isn't activate
                     if (!lodash.isEmpty(this.errors) || !this.hasActiveCompany) return;
                     this.submitForm();

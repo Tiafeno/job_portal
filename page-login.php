@@ -4,16 +4,17 @@
  * description: Login page
  */
 
-$redirect_url = Tools::getValue('redir', '');
+$redirect_url = jTools::getValue('redir', '');
 if (is_user_logged_in()) {
     $url = !empty($redirect_url) ? $redirect_url : home_url('/espace-client');
     wp_redirect($url);
+    exit();
 }
 
 
-$nonce = Tools::getValue('login-nonce', false);
-$username = Tools::getValue('log', '');
-$password = Tools::getValue('pwd', '');
+$nonce = jTools::getValue('login-nonce', false);
+$username = jTools::getValue('log', '');
+$password = jTools::getValue('pwd', '');
 $error = null;
 
 if ($nonce):
@@ -21,8 +22,8 @@ if ($nonce):
     if (wp_verify_nonce($nonce, 'login-action')) {
         $remember = isset($_POST['remember']) ? true : false;
         $info = array();
-        $info['user_login'] = Tools::getValue('log');
-        $info['user_password'] = Tools::getValue('pwd');
+        $info['user_login'] = jTools::getValue('log');
+        $info['user_password'] = jTools::getValue('pwd');
         $info['remember'] = $remember;
         $user_signon = wp_signon($info, false);
         if (!is_wp_error($user_signon)) {

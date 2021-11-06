@@ -50,7 +50,7 @@ class JobSearch_Widget extends Widget_Base
             [
                 'label' => __('Description', self::$slug),
                 'type' => \Elementor\Controls_Manager::TEXTAREA,
-                'default' => 'Dites-nous ce que vous recherchez et nous travaillerons pour vous.',
+                'default' => 'Ce que vous recherchez en un simple geste',
             ]
         );
         $this->end_controls_section();
@@ -65,18 +65,19 @@ class JobSearch_Widget extends Widget_Base
      */
     protected function render()
     {
-        global $Liquid_engine;
+        global $engine;
         $settings = $this->get_settings_for_display(); // return array
-        // Region
-        $regions = get_terms(['taxonomy' => 'region', 'hide_empty' => false, 'number' => 80]);
         // Secteur d'activité ou la categorie de l'annonce
-        $categories = get_terms(['taxonomy' => 'category', 'hide_empty' => false, 'number' => 80]);
-        $type_job = get_terms(['taxonomy' => 'job_type', 'hide_empty' => false, 'number' => 80]);
-        echo $Liquid_engine->parseFile('job-search')->render(
+        $categories = get_terms(['taxonomy' => 'category', 'hide_empty' => true, 'number' => 100]);
+        $type_job = get_terms(['taxonomy' => 'job_type', 'hide_empty' => true, 'number' => 100]);
+        echo $engine->parseFile('job-search')->render(
             [
-                'categories' => $categories,
+                'categories' => $categories, // categories
                 'types' => $type_job, // Type de contract
-                'description' => $settings['description']
+                'description' => $settings['description'],
+                'route' => [
+                    'register' => home_url('/register')
+                ]
             ]);
     }
 

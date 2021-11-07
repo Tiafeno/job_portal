@@ -148,10 +148,10 @@ add_action('send_mail_when_publish_emploi', function($job_id) {
     $custom_logo_id = get_theme_mod('custom_logo');
     $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
 
-    $annonce = $job->get_post();
+    $announce = $job->get_post();
     $content = $Liquid_engine->parseFile('mails/notice_publish_annonce')->render([
         'company' => get_object_vars($company),
-        'job' => get_object_vars($annonce),
+        'job' => get_object_vars($announce),
         'home_url' => home_url("/"),
         'logo' => $logo[0]
     ]);

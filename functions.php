@@ -125,7 +125,7 @@ add_action('after_setup_theme', function () {
     register_sidebar( array(
         'id' => 'footer_menu',
         'name' => 'Footer Menu',
-        'before_widget'  => '<div class="col-md-3 col-sm-6 %2$s">',
+        'before_widget'  => '<div class="col-md-3 fl-right col-sm-6 %2$s">',
         'after_widget'  => '</div>',
         'before_title' => '<h4 >',
         'after_title' => '</h4>',

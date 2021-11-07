@@ -90,7 +90,7 @@ get_header();
                                 </li>
                                 <li v-if="isCandidate">
                                     <router-link :to="{ path: '/ad_applied' }"><i class="login-icon ti-dashboard"></i>
-                                        Offre postuler
+                                        Offre postulées
                                     </router-link>
                                 </li>
                                 <li v-if="isEmployer">
@@ -347,7 +347,7 @@ get_header();
             </div>
             <div class="widget-boxed">
                 <div class="widget-boxed-header">
-                    <h4>Mes information</h4>
+                    <h4>Mes informations</h4>
                 </div>
                 <div class="widget-boxed-body">
                     <div class="side-list no-border">

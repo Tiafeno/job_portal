@@ -16,7 +16,7 @@
                         <img class="img-responsive" :src="avatarSrc" alt="">
                     </a>
                 </div>
-                <h5><a v-bind:href="item.link">${item.title.rendered}</a></h5>
+                <h5><a v-bind:href="item.link" :title="item.title.rendered">${item.title.truncate}</a></h5>
                 <p class="text-muted">${item.categories | jobCategories(taxonomies)}</p>
             </div>
             <div class="utf_apply_job_btn_item">

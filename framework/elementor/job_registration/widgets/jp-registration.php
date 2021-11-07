@@ -47,7 +47,7 @@ class JobRegistration_Widget extends Widget_Base {
             ]
         );
         $this->add_control(
-            'widget_value',
+            'form_name',
             [
                 'label' => __('Nom du formulaire', self::$slug),
                 'type' => Controls_Manager::TEXT,
@@ -55,11 +55,20 @@ class JobRegistration_Widget extends Widget_Base {
                 'placeholder' => __('Value Attribute', self::$slug),
             ]
         );
+        $this->add_control(
+            'cu_url',
+            [
+                'label' => __('Condition d\'utilisation', self::$slug),
+                'type' => Controls_Manager::URL,
+                'default' => __('', self::$slug),
+            ]
+        );
         $this->end_controls_section();
     }
 
     protected function render() {
         global $Liquid_engine, $jj_errors;
+        $settings = $this->get_settings_for_display();
         $home_url = home_url('/');
         if (is_user_logged_in()) {
             // is logged user
@@ -79,6 +88,9 @@ class JobRegistration_Widget extends Widget_Base {
                     'first_name' => \jTools::getValue('first_name', ''),
                     'email' => \jTools::getValue('email', ''),
                     'phone' => \jTools::getValue('phone', '')
+                ],
+                "route" => [
+                    "cu_url" => $settings['cu_url']
                 ]
             ]);
     }

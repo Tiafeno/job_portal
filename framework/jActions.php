@@ -291,6 +291,15 @@ add_action('demande_handler', function ()
                 switch ($type_demande) {
                     case 'DMD_CANDIDAT':
                         global $wpdb, $jj_notices;
+                        if (!is_user_logged_in()) {
+                            $login_url = home_url('/connexion');
+                            $jj_notices[] = [
+                                'class' => 'negative',
+                                'title' => '',
+                                'msg' => "Veuillez vous connecter. <a href='$login_url'>Se connecter</a>"
+                            ];
+                            break;
+                        }
 
                         $current_user_id = get_current_user_id();
                         $user = new WP_User($current_user_id);
@@ -331,7 +340,6 @@ add_action('demande_handler', function ()
                                 appeler au +261 34 24 888 11  pendant les heures normales de bureau."];
 
                             // Envoyer un mail admin
-                            $getdemande =
                             do_action("send_mail_on_demande_posted", $wpdb->insert_id);
                             $wpdb->flush();
                         } else {

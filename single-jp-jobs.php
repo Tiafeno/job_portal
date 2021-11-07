@@ -185,7 +185,7 @@ while (have_posts()) : the_post();
                                 Une fois fait , votre CV sera transmis directement aux recruteurs.
                                 <div class="mrg-bot-20"></div>
                                 <p>N'oubliez pas de bien remplir votre CV (expériences professionnelles + formations)
-                                    pour augmenter votre chance d'être recruté.</p>
+                                    pour augmenter VOS CHANCES d'être recruté.</p>
 
                             </div>
                             <!-- Start: Job Overview -->
@@ -208,7 +208,7 @@ while (have_posts()) : the_post();
                                         <?php $nonce = wp_create_nonce('jobjiaby-apply-nonce') ?>
                                         <input type="hidden" name="job_id" value="<?= $job->ID ?>">
                                         <input type="hidden" name="apply_nonce" value="<?= $nonce ?>">
-                                        <button type="submit" class="btn btn-job theme-btn btn-outlined ">Je postuler
+                                        <button type="submit" class="btn btn-job theme-btn btn-outlined ">Je postule
                                         </button>
                                     </form>
 
@@ -247,7 +247,7 @@ while (have_posts()) : the_post();
 
                 <div class="row mrg-top-40">
                     <div class="col-md-12">
-                        <h4 class="mrg-bot-30">Annonce similaire</h4>
+                        <h4 class="mrg-bot-30">Annonces similaires</h4>
                     </div>
                 </div>
                 <div class="row">

@@ -1,6 +1,8 @@
 <?php
 
 use JP\Framework\Elements\jCandidate;
+use JP\Framework\Elements\JDemande;
+use JP\Framework\Elements\jpEmployer;
 use JP\Framework\Elements\jpJobs;
 
 if (!defined('ABSPATH')) {
@@ -10,7 +12,11 @@ if (!defined('ABSPATH')) {
 class jMailing {
     public $admin_email = 'contact@falicrea.net';
     public $dev_email = 'tiafenofnel@gmail.com';
-    public function __contruct() {}
+    public $logo = null;
+    public function __contruct() {
+        $custom_logo_id = get_theme_mod('custom_logo');
+        $this->logo = wp_get_attachment_image_src($custom_logo_id, 'full')[0];
+    }
     public static function send($to, $subject, $content, $headers) {
         return wp_mail($to, $subject, $content, $headers);
     }
@@ -152,8 +158,44 @@ add_action('send_mail_when_publish_emploi', function($job_id) {
     wp_mail($employer->user_email, $subject, $content, $headers);
 }, 10, 1);
 
-
 add_action('send_mail_demande_accepted', function($id_demande) {
     // todo envoyer mail au client
 
+}, 10, 1);
+
+add_action('send_mail_on_demande_posted', function(int $id_demande) {
+    global $engine;
+    $demande = new JDemande($id_demande);
+    $type_demande_name = $demande->type_demande->name;
+    switch ($type_demande_name){
+        case 'DMD_CANDIDAT':
+            $candidate_id = $demande->getData('candidate_id');
+            if (is_null($candidate_id)) {
+                break;
+            }
+            $candidate = new jCandidate((int) $candidate_id);
+            $employer = new jpEmployer($demande->user->ID);
+            $company = $employer->get_company_object();
+            $subject = "Demande à consulter un CV `{$candidate->reference}` sur JOBJIABY";
+            $headers = [];
+            $headers[] = 'Content-Type: text/html; charset=UTF-8';
+            $headers[] = "From: Jobjiaby <no-reply@jobjiaby.com>";
+            $to = (new jMailing())->admin_email;
+            $body = $engine->parseFile("mails/notice_on_demande_posted")->render([
+                'company' => [
+                    'display_name' => $company->display_name,
+                    'phone' => $company->phone
+                ],
+                'employer' => [
+                    'user_email' => $demande->user->user_email
+                ],
+                'candidate' => [
+                    'reference' => $candidate->reference
+                ],
+                'home_url' => home_url("/"),
+                'logo' => (new jMailing())->logo
+            ]);
+            jMailing::send($to, $subject, $body, $headers);
+            break;
+    }
 }, 10, 1);

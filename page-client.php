@@ -20,8 +20,6 @@ wp_localize_script('comp-client', 'clientApiSettings', [
     'page_candidate' => home_url('/candidate/')
 ]);
 
-do_action('demande_handler');
-
 get_header();
 ?>
     <style type="text/css">
@@ -915,16 +913,7 @@ get_header();
                                 <i class="ti-info-alt"></i>
                                 Voir
                             </a>
-                            <form method="post" action="">
-                                <input type="hidden" name="candidate_id" :value="candidate.ID">
-                                <input type="hidden" name="type_demande" value="DMD_CANDIDAT">
-                                <input type="hidden" name="controller" value="DEMANDE">
-                                <input type="hidden" name="method" value="CREATE">
-                                <button class="cl-info mrg-5" type="submit" >
-                                    <i class="ti-info-alt"></i>
-                                    Faire une demande
-                                </button>
-                            </form>
+
                         </td>
                     </tr>
                     <tr v-if="candidateApply.length === 0 && !loading">
@@ -971,6 +960,5 @@ get_header();
             </div>
         </div>
     </div>
-
 <?php
 get_footer();

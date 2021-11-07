@@ -151,7 +151,7 @@
                         <li class="br-right">
                             <a class="btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
                                 <i class="login-icon ti-announcement"></i>
-                                Publiez une offre
+                                Publier une annonce
                             </a>
                         </li>
                         <li class="br-right">

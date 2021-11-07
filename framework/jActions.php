@@ -53,9 +53,7 @@ add_action('init', function () {
      * Fonction ajax - nopriv only.
      * Envoie un email pour recuperer le mot de passe
      */
-    add_action('wp_ajax_nopriv_forgot_password', 'forgot_password');
-    function forgot_password()
-    {
+    add_action('wp_ajax_nopriv_forgot_password', function () {
         if (is_user_logged_in()) {
             wp_send_json_error(["msg" => "Vous ne pouvez pas effectuer cette action"]);
         }
@@ -73,7 +71,7 @@ add_action('init', function () {
         }
         // Envoyer un email à l'utilisateur
         do_action('forgot_my_password', $email, $reset_key);
-    }
+    });
 
     /**
      * Envoyer un mail de recuperation de mot de passe
@@ -150,7 +148,8 @@ add_action('init', function () {
  * Permet d'enregistrer un utilisateur (Employer ou Candidat)
  */
 add_action('init', 'pre_process_registration', 1);
-function pre_process_registration() {
+function pre_process_registration()
+{
     global $jj_errors;
 
     $confirmation_register = get_page_by_path('confirmation-register', OBJECT);
@@ -162,7 +161,9 @@ function pre_process_registration() {
         if (wp_verify_nonce($_POST['_wpnonce'], 'jobjiaby-register')) {
             $email = jTools::getValue('email', null);
             $role = jTools::getValue('role', null);
-            if (is_null($email) || is_null($role)) { return false; }
+            if (is_null($email) || is_null($role)) {
+                return false;
+            }
             $password = jTools::getValue('password');
             if (!$password) return;
             $args = [
@@ -208,7 +209,7 @@ function pre_process_registration() {
             update_user_meta($user_id, 'email_verify', 0);
             do_action('send_email_new_user', $user_id); // Envoyer le mail
             // Redirection
-            wp_redirect(get_the_permalink($page_id) . '?user_id='.$user_id);
+            wp_redirect(get_the_permalink($page_id) . '?user_id=' . $user_id);
             exit();
         }
     }
@@ -218,7 +219,8 @@ function pre_process_registration() {
  * Processus d'activation d'adresse email du client
  */
 add_action('init', 'process_validate_user_email', 1);
-function process_validate_user_email() {
+function process_validate_user_email()
+{
     global $jj_messages;
     $nonce = jTools::getValue('verify_email_nonce', false);
     if (!$nonce) return false;
@@ -244,7 +246,8 @@ function process_validate_user_email() {
  * Il permet aussi de renvoyer le mail de verification d'adresse.
  */
 add_action('wp_loaded', 'process_resend_verify_user_email', 1);
-function process_resend_verify_user_email() {
+function process_resend_verify_user_email()
+{
     global $jj_messages;
 
     if (!is_user_logged_in()) return;
@@ -256,7 +259,7 @@ function process_resend_verify_user_email() {
     if ($nonce && $verification) {
         // Send email
         do_action('send_email_new_user', $user_id);
-        wp_redirect( get_site_url() );
+        wp_redirect(get_site_url());
         exit();
     }
 
@@ -267,15 +270,15 @@ function process_resend_verify_user_email() {
         $user = new WP_User($user_id);
         $jj_messages[] = [
             'type' => 'warning',
-            'msg' =>  "Bonjour {$user->display_name}, veuillez consulter {$user->user_email} pour terminer le processus d'inscription.",
+            'msg' => "Bonjour {$user->display_name}, veuillez consulter {$user->user_email} pour terminer le processus d'inscription.",
             'btn' => "Envoyer",
             'btn_link' => home_url('/?e-verify-nonce=' . $link_nonce)
         ];
     }
 }
 
-add_action('demande_handler', 'process_demande_handler');
-function process_demande_handler() {
+add_action('demande_handler', function ()
+{
     $controller = jTools::getValue('controller', null);
     if ($controller && $controller === 'DEMANDE') {
         $method = jTools::getValue('method', null);
@@ -287,8 +290,15 @@ function process_demande_handler() {
 
                 switch ($type_demande) {
                     case 'DMD_CANDIDAT':
+                        global $wpdb, $jj_notices;
 
-                        global $wpdb, $jj_messages;
+                        $current_user_id = get_current_user_id();
+                        $user = new WP_User($current_user_id);
+                        if (!in_array('employer', $user->roles)) {
+                            $jj_notices[] = ['class' => 'negative', 'msg' => "Seul un compte employer peut faire cette demande" ];
+                            break;
+                        }
+
                         $candidate_id = jTools::getValue('candidate_id', null);
                         $table = DemandeTrait::getTableName();
                         $type_dmd_id = DemandeTypeTrait::getTypeId($type_demande);
@@ -299,34 +309,42 @@ function process_demande_handler() {
                         $queryReference = $wpdb->get_row("SELECT * FROM $table WHERE reference = '$reference'");
                         $wpdb->flush();
                         if ($queryReference) {
-                            $jj_messages[] = ['type' => 'warning', 'msg' => "Demande déja en cours"];
+                            $jj_notices[] = ['class' => 'warning', 'msg' => "Demande déja en cours"];
                             break;
                         }
 
                         $data = [
                             "candidate_id" => (int)$candidate_id,
                         ];
-                        $data_request = (object) $data;
+                        $data_request = (object)$data;
                         $createDemande = $wpdb->insert($table, [
                             'user_id' => $user_id,
                             'type_demande_id' => $type_dmd_id,
                             'reference' => $reference,
                             'data_request' => serialize($data_request)
                         ]);
-                        $wpdb->flush();
+
                         if ($createDemande) {
-                            $jj_messages[] = ['type' => 'success', 'msg' => "Votre demande a été envoyer avec succès"];
+                            $jj_notices[] = ['class' => 'success',
+                                'msg' => "Notre équipe se prépare à répondre à votre demande. <br>
+                                Si vous avez besoin d'une assistance immédiate, vous pouvez nous 
+                                appeler au +261 34 24 888 11  pendant les heures normales de bureau."];
+
+                            // Envoyer un mail admin
+                            $getdemande =
+                            do_action("send_mail_on_demande_posted", $wpdb->insert_id);
+                            $wpdb->flush();
                         } else {
-                            $jj_messages[] = ['type' => 'danger', 'msg' => "Une erreur c'est produit pendant l'envoye de votre demande"];
+                            $jj_notices[] = ['class' => 'danger', 'msg' => "Une erreur c'est produit pendant l'envoye de votre demande"];
                         }
                         break;
                 }
                 break;
         }
     }
-}
+});
 
-add_action('save_post_jp-jobs', function($post_id, WP_Post $post) {
+add_action('save_post_jp-jobs', function ($post_id, WP_Post $post) {
     if (define('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
         return;
     }

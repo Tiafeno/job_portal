@@ -44,6 +44,7 @@ final class jpCompany extends \WP_User
     public $address;
     public $region = null; // int - Reference with taxonomy 'Region'
     public $country = null; // int - Reference with taxonomy 'country'
+    public $phone;
     public $city;
     public $nif;
     public $stat;
@@ -56,6 +57,7 @@ final class jpCompany extends \WP_User
         $this->nif = get_user_meta($this->ID, 'nif', true);
         $this->stat = get_user_meta($this->ID, 'stat', true);
         $this->activated = $this->validated();
+        $this->phone = get_user_meta($this->ID, 'phone', true);
 
         // Region
         $region_id = get_metadata('user', $this->ID, 'region', true);

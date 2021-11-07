@@ -94,10 +94,26 @@ get_header();
 <!--Single candidate template-->
     <script type="text/x-template" id="candidate-details">
         <section class="padd-top-80 padd-bot-80">
+
             <div class="lds-roller" v-if="loading"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
             <div class="container" v-if="!loading && candidate != null">
                 <div class="row">
                     <div class="col-md-8 col-sm-7">
+
+                        <?php
+                        global $jj_notices;
+                        if (!empty($jj_notices) && is_array($jj_notices)):
+                            foreach ($jj_notices as $notice) {
+                        ?>
+                        <div class="ui <?= $notice['class'] ?> message">
+                            <div class="header">
+                                <?= isset($notice['title']) ? $notice['title'] : 'Information' ?>
+                            </div>
+                            <?= $notice['msg'] ?>
+                        </div>
+                        <?php }
+                        endif; ?>
+
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-body">
                                 <div class="row">
@@ -185,6 +201,18 @@ get_header();
 
                             </div>
                         </div>
+
+                        <div>
+                            <form method="post" action="">
+                                <input type="hidden" name="candidate_id" :value="candidate.id">
+                                <input type="hidden" name="type_demande" value="DMD_CANDIDAT">
+                                <input type="hidden" name="controller" value="DEMANDE">
+                                <input type="hidden" name="method" value="CREATE">
+                                <button type="submit" class="ui big primary button">
+                                    Demande à consulter
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Sidebar -->
@@ -194,16 +222,9 @@ get_header();
                             <!-- Start: Opening hour -->
                             <div class="widget-boxed" v-if="false">
                                 <div class="widget-boxed-header">
-                                    <h4><i class="ti-headphone padd-r-10"></i>Contact Now</h4>
                                 </div>
                                 <div class="widget-boxed-body">
-                                    <form>
-                                        <input type="text" class="form-control" placeholder="Name *">
-                                        <input type="text" class="form-control" placeholder="Email *">
-                                        <input type="text" class="form-control" placeholder="Phone">
-                                        <textarea class="form-control height-140" placeholder="Message..."></textarea>
-                                        <button class="btn theme-btn full-width mrg-bot-20">Send Email</button>
-                                    </form>
+
                                 </div>
                             </div>
                             <!-- End: Opening hour -->

@@ -52,7 +52,7 @@
                         Taxonomies: {},
                         EmploiCollection: null,
                         axiosInstance: null,
-                        itemsCount: 8,
+                        itemsCount: 7,
                         moreClickCount: 0,
                         jobs: [],
                     }

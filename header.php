@@ -148,41 +148,52 @@
                 ?>
                 <ul class="nav navbar-nav navbar-right">
                     <?php if (!is_user_logged_in()) : ?>
-                        <li class="br-right">
-                            <a class="btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
-                                <i class="login-icon ti-announcement"></i>
-                                Publier une annonce
-                            </a>
-                        </li>
-                        <li class="br-right">
-                            <a class="btn " href="<?= home_url('/connexion') ?>">
-                                <i class="login-icon ti-user"></i>
-                                Mon compte
-                            </a>
-                        </li>
-                        <?php else :
-                        $user_id = get_current_user_id();
-                        $user = new WP_User($user_id);
-                        if (in_array('employer', $user->roles)) :
-                        ?>
                             <li class="br-right">
                                 <a class="btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
-                                    <i class="login-icon ti-archive"></i>
-                                    Publiez une offre
+                                    <i class="login-icon ti-announcement"></i>
+                                    Publier une annonce
                                 </a>
                             </li>
-                        <?php endif; ?>
-                        <li class="sign-up">
-                            <a class="btn" href="<?= home_url('/espace-client') ?>">
-                                Espace client
-                            </a>
-                        </li>
-                        <li>
-                            <a class="btn" title="Déconnexion" href="<?= wp_logout_url(home_url('/')) ?>">
-                                <i class="fa fa-sign-out"></i>
-                                Déconnexion
-                            </a>
-                        </li>
+                            <li class="br-right">
+                                <a class="btn " href="<?= home_url('/connexion') ?>">
+                                    <i class="login-icon ti-user"></i>
+                                    Mon compte
+                                </a>
+                            </li>
+                        <?php else :
+                            $user_id = get_current_user_id();
+                            $user = new WP_User($user_id);
+                            $espace_client_url = home_url('/espace-client');
+                            $espace_client_el = '<li class="sign-up"><a class="btn" href="'.$espace_client_url.'"> Espace client </a></li>';
+                            $create_cv_el = '<li class="sign-up"><a class="btn" href="'.$espace_client_url.'/#/cv"> Crée mon cv </a></li>';
+                            if (in_array('employer', $user->roles)) :
+
+                            ?>
+                                <li class="br-right">
+                                    <a class="btn" style="text-transform: none" href="<?= home_url('/add-annonce') ?>">
+                                        <i class="login-icon ti-archive"></i>
+                                        Publiez une offre
+                                    </a>
+                                </li>
+                                <?= $espace_client_el ?>
+                            <?php endif; ?>
+
+                            <?php
+                            if (in_array('candidate', $user->roles)):
+                                $candidate = new \JP\Framework\Elements\jCandidate($user_id);
+                                if (!$candidate->hasCV()) {
+                                    echo $create_cv_el;
+                                } else {
+                                    echo $espace_client_el;
+                                }
+                                endif;
+                            ?>
+                            <li>
+                                <a class="btn" title="Déconnexion" href="<?= wp_logout_url(home_url('/')) ?>">
+                                    <i class="fa fa-sign-out"></i>
+                                    Déconnexion
+                                </a>
+                            </li>
                     <?php endif; ?>
                 </ul>
             </div>

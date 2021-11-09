@@ -178,7 +178,7 @@ function pre_process_registration()
             // Check if user exist
             if (email_exists($email) || username_exists($email)) {
                 // User exist in bdd
-                $jj_errors[] = ['type' => 'email', 'msg' => "Adresse email existe déja"];
+                $jj_errors[] = ['type' => 'email', 'msg' => "Se connecter avec un compte existant"];
                 return;
             } else {
                 $response = wp_insert_user($args);

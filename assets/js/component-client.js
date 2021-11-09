@@ -460,7 +460,8 @@ const getFileReader = (file) => {
                         desc: '',
                         b: '',
                         /** begin year */
-                        e: '' /** end year */
+                        e: '', /** end year */
+                        locked: 1
                     },
                     expValidator: [],
                     formExpSelected: null,
@@ -475,6 +476,7 @@ const getFileReader = (file) => {
                         e: '',
                         /** end year */
                         desc: '',
+                        locked: 1
                     },
                     WPApiModel: null,
                     Emploi: null
@@ -818,10 +820,10 @@ const getFileReader = (file) => {
                             }
                         })
                         .then(function (resp) {
-                            alertify.notify('Enregistrer avec succès', 'success', 5, function () {
-                                self.Loading = false;
-                                self.hasCV = true;
-                            });
+                            alertify.alert("Votre CV a bien été enregistré, il sera publié après une " +
+                                "verification en interne par notre équipe RH.");
+                            self.Loading = false;
+                            self.hasCV = true;
                         })
                         .catch(function (er) {
                             self.Loading = false;

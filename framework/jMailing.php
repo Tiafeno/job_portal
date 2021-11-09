@@ -51,7 +51,7 @@ add_action('send_email_new_user', function($user_id = 0) {
 }, 10, 1);
 
 add_action('send_mail_activated_account', function($user_id, $template = '') {
-    if (!$user_id) return;
+    if (!$user_id || empty($template)) return;
     global $Liquid_engine;
     $subject = "Validation de compte - JOBJIABY";
     $headers = [];
@@ -64,8 +64,10 @@ add_action('send_mail_activated_account', function($user_id, $template = '') {
     $user = new WP_User($user_id);
     $filename = "mails/{$template}_validation_account";
     try {
+        $offers_url = home_url('/emploi');
+        $link = $template == "company" ? home_url('/espace-client') : $offers_url;
         $content = $Liquid_engine->parseFile($filename)->render([
-            'link' => home_url('/espace-client'),
+            'link' => $link,
             'home_url' => home_url("/"),
             'logo' => $logo[0]
         ]);

@@ -5,6 +5,7 @@ require_once __DIR__ . '/framework/jCron.php';
 use JP\Framework\Elements\jCandidate;
 use JP\Framework\Elements\jpJobs;
 use Liquid\Template;
+
 // Disable warning php error
 error_reporting(E_ERROR | E_PARSE);
 
@@ -24,10 +25,10 @@ error_reporting(E_ERROR | E_PARSE);
  */
 
 defined('DS') ? null : define('DS', DIRECTORY_SEPARATOR);
-defined('__SITENAME__') ? null: define('__SITENAME__', 'job_portal');
+defined('__SITENAME__') ? null : define('__SITENAME__', 'job_portal');
 // URL value
-defined('_ACCOUNT_URL_') ? null: define('_ACCOUNT_URL_', DS .'espace-client');
-defined('_ADD_ANNONCE_URL_') ? null: define('_ADD_ANNONCE_URL_', DS . 'add-annonce');
+defined('_ACCOUNT_URL_') ? null : define('_ACCOUNT_URL_', DS . 'espace-client');
+defined('_ADD_ANNONCE_URL_') ? null : define('_ADD_ANNONCE_URL_', DS . 'add-annonce');
 
 // Table
 global $wpdb;
@@ -53,7 +54,7 @@ $Liquid_engine->setCache(new \Liquid\Cache\Local());
  */
 
 $engine = &$Liquid_engine;
-$engine->registerFilter('taxonomy', function($taxonomy_name) {
+$engine->registerFilter('taxonomy', function ($taxonomy_name) {
     $result = get_terms([
         'taxonomy' => $taxonomy_name,
         'hide_empty' => false,
@@ -63,7 +64,7 @@ $engine->registerFilter('taxonomy', function($taxonomy_name) {
     if (is_wp_error($result) || !is_array($result)) return [];
     return $result;
 });
-$engine->registerFilter('get_candidate_link', function($candidate_id) {
+$engine->registerFilter('get_candidate_link', function ($candidate_id) {
     return home_url("/candidate/#/candidate/{$candidate_id}");
 });
 
@@ -72,7 +73,7 @@ $engine->registerFilter('get_candidate_link', function($candidate_id) {
 load_theme_textdomain(__SITENAME__, get_template_directory() . '/languages');
 
 // Add theme.liquid file content in balise head
-add_action('wp_head', function() {
+add_action('wp_head', function () {
     global $Liquid_engine;
     $forgot_pwd_url = home_url('/forgot-password');
     echo $Liquid_engine->parseFile('theme')->render([
@@ -114,29 +115,29 @@ add_action('after_setup_theme', function () {
     /**
      * Register sidebar for footer and ads
      */
-    register_sidebar( array(
+    register_sidebar(array(
         'id' => 'footer_social',
         'name' => 'Footer Réseaux sociaux',
-        'before_widget'  => '<div class="%2$s">',
-        'after_widget'  => '</div>',
+        'before_widget' => '<div class="%2$s">',
+        'after_widget' => '</div>',
         'before_title' => '<h4 >',
         'after_title' => '</h4>',
-    ) );
-    register_sidebar( array(
+    ));
+    register_sidebar(array(
         'id' => 'footer_menu',
         'name' => 'Footer Menu',
-        'before_widget'  => '<div class="col-md-3 fl-right col-sm-6 %2$s">',
-        'after_widget'  => '</div>',
+        'before_widget' => '<div class="col-md-3 fl-right col-sm-6 %2$s">',
+        'after_widget' => '</div>',
         'before_title' => '<h4 >',
         'after_title' => '</h4>',
-    ) );
+    ));
 });
 /**
  * Cette action permet de bien configurer la recherche dans
  * la page search.php
  */
 add_action('pre_get_posts', function (WP_Query $query) {
-    if (($query->is_search && $query->is_archive) && !is_admin() ) {
+    if (($query->is_search && $query->is_archive) && !is_admin()) {
         // Spécifier pour les annonces seulement
         if ($query->get('post_type') === 'jp-jobs') {
             $query->set('post_status', ['publish']);
@@ -144,23 +145,23 @@ add_action('pre_get_posts', function (WP_Query $query) {
     }
     return $query;
 });
-add_action( 'show_user_profile', 'user_fields' );
-add_action( 'edit_user_profile', 'user_fields' );
-add_action('init', function() {
+add_action('show_user_profile', 'user_fields');
+add_action('edit_user_profile', 'user_fields');
+add_action('init', function () {
     do_action('register_services');
     // Traitement de demande
     do_action('demande_handler');
 });
-add_action( 'admin_menu', 'jobjiaby_admin_page' );
-add_action( 'admin_init', function() {
+add_action('admin_menu', 'jobjiaby_admin_page');
+add_action('admin_init', function () {
     allow_admin_area_to_admins_only();
-    add_meta_box('candidature', __( 'Candidature', 'textdomain' ),'candidature_view' ,
+    add_meta_box('candidature', __('Candidature', 'textdomain'), 'candidature_view',
         'jp-jobs',
         'advanced',
         'high'
     );
 });
-add_action('admin_enqueue_scripts', function($hook) {
+add_action('admin_enqueue_scripts', function ($hook) {
     global $post;
 
     wp_enqueue_script('alertify', get_stylesheet_directory_uri() . '/assets/plugins/alertify/alertify.min.js', ['jquery'], null, true);
@@ -182,9 +183,9 @@ add_action('admin_enqueue_scripts', function($hook) {
         wp_enqueue_script('semantic');
     }
 
-    if( 'post.php' == $hook || 'post-new.php' == $hook ) {
+    if ('post.php' == $hook || 'post-new.php' == $hook) {
         wp_enqueue_script('admin-emploie', get_stylesheet_directory_uri() . '/assets/js/admin-emploie.js',
-            ['jquery', 'wp-api','wpapi', 'vuejs', 'medium-editor', 'alertify', 'lodash', 'axios', 'semantic']);
+            ['jquery', 'wp-api', 'wpapi', 'vuejs', 'medium-editor', 'alertify', 'lodash', 'axios', 'semantic']);
         wp_localize_script('admin-emploie', 'WPAPIEmploiSettings', [
             'root' => esc_url_raw(rest_url()),
             'nonce' => wp_create_nonce('wp_rest'),
@@ -195,27 +196,32 @@ add_action('admin_enqueue_scripts', function($hook) {
 }, 10);
 
 // or install this plugin: https://wordpress.org/plugins/admin-bar-dashboard-control/
-function remove_admin_bar() {
+function remove_admin_bar()
+{
     if (!current_user_can('administrator') && !is_admin()) {
         show_admin_bar(false);
     }
 }
-function allow_admin_area_to_admins_only() {
-    if( defined('DOING_AJAX') && DOING_AJAX ) {
+
+function allow_admin_area_to_admins_only()
+{
+    if (defined('DOING_AJAX') && DOING_AJAX) {
         //Allow ajax calls
         return;
     }
     $user = wp_get_current_user();
-    if( empty( $user ) || !in_array( "administrator", (array) $user->roles ) ) {
+    if (empty($user) || !in_array("administrator", (array)$user->roles)) {
         //Redirect to main page if no user or if the user has no "administrator" role assigned
-        wp_redirect( get_site_url( ) );
+        wp_redirect(get_site_url());
         exit();
     }
 }
+
 /**
  * Permet de rendre une interface graphique dans la page admin de l'emploie
  */
-function candidature_view() {
+function candidature_view()
+{
     global $Liquid_engine, $wpdb, $post;
     $table = $wpdb->prefix . 'job_apply';
     // Verify if user has apply this job
@@ -231,10 +237,12 @@ function candidature_view() {
         ->parseFile('emploie/editor')
         ->render(['candidates' => $candidates]);
 }
-function user_fields( $user ) {
+
+function user_fields($user)
+{
     global $Liquid_engine;
     wp_enqueue_script('admin-user', get_stylesheet_directory_uri() . '/assets/js/admin-user.js',
-        ['jquery', 'wp-api','wpapi', 'vuejs', 'medium-editor', 'alertify', 'lodash', 'axios', 'semantic']);
+        ['jquery', 'wp-api', 'wpapi', 'vuejs', 'medium-editor', 'alertify', 'lodash', 'axios', 'semantic']);
     wp_localize_script('admin-user', 'WPAPIUserSettings', [
         'root' => esc_url_raw(rest_url()),
         'nonce' => wp_create_nonce('wp_rest'),
@@ -243,13 +251,17 @@ function user_fields( $user ) {
     ]);
     echo $Liquid_engine->parseFile('admin/extra-profil-information')->render([]);
 }
-function truncate($string, $length, $dots = "...") {
+
+function truncate($string, $length, $dots = "...")
+{
     return (strlen($string) > $length) ? substr($string, 0, $length - strlen($dots)) . $dots : $string;
 }
-function jobjiaby_admin_page() {
+
+function jobjiaby_admin_page()
+{
     add_menu_page(
-        __( 'JOBJIABY Dashboard', __SITENAME__ ),
-        __( 'JOBJIABY', __SITENAME__ ),
+        __('JOBJIABY Dashboard', __SITENAME__),
+        __('JOBJIABY', __SITENAME__),
         'manage_options',
         'jobjiaby-dashboard',
         'jobjiaby_admin_page_contents',
@@ -262,10 +274,81 @@ function jobjiaby_admin_page() {
  * Dashboard page template
  * @throws \Liquid\Exception\MissingFilesystemException
  */
-function jobjiaby_admin_page_contents() {
+function jobjiaby_admin_page_contents()
+{
     global $engine;
     try {
-        echo $engine->parseFile('dashboard')->render([]);
+
+        $admin_dashboard_page_url = menu_page_url('jobjiaby-dashboard', false);
+        $cv_controller_url = add_query_arg(['controller' => 'cv'], $admin_dashboard_page_url);
+        $announce_controller_url = add_query_arg(['controller' => 'announce'], $admin_dashboard_page_url);
+        $demande_controller_url = add_query_arg(['controller' => 'demande'], $admin_dashboard_page_url);
+
+        $controller = jTools::getValue('controller', 'demande');
+        $q_view = jTools::getValue('view', false);
+
+        $view = $q_view ? $q_view : 'index';
+
+        $data = [];
+        $template_args = [
+            'page' => [
+                'cv' => $cv_controller_url,
+                'announce' => $announce_controller_url,
+                'demande' => $demande_controller_url,
+                'edit_cv_page' => add_query_arg(['controller' => 'cv', 'view' => 'edit'], $admin_dashboard_page_url),
+                'edit_demande_page' => add_query_arg(['controller' => 'demande', 'view' => 'edit'], $admin_dashboard_page_url),
+                'edit_job_page' => add_query_arg(['controller' => 'announce', 'view' => 'edit'], $admin_dashboard_page_url)
+            ]
+        ];
+        switch ($controller) {
+            case 'cv':
+                if ($view == 'edit') {
+                    $nonce = jTools::getValue('edit-cv-nonce', false);
+                    if (wp_verify_nonce($nonce, 'edit-cv')) {
+
+                    }
+                    array_push($template_args, [
+                        'controller' => 'cv',
+                        'view' => 'edit',
+                        'data' => $data
+                    ]);
+                    break;
+                }
+
+                if ($view == 'index'){
+                    $args = ['role__in' => 'candidate', 'number' => -1];
+                    $candidate_query = new WP_User_Query($args);
+                    $candidates = $candidate_query->get_results();
+                    if ($candidates) {
+                        foreach ($candidates as $candidate) {
+                            $data[] = (new jCandidate($candidate->ID))->getObject('edit');
+                        }
+                    }
+                    array_push($template_args, [
+                        'controller' => 'cv',
+                        'view' => 'index',
+                        'data' => $data
+                    ]);
+                    break;
+                }
+
+                break;
+            case 'demande':
+                if ($view == 'index') {
+                    // List all demande
+
+                    array_push($template_args, [
+                        'controller' => 'cv',
+                        'view' => 'index',
+                        'data' => $data
+                    ]);
+                    echo $engine->parseFile('admin/demandes')->render($template_args);
+                    break;
+                }
+                break;
+        }
+
+
     } catch (\Liquid\Exception\MissingFilesystemException $e) {
         echo $e->getMessage();
     }
@@ -282,7 +365,8 @@ function jobjiaby_admin_page_contents() {
  * et aussi gerer les abonnements
  */
 add_action('acf/render_field/name=pricing', 'acf_pricing_field');
-function acf_pricing_field() {
+function acf_pricing_field()
+{
     global $Liquid_engine;
     $app_configs = jTools::getInstance()->getSchemas();
     $pricings = $app_configs->pricing->account;

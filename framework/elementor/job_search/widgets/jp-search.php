@@ -74,10 +74,7 @@ class JobSearch_Widget extends Widget_Base
             [
                 'categories' => $categories, // categories
                 'types' => $type_job, // Type de contract
-                'description' => $settings['description'],
-                'route' => [
-                    'register' => home_url('/register')
-                ]
+                'description' => $settings['description']
             ]);
     }
 

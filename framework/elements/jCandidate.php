@@ -3,6 +3,7 @@
 namespace JP\Framework\Elements;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use JsonException;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -65,6 +66,9 @@ class jCandidate extends \WP_User
     {
         parent::__construct($id, $name, $site_id);
 
+        $this->name = $this->display_name;
+        $this->email = $this->user_email;
+
         $this->validated = $this->validated();
         $this->phone = get_user_meta($this->ID, 'phone', true);
         // reference
@@ -110,7 +114,7 @@ class jCandidate extends \WP_User
                 })->filter(function($term) { return !is_null($term); })->toArray();
             }
             
-        } catch (\JsonException $e) {
+        } catch (JsonException $e) {
             $this->languages = "";
         }
 
@@ -121,22 +125,30 @@ class jCandidate extends \WP_User
         $this->blocked = $this->isBlocked();
 
         // Experiences
+        /*  _id: '', office: '', enterprise: '', city: '', country: '', b: '', e: '', desc: '' */
         $experiences = get_metadata('user', $this->ID, 'experiences', true);
-        try {
-            $experiences_encode = json_decode($experiences);
-            $this->experiences = $experiences_encode;
-        } catch (\JsonException $e) {
-            $this->experiences = "";
+        if (!empty($experiences)) {
+            try {
+                $experiences_encode = json_decode($experiences);
+                $this->experiences = $experiences_encode;
+            } catch (JsonException $e) {
+                $this->experiences = [];
+            }
         }
 
+
         // Educations
+        /* id: '', establishment: '', diploma: '', city: '', country: '', desc: '', b: '', e: '' */
         $educations = get_metadata('user', $this->ID, 'educations', true);
-        try {
-            $edu_encode = json_decode($educations);
-            $this->educations = $edu_encode;
-        } catch (\JsonException $e) {
-            $this->educations = "";
+        if (!empty($educations)) {
+            try {
+                $edu_encode = json_decode($educations);
+                $this->educations = $edu_encode;
+            } catch (JsonException $e) {
+                $this->educations = [];
+            }
         }
+
 
         // avatar
         $avatar_id = get_metadata('user', $this->ID, 'avatar_id', true);

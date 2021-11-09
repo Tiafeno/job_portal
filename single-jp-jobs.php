@@ -46,7 +46,7 @@ function apply_annonce_fn(stdClass &$log) {
         }
         if (!$user->isPublic()) {
             $log->type = 'error';
-            $log->message = "Votre CV est en attente de validation. Veuillez ressayer plutard";
+            $log->message = "Votre CV est en attente de validation, vous pouvez réessayer quand il sera validé par notre équipe";
             return;
         }
         $job_id = (int) jTools::getValue('job_id', 0);
@@ -145,7 +145,7 @@ while (have_posts()) : the_post();
                     </div>
                     <div class="detail-wrapper">
                         <div class="detail-wrapper-header">
-                            <h4>Mission et Profil recherché </h4>
+                            <h4>Mission et profil recherchés </h4>
                         </div>
                         <div class="detail-wrapper-body">
                             <?php the_content(); ?>

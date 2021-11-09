@@ -59,78 +59,87 @@ final class AdminManager
 
         // Cette condition permet de valider ou non un compte
         if ($controller === 'user_activation') {
-            $name = jTools::getValue('name');
-            $value = ($name === 'deactivated') ? 0 : 1;
-            $user_id = (int)jTools::getValue('user');
-            // Mettre a jours la valeur
-            update_metadata('user', $user_id, 'validated', $value);
-            // Verifier si c'est une entreprise
-            $user = new WP_User($user_id);
-            $template = in_array('company', $user->roles) ? 'company' : 'candidate';
-            if ('company' === $template) {
-                $employer_id = get_metadata('user', $user->ID, 'employer_id', true);
-                $user_id = intval($employer_id);
-                $template = 'company';
-            }
-
-            // Send mail to user
-            if (1 === $value) {
-                do_action('send_mail_activated_account', $user_id, $template);
-            }
-            wp_redirect(admin_url('users.php'));
+            $this->user_activation();
         }
 
         // Cette condition permet d'ajouter une entreprise pour une annonce
         if ($controller === 'update_emploie_company') {
-            $company_id = jTools::getValue('company', 0);
-            $post_id = jTools::getValue('post_id', 0);
-            if ($company_id) {
-                // Add employer id
-                $employer_query = new WP_User_Query([
-                    'role' => 'employer',
-                    'meta_query' => array(
-                        'relation' => 'AND',
-                        array(
-                            'key' => 'company_id',
-                            'value' => $company_id,
-                            'compare' => '='
-                        )
-                    )
-                ]);
-                if ($employer_query->get_results()) {
-                    $results = $employer_query->get_results();
-                    $employer = $results[0]; // Get first result
-                    if ($employer instanceof WP_User) {
-                        // Add company id
-                        update_post_meta($post_id, 'company_id', $company_id);
-                        update_post_meta($post_id, 'employer_id', $employer->ID);
-                    }
-                }
-            }
+            $this->update_company_job();
         }
 
         if ($controller === 'DEMANDE') {
-            global $wpdb;
-            $admin_id = get_current_user_id();
-            $admin = new WP_User($admin_id);
-
-            // Only an administrator can confirm the demande
-            if (in_array('administrator', $admin->roles)) {
-                $id_demande = (int)jTools::getValue('demande_id', 0);
-                $dmd_table = DemandeTrait::getTableName();
-                $request_demande = "SELECT * FROM $dmd_table WHERE ID = %d";
-                $result = $wpdb->get_row($wpdb->prepare($request_demande, intval($id_demande)));
-                $wpdb->flush();
-                if ($result) {
-                    //0 : en attente, 1: valider, 2: refuser
-                    $status = (int)jTools::getValue('status', 0); // Default en attente (pending)
-                    $updateDemande = DemandeTrait::updateStatus($status, $id_demande);
-                    $traiter = DemandeTrait::traiter($id_demande);
-                }
-            }
-
+            $this->demande_handler();
         }
 
+    }
+
+    private function user_activation() {
+        $name = jTools::getValue('name');
+        $value = ($name === 'deactivated') ? 0 : 1;
+        $user_id = (int)jTools::getValue('user');
+        // Mettre a jours la valeur
+        update_metadata('user', $user_id, 'validated', $value);
+        // Verifier si c'est une entreprise
+        $user = new WP_User($user_id);
+        $template = in_array('company', $user->roles) ? 'company' : 'candidate';
+        if ('company' === $template) {
+            $employer_id = get_metadata('user', $user->ID, 'employer_id', true);
+            $user_id = intval($employer_id);
+            $template = 'company';
+        }
+
+        // Send mail to user
+        if (1 === $value) {
+            do_action('send_mail_activated_account', $user_id, $template);
+        }
+        wp_redirect(admin_url('users.php'));
+    }
+    private function update_company_job() {
+        $company_id = jTools::getValue('company', 0);
+        $post_id = jTools::getValue('post_id', 0);
+        if ($company_id) {
+            // Add employer id
+            $employer_query = new WP_User_Query([
+                'role' => 'employer',
+                'meta_query' => array(
+                    'relation' => 'AND',
+                    array(
+                        'key' => 'company_id',
+                        'value' => $company_id,
+                        'compare' => '='
+                    )
+                )
+            ]);
+            if ($employer_query->get_results()) {
+                $results = $employer_query->get_results();
+                $employer = $results[0]; // Get first result
+                if ($employer instanceof WP_User) {
+                    // Add company id
+                    update_post_meta($post_id, 'company_id', $company_id);
+                    update_post_meta($post_id, 'employer_id', $employer->ID);
+                }
+            }
+        }
+    }
+    private function demande_handler() {
+        global $wpdb;
+        $admin_id = get_current_user_id();
+        $admin = new WP_User($admin_id);
+
+        // Only an administrator can confirm the demande
+        if (in_array('administrator', $admin->roles)) {
+            $id_demande = (int)jTools::getValue('demande_id', 0);
+            $dmd_table = DemandeTrait::getTableName();
+            $request_demande = "SELECT * FROM $dmd_table WHERE ID = %d";
+            $result = $wpdb->get_row($wpdb->prepare($request_demande, intval($id_demande)));
+            $wpdb->flush();
+            if ($result) {
+                //0 : en attente, 1: valider, 2: refuser
+                $status = (int)jTools::getValue('status', 0); // Default en attente (pending)
+                $updateDemande = DemandeTrait::updateStatus($status, $id_demande);
+                $traiter = DemandeTrait::traiter($id_demande);
+            }
+        }
     }
 
     public function add_activated__filter($which)

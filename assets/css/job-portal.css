@@ -90,4 +90,6 @@
 .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
     background-color: #e4e4e4 !important;
 }
-
+nav.navbar.bootsnav ul.nav > li > a {
+    text-transform: initial !important;
+}

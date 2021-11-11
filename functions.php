@@ -5,10 +5,12 @@ require_once __DIR__ . '/framework/jCron.php';
 use Doctrine\Common\Collections\ArrayCollection;
 use JP\Framework\Elements\jCandidate;
 use JP\Framework\Elements\JDemande;
+use JP\Framework\Elements\jpEmployer;
 use JP\Framework\Elements\jpJobs;
 use JP\Framework\Traits\DemandeTrait;
 use Liquid\Liquid;
 use Liquid\Template;
+use const Liquid\Exception\MissingFilesystemException;
 
 // Disable warning php error
 error_reporting(E_ERROR | E_PARSE);
@@ -70,6 +72,10 @@ $engine->registerFilter('taxonomy', function ($taxonomy_name) {
 });
 $engine->registerFilter('get_candidate_link', function ($candidate_id) {
     return home_url("/candidate/#/candidate/{$candidate_id}");
+});
+$engine->registerFilter('wp_user_object', function ($user) {
+    if (!$user instanceof WP_User) return null;
+    return $user->to_array();
 });
 
 //*****************************************************
@@ -284,25 +290,22 @@ function jobjiaby_admin_page_contents()
     try {
 
         $admin_dashboard_page_url = menu_page_url('jobjiaby-dashboard', false);
-        $cv_controller_url = add_query_arg(['controller' => 'page-candidate'], $admin_dashboard_page_url);
-        $announce_controller_url = add_query_arg(['controller' => 'page-announce'], $admin_dashboard_page_url);
-        $demande_controller_url = add_query_arg(['controller' => 'page-demande'], $admin_dashboard_page_url);
-        $employer_controller_url = add_query_arg(['controller' => 'page-employer'], $admin_dashboard_page_url);
-
+        $controller_url = add_query_arg(['controller' => ''], $admin_dashboard_page_url);
         $controller = jTools::getValue('controller', 'page-candidate');
-
         $template_args = [
+            'controller' => $controller,
             'page' => [
-                'cv' => $cv_controller_url,
-                'announce' => $announce_controller_url,
-                'demande' => $demande_controller_url,
-                'employer' => $employer_controller_url,
+                'cv' => add_query_arg(['controller' => 'page-candidate'], $controller_url),
+                'announce' => add_query_arg(['controller' => 'page-announce'], $controller_url),
+                'demande' => add_query_arg(['controller' => 'page-demande'], $controller_url),
+                'employer' => add_query_arg(['controller' => 'page-employer'], $controller_url),
                 'edit_cv_page' => add_query_arg(['controller' => 'page-candidate-edit'], $admin_dashboard_page_url),
                 'edit_demande_page' => add_query_arg(['controller' => 'page-demande-edit'], $admin_dashboard_page_url),
                 'edit_employer_page' => add_query_arg(['controller' => 'page-employer-edit'], $admin_dashboard_page_url),
                 'edit_job_page' => add_query_arg(['controller' => 'page-announce-edit'], $admin_dashboard_page_url)
             ]
         ];
+
         switch ($controller) {
             case 'page-candidate':
                 // todo pagination for user query
@@ -322,7 +325,7 @@ function jobjiaby_admin_page_contents()
                 $candidate_id = (int)jTools::getValue('id', 0);
                 $candidate = new jCandidate($candidate_id);
                 if (0 === $candidate_id) {
-                    wp_redirect($cv_controller_url);
+                    wp_redirect($template_args['page']['cv']);
                     exit();
                 }
                 $nonce = jTools::getValue('nonce', false);
@@ -330,31 +333,29 @@ function jobjiaby_admin_page_contents()
 
                     // edit experience
                     $experiences = $_POST['exp'];
-                    //$candidate->set('experiences', json_encode([]));
                     if (is_array($experiences) && !empty($experiences)) {
+                        $candidate->set('experiences__backup', serialize($experiences));
                         $experience_value = [];
                         foreach ($experiences as $experience) {
-                            $experience['enterprise'] = htmlentities($experience['enterprise'] );
-                            $experience['office'] = htmlentities($experience['office'] );
-                            $experience['desc'] = htmlentities($experience['desc'] );
+                            $experience['enterprise'] = htmlentities($experience['enterprise']);
+                            $experience['office'] = htmlentities($experience['office']);
+                            $experience['desc'] = htmlentities($experience['desc']);
                             $experience_value[] = (object)wp_unslash($experience);
                         }
                         $encode = json_encode($experience_value);
                         $candidate->set('experiences', $encode);
-                        echo $encode;
                     }
 
                     // edit educations
                     $educations = $_POST['edu'];
-                    $candidate->set('educations', json_encode([]));
                     if (is_array($educations) && !empty($educations)) {
+                        $candidate->set('educations__backup', serialize($educations)); // backup
                         $education_value = [];
                         foreach ($educations as $education) {
-                            $education['establishment'] = htmlentities($education['establishment'] );
+                            $education['establishment'] = htmlentities($education['establishment']);
                             $education_value[] = (object)wp_unslash($education);
                         }
-                        //echo json_encode($education_value);
-                       $candidate->set('educations', json_encode($education_value));
+                        $candidate->set('educations', json_encode($education_value));
                     }
                     // validation de compte
                     $validated = jTools::getValue('validated', 0);
@@ -374,21 +375,41 @@ function jobjiaby_admin_page_contents()
                 $demandes = DemandeTrait::getDemandes();
                 if (is_array($demandes) && !empty($demandes)) {
                     $demandeCollections = new ArrayCollection($demandes);
-                    $demandes = $demandeCollections->map(function(jDemande $demande) {
+                    $demandes = $demandeCollections->map(function (jDemande $demande) {
                         return $demande->getObject('view');
                     })->toArray();
                     $template_args = array_merge($template_args, ['demandes' => $demandes]);
                 }
-                print_r($template_args);
+                //print_r($template_args);
                 echo $engine->parseFile('admin/demandes')->render($template_args);
                 break;
+
+            case 'page-demande-edit':
+                $demande_id = (int)jTools::getValue('id', 0);
+                $demande = new jDemande($demande_id);
+                $demande_object = $demande->getObject('edit');
+
+                // detect role of user
+                $demandeur = $demande->user;
+                $role = reset($demandeur->roles); // role name
+                switch ($role) {
+                    case 'employer':
+                    case 'administrator': // for test
+                        $employer = new jpEmployer($demandeur->ID);
+                        break;
+                    case 'candidate':
+                        break;
+                }
+
+                $template_args = array_merge($template_args, [
+                    'demande' => $demande_object,
+                ]);
+                echo $engine->parseFile('admin/demande-edit')->render($template_args);
+                break;
         }
-
-
-    } catch (\Liquid\Exception\MissingFilesystemException $e) {
+    } catch (MissingFilesystemException $e) {
         echo $e->getMessage();
-    }
-    catch (Exception $exception) {
+    } catch (Exception $exception) {
         echo $exception->getMessage();
     }
 }

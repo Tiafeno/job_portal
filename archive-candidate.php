@@ -6,7 +6,7 @@
 
 wp_enqueue_script(
     'comp-archive-candidate',
-    get_stylesheet_directory_uri() . '/assets/js/comp-archive-candidate.js',
+    get_stylesheet_directory_uri() . '/libs/comp-archive-candidate.js',
     ['vue-router', 'axios', 'wpapi', 'wp-api', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'vue-select', 'momentjs'],
     null,
     true

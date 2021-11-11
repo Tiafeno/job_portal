@@ -7,8 +7,17 @@ if (!defined('ABSPATH')) {
 
 class jpEmployer extends \WP_User
 {
+    public $company = null;
     public function __construct($id = 0, $name = '', $site_id = '') {
         parent::__construct($id, $name, $site_id);
+        $company = $this->get_company();
+        if ($company instanceof \WP_Error) {
+            $this->company = null;
+        } else {
+            $this->company = $company;
+        }
+        $this->first_name = $this->user_firstname;
+        $this->first_name = $this->user_lastname;
     }
     /**
      * @return bool

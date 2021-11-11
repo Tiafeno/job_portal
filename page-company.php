@@ -4,7 +4,7 @@
  * description: /companies
  */
 
-wp_enqueue_script('comp-company', get_stylesheet_directory_uri() . '/assets/js/comp-archives-company.js',
+wp_enqueue_script('comp-company', get_stylesheet_directory_uri() . '/libs/comp-archives-company.js',
     ['vue-router', 'axios', 'wpapi', 'wp-api', 'jquery', 'bluebird', 'lodash'], null, true);
 wp_localize_script('comp-company', 'apiSettings', [
     'root' => esc_url_raw(rest_url()),

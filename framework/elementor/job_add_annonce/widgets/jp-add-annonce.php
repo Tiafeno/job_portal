@@ -12,7 +12,7 @@ class JobAddAnnonce_Widget extends Widget_Base
     {
         parent::__construct($data, $args);
         // https://developers.elementor.com/creating-a-new-widget/adding-javascript-to-elementor-widgets/
-        wp_register_script('comp-add-annonce', get_stylesheet_directory_uri() . '/assets/js/component-add-annonce.js',
+        wp_register_script('comp-add-annonce', get_stylesheet_directory_uri() . '/libs/component-add-annonce.js',
             ['comp-login', 'lodash', 'medium-editor',  'vue-router'], null, true);
         wp_enqueue_style( 'medium-editor' );
     }

@@ -1,31 +1,28 @@
 <h2 class="ui header">
     <div class="content">
         {% block title %} {% endblock %}
-        <div class="sub header">Check out our plug-in marketplace</div>
     </div>
 </h2>
 <div class="ui two column stackable grid">
-    <div class="column two wide">
-        <div class="ui fluid vertical menu">
+    <div class="column three wide">
+
+        <div class="ui secondary vertical pointing menu">
             <a class="item" href="{{ page.cv }}">
-                <h1 class="ui medium header">Les candidats</h1>
-                <p>Donec id elit non mi porta gravida at eget metus. </p>
-            </a>
-            <a class="item" href="{{ page.employer }}">
-                <h1 class="ui medium header">Les employeurs</h1>
-                <p>Donec id elit non mi porta gravida at eget metus. </p>
-            </a>
-            <a class="item" href="{{ page.announce }}">
-                <h1 class="ui medium header">Les annonces</h1>
-                <p>Donec id elit non mi porta gravida at eget metus. </p>
+                Les candidats
             </a>
             <a class="item" href="{{ page.demande }}">
-                <h1 class="ui medium header">Les demandes</h1>
-                <p>Donec id elit non mi porta gravida at eget metus. </p>
+                Les demandes
             </a>
+            <a class="item " href="{{ page.employer }}">
+                Les employeurs
+            </a>
+            <a class="item" href="{{ page.announce }}">
+                Les annonces
+            </a>
+
         </div>
     </div>
-    <div class="column twelve wide">
+    <div class="column ten wide">
         {% block content %}{% endblock %}
     </div>
 </div>

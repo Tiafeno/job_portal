@@ -1,4 +1,5 @@
 vendor
+node_modules
 .idea
 .idea/job_portal.iml
 *.iml

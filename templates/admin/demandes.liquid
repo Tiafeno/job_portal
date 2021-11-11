@@ -5,23 +5,33 @@ Demande
 {% endblock %}
 
 {% block content %}
-<table class="ui inverted selectable right large aligned table">
+<table class="ui very basic celled table">
     <thead>
-    <tr><th class="left aligned">Reference</th>
-        <th>Type</th>
-        <th>Valider</th>
-        <th>Mail</th>
-        <th>Protein</th>
+    <tr>
+        <th class="left aligned">Reference</th>
+        <th>Demandeur</th>
+        <th>Statut</th>
+        <th>Type de demande</th>
+        <th>Description</th>
+        <th class="left aligned">_TransId</th>
+        <th></th>
     </tr>
     </thead>
     <tbody>
-    {% for candidate in candidates %}
+    {% for demande in demandes %}
+        {% assign user = demande.user | wp_user_object %}
         <tr>
-            <td class="left aligned">{{ candidate.reference }}</td>
-            <td>{{ candidate.data.display_name }}</td>
-            <td> {% if candidate.validated == 1 %} Oui {% else %} Non {% endif %}</td>
-            <td>{{ candidate.data.user_email }}</td>
-            <td><a href="{{ page.edit_cv_page }}&id={{ candidate.ID }}" >Modifier</a></td>
+            <td class="left aligned">{{ demande.ID }}</td>
+            <td>{{ user.display_name }}</td>
+            <td>
+                {% if demande.status == 1 %} Valider {% endif %}
+                {% if demande.status == 2 %} Refuser {% endif %}
+                {% if demande.status == 0 %} En attente {% endif %}
+            </td>
+            <td>{{ demande.type_demande.name }}</td>
+            <td>{{ demande.type_demande.desciption }}</td>
+            <td>{{ demande.reference }}</td>
+            <td><a href="{{ page.edit_demande_page }}&id={{ demande.ID }}" class="ui icon button" ><i class="edit icon"></i></a></td>
         </tr>
     {% endfor %}
     </tbody>

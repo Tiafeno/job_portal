@@ -69,7 +69,7 @@ const getFileReader = (file) => {
     });
 };
 (function ($) {
-    $().ready(function () {
+    $(document).ready(function () {
         Vue.component('v-select', VueSelect.VueSelect);
         Vue.filter('jobStatus', function (value) {
             if (!value) return 'Inconnue'

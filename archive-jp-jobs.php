@@ -1,6 +1,6 @@
 <?php
 
-wp_enqueue_script('comp-archive-jobs', get_stylesheet_directory_uri() . '/assets/js/comp-archive-jobs.js',
+wp_enqueue_script('comp-archive-jobs', get_stylesheet_directory_uri() . '/libs/comp-archive-jobs.js',
     ['axios', 'wpapi', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'comp-login'], null, true);
 wp_localize_script('comp-archive-jobs', 'archiveApiSettings', [
     'root' => esc_url_raw(rest_url()),

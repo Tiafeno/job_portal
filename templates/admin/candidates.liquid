@@ -2,16 +2,17 @@
 
 {% block title %}
 Candidates
+<div class="sub header">Tous les candidates</div>
 {% endblock %}
 
 {% block content %}
-<table class="ui inverted selectable right large aligned table">
+<table class="ui very basic celled table">
     <thead>
         <tr><th class="left aligned">Reference</th>
             <th>Nom</th>
             <th>Valider</th>
             <th>Mail</th>
-            <th>Protein</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -19,9 +20,13 @@ Candidates
         <tr>
             <td class="left aligned">{{ candidate.reference }}</td>
             <td>{{ candidate.data.display_name }}</td>
-            <td> {% if candidate.validated == 1 %} Oui {% else %} Non {% endif %}</td>
+            <td>
+                <div class="ui {% if candidate.validated == 1 %} green {% else %} red {% endif %} horizontal label">
+                    {% if candidate.validated == 1 %} Oui {% else %} Non {% endif %}
+                </div>
+            </td>
             <td>{{ candidate.data.user_email }}</td>
-            <td><a href="{{ page.edit_cv_page }}&id={{ candidate.ID }}" >Modifier</a></td>
+            <td><a href="{{ page.edit_cv_page }}&id={{ candidate.ID }}" class="ui icon button" ><i class="edit icon"></i></a></td>
         </tr>
     {% endfor %}
     </tbody>

@@ -13,7 +13,7 @@ class JobRegistration_Widget extends Widget_Base {
 
     public function get_script_depends()
     {
-        wp_register_script('registration', get_stylesheet_directory_uri() . '/assets/js/component-registration.js',
+        wp_register_script('registration', get_stylesheet_directory_uri() . '/libs/component-registration.js',
             ['lodash'], null, true);
         wp_localize_script('registration', 'registerSetting', [
             'is_logged' => is_user_logged_in(),

@@ -455,9 +455,9 @@ get_header();
     <script type="text/x-template" id="experience-template">
         <div class="edu-history info"><i></i>
             <div class="detail-info" @click="$emit('edit', $event, item._id)">
-                <h3>{{item.office}}</h3>
+                <h3 v-html="item.office"></h3>
                 <i>{{item.b}} - {{item.e ? item.e : "Jusqu'a aujourd'hui"}}</i>
-                <p>{{item.desc}}</p>
+                <p v-html="item.desc"></p>
             </div>
         </div>
     </script>
@@ -465,10 +465,10 @@ get_header();
     <script type="text/x-template" id="education-template">
         <div class="edu-history info"><i></i>
             <div class="detail-info" @click="$emit('edit', $event, item._id)">
-                <h3>{{item.establishment}}</h3>
+                <h3 v-html="item.establishment"></h3>
                 <i>{{item.b}} - {{item.e}}</i>
                 <span>{{item.diploma}}</span>
-                <p>{{item.desc}}</p>
+                <p v-html="item.desc"></p>
             </div>
         </div>
     </script>

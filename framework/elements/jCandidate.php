@@ -42,14 +42,19 @@ class jCandidate extends \WP_User
 {
 
     public $gender;
+    public $registered_date;
     public $reference;
-    public $region; // Region
+    public $profil;
+    public $region; // Region e.g [2, 8 ...]
     public $status; // Je cherche...
     public $validated; // Check for this account is active or not
     public $has_cv = false;
     public $blocked = false;
     public $drive_licences = []; // A, B, C & A`
-    public $languages = [];
+    public $languages = [];  //  e.g [22, 1 ...]
+    public $categories = [];  // e.g [85, 7 ...]
+    public $last_name;
+    public $first_name;
     public $phone = '';
     public $profil_url = null;
     public $mastered_technology = [];
@@ -68,6 +73,10 @@ class jCandidate extends \WP_User
 
         $this->name = $this->display_name;
         $this->email = $this->user_email;
+        $this->first_name = $this->user_firstname;
+        $this->last_name = $this->user_lastname;
+        $this->registered_date = $this->user_registered;
+        $this->profil = get_metadata('user', $this->ID, 'profil', true);
 
         $this->validated = $this->validated();
         $this->phone = get_user_meta($this->ID, 'phone', true);
@@ -104,6 +113,9 @@ class jCandidate extends \WP_User
         // Languages
         $languages = get_metadata('user', $this->ID, 'languages', true);
         try {
+            if (empty($languages)) {
+                throw new \Exception("Languages is not array");
+            }
             $languages = json_decode($languages);
             if (is_array($languages)) {
                 $langCollection = new ArrayCollection($languages);
@@ -114,8 +126,27 @@ class jCandidate extends \WP_User
                 })->filter(function($term) { return !is_null($term); })->toArray();
             }
             
-        } catch (JsonException $e) {
-            $this->languages = "";
+        } catch (\Exception $e) {
+            $this->languages = [];
+        }
+
+        // Categories ou metier recherché
+        $categories = get_metadata('user', $this->ID, 'categories', true);
+        try {
+            if (empty($categories)) {
+                throw new \Exception("Categories is not array");
+            }
+            $categories = json_decode($categories);
+            if (is_array($categories)) {
+                $catCollection = new ArrayCollection($categories);
+                $this->categories = $catCollection->map(function($cat) {
+                    $catTerm = get_term(intval($cat), 'category');
+                    if ($catTerm instanceof \WP_Term)  return $catTerm;
+                    return null;
+                })->filter(function($term) { return !is_null($term); })->toArray();
+            }
+        } catch (\Exception $e) {
+            $this->categories = [];
         }
 
         // have cv
@@ -125,12 +156,20 @@ class jCandidate extends \WP_User
         $this->blocked = $this->isBlocked();
 
         // Experiences
-        /*  _id: '', office: '', enterprise: '', city: '', country: '', b: '', e: '', desc: '' */
+        /*  _id: '', office: '', enterprise: '', city: '', country: '', b: '', e: '', desc: '', locked: [bool] */
         $experiences = get_metadata('user', $this->ID, 'experiences', true);
         if (!empty($experiences)) {
             try {
                 $experiences_encode = json_decode($experiences);
-                $this->experiences = $experiences_encode;
+                if (is_array($experiences_encode) && !empty($experiences_encode)) {
+                    $collectionExp = new ArrayCollection($experiences_encode);
+                    $this->experiences = $collectionExp->map(function($exp) {
+                        $exp->office = htmlentities2($exp->office);
+                        $exp->desc = htmlentities2($exp->desc);
+                        $exp->enterprise = htmlentities2($exp->enterprise);
+                        return $exp;
+                    })->toArray();
+                }
             } catch (JsonException $e) {
                 $this->experiences = [];
             }
@@ -138,12 +177,18 @@ class jCandidate extends \WP_User
 
 
         // Educations
-        /* id: '', establishment: '', diploma: '', city: '', country: '', desc: '', b: '', e: '' */
+        /* _id: '', establishment: '', diploma: '', city: '', country: '', desc: '', b: '', e: '', locked: [bool] */
         $educations = get_metadata('user', $this->ID, 'educations', true);
         if (!empty($educations)) {
             try {
                 $edu_encode = json_decode($educations);
-                $this->educations = $edu_encode;
+                if (is_array($edu_encode) && !empty($edu_encode)) {
+                    $collectionEdu = new ArrayCollection($edu_encode);
+                    $this->educations = $collectionEdu->map(function($edu) {
+                        $edu->establishment = htmlentities2($edu->establishment);
+                        return $edu;
+                    })->toArray();
+                }
             } catch (JsonException $e) {
                 $this->educations = [];
             }
@@ -161,6 +206,9 @@ class jCandidate extends \WP_User
 
     }
 
+    /**
+     * @param array $args
+     */
     public function profile_update($args = [])
     {
         foreach ($args as $arg_key => $value) {
@@ -170,23 +218,46 @@ class jCandidate extends \WP_User
         }
     }
 
+    /**
+     * @param $key
+     * @param $value
+     */
+    public function set($key, $value)
+    {
+        if ($key !== 'experiences' || $key !== 'educations')
+            $this->{$key} = $value;
+        update_user_meta($this->ID, $key, $value);
+    }
+
+    /**
+     * @return bool
+     */
     public function hasCV(): bool
     {
         $has_cv = get_user_meta($this->ID, 'has_cv', true);
         return (bool)$has_cv;
     }
 
+    /**
+     * @return bool
+     */
     public function isPublic(): bool
     {
         return $this->validated();
     }
 
+    /**
+     * @return bool
+     */
     public function validated(): bool
     {
         $validated = get_user_meta($this->ID, 'validated', true);
         return !$validated ? false : (bool)$validated;
     }
 
+    /**
+     * @return bool
+     */
     public function isBlocked(): bool {
         $blocked = get_user_meta($this->ID, 'blocked', true);
         return !$blocked ? false : (bool)$blocked;
@@ -212,6 +283,10 @@ class jCandidate extends \WP_User
         return $educations;
     }
 
+    /**
+     * @param string $context
+     * @return array
+     */
     public function getObject($context = 'view') {
         if ($context === 'edit') {
             return get_object_vars($this);

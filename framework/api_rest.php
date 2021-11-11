@@ -156,7 +156,7 @@ add_action('rest_api_init', function () {
                     foreach ($job_rows as $job_row) {
                         $candidate_id = (int)$job_row->candidate_id;
                         $jcandidate = new jCandidateAlias($candidate_id);
-                        $response['candidates'][] = $jcandidate->getObject();
+                        $response['candidates'][] = $jcandidate->getObject('view');
                     }
                 }
                 wp_send_json_success($response);
@@ -203,14 +203,9 @@ add_action('rest_api_init', function () {
             'callback' => function (WP_REST_Request $request) {
                 $candidate_id = intval($request->get_param('id_candidate'));
                 // Create request
-                $req = new WP_REST_Request();
-                $req->set_param('context', 'edit');
-                // Create REST API user controller
-                $user_controller = new WP_REST_Users_Controller();
-                $candidate = $user_controller->prepare_item_for_response(new WP_User($candidate_id), $req)->data;
-                // Send response data
-                $encode = json_encode($candidate);
-                wp_send_json(base64_encode($encode));
+                $context = $request->get_param('context');
+                $candidate = new jCandidateAlias($candidate_id);
+                wp_send_json($candidate->getObject($context ? $context : 'view'));
             },
             'permission_callback' => function ($data) {
                 return true;

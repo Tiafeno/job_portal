@@ -4,15 +4,28 @@
         <div class="sub header">Check out our plug-in marketplace</div>
     </div>
 </h2>
-<div class="row">
-    <div class="col-md-2">
-        <ul class="inline ui">
-            <li><a href="{{ page.cv }}">Cv</a> </li>
-            <li><a href="{{ page.announce }}">Annonce</a> </li>
-            <li><a href="{{ page.demande }}">Demande</a> </li>
-        </ul>
+<div class="ui two column stackable grid">
+    <div class="column two wide">
+        <div class="ui fluid vertical menu">
+            <a class="item" href="{{ page.cv }}">
+                <h1 class="ui medium header">Les candidats</h1>
+                <p>Donec id elit non mi porta gravida at eget metus. </p>
+            </a>
+            <a class="item" href="{{ page.employer }}">
+                <h1 class="ui medium header">Les employeurs</h1>
+                <p>Donec id elit non mi porta gravida at eget metus. </p>
+            </a>
+            <a class="item" href="{{ page.announce }}">
+                <h1 class="ui medium header">Les annonces</h1>
+                <p>Donec id elit non mi porta gravida at eget metus. </p>
+            </a>
+            <a class="item" href="{{ page.demande }}">
+                <h1 class="ui medium header">Les demandes</h1>
+                <p>Donec id elit non mi porta gravida at eget metus. </p>
+            </a>
+        </div>
     </div>
-    <div class="col-md-10">
+    <div class="column twelve wide">
         {% block content %}{% endblock %}
     </div>
 </div>

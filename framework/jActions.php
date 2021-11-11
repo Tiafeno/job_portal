@@ -264,17 +264,17 @@ function process_resend_verify_user_email()
     }
 
     // Afficher la banniere si le compte n'est pas encore verifié
-    $is_verify = get_user_meta($user_id, 'email_verify', true);
-    if (!$is_verify || intval($is_verify) === 0) {
-        $link_nonce = wp_create_nonce("jobjiaby_resend_verify");
-        $user = new WP_User($user_id);
-        $jj_messages[] = [
-            'type' => 'warning',
-            'msg' => "Bonjour {$user->display_name}, veuillez consulter {$user->user_email} pour terminer le processus d'inscription.",
-            'btn' => "Envoyer",
-            'btn_link' => home_url('/?e-verify-nonce=' . $link_nonce)
-        ];
-    }
+//    $is_verify = get_user_meta($user_id, 'email_verify', true);
+//    if (!$is_verify || intval($is_verify) === 0) {
+//        $link_nonce = wp_create_nonce("jobjiaby_resend_verify");
+//        $user = new WP_User($user_id);
+//        $jj_messages[] = [
+//            'type' => 'warning',
+//            'msg' => "{$user->display_name}, veuillez consulter {$user->user_email} pour terminer le processus d'inscription.",
+//            'btn' => "Envoyer",
+//            'btn_link' => home_url('/?e-verify-nonce=' . $link_nonce)
+//        ];
+//    }
 }
 
 add_action('demande_handler', function ()
@@ -304,7 +304,8 @@ add_action('demande_handler', function ()
                         $current_user_id = get_current_user_id();
                         $user = new WP_User($current_user_id);
                         if (!in_array('employer', $user->roles)) {
-                            $jj_notices[] = ['class' => 'negative', 'msg' => "Seul un compte employer peut faire cette demande" ];
+                            $jj_notices[] = ['class' => 'negative',
+                                'msg' => "Vous devriez être connecté en tant que recruteur pour faire la demande" ];
                             break;
                         }
 

@@ -44,19 +44,6 @@
         };
         const Layout = {
             template: '#layout-archive',
-            data: function () {
-                return {
-                    Wordpress: null
-                }
-            },
-            created: function () {
-                if (typeof apiSettings === 'undefined') return;
-                this.Wordpress = new WPAPI({
-                    endpoint: apiSettings.root,
-                    nonce: apiSettings.nonce
-                });
-            }
-
         };
         const ArchivesCandidate = {
             template: '#candidate-archive-item',
@@ -76,14 +63,20 @@
                     annonces: [],
                     categories: [],
                     wpAxiosInstance: null,
+                    wordpress: null,
                 }
             },
-            mounted: function () {
+            created: function () {
+                if (typeof apiSettings === 'undefined') return;
                 this.wpAxiosInstance = axios.create({
                     baseURL: apiSettings.root + 'wp/v2',
                     headers: {
                         'X-WP-Nonce': apiSettings.nonce
                     }
+                });
+                this.wordpress = new WPAPI({
+                    endpoint: apiSettings.root,
+                    nonce: apiSettings.nonce
                 });
                 this.init();
             },
@@ -91,7 +84,7 @@
                 init: async function () {
                     const self = this;
                     this.loading = true;
-                    this.request = this.$parent.Wordpress.users()
+                    this.request = this.wordpress.users()
                         //.param('roles', 'candidate') // Not allow for client not logged in
                         .param('validated', 1)
                         .param('has_cv', 1)
@@ -171,11 +164,12 @@
                 hasCandidateLanguage: function () {
                     return !lodash.isEmpty(this.crtCandidateLanguages);
                 },
-                statusToObj: function() {
+                statusToObj: function() { // je cherche ...
                     if (this.candidate === null) return null;
-                    return lodash.find(this.status, {'_id': this.candidate.cv_status});
+                    if (typeof this.candidate.status._id == 'undefined') return null;
+                    return lodash.find(this.status, {'_id': this.candidate.status._id});
                 },
-                getRegisterDate: function() {
+                getRegisterDate: function() { // Date d'inscription dans le site
                     return moment(this.candidate.registered_date).format('LLL');
                 }
             },
@@ -189,9 +183,7 @@
                     alertify.error("Une erreur s'est produit");
                     return;
                 }
-                let $encodeValue = lodash.cloneDeep(responseCandidate);
-                let $decodeValue = window.atob($encodeValue);
-                const Candidate = JSON.parse($decodeValue);
+                const Candidate = lodash.cloneDeep(responseCandidate);
                 let axiosInstance = axios.create({
                     baseURL: apiSettings.root + 'wp/v2',
                     headers: {
@@ -209,29 +201,16 @@
                         this.regions = lodash.clone(responses[2].data);
                         this.status = lodash.clone(responses[3].data);
                         // Populate
-                        let metaLanguages = Candidate.meta.languages;
-                        let useLg = lodash.isEmpty(metaLanguages) ? [] : JSON.parse(metaLanguages);
-                        useLg = lodash.map(useLg, lodash.parseInt);
-                        let crtCandidateLanguages = lodash.map(useLg, idLg => {
-                            let item = lodash.find(this.languages, {'id': idLg});
-                            if (lodash.isUndefined(item)) return null;
-                            return item;
-                        });
+                        let languages = Candidate.languages;
+                        let useLg = lodash.isEmpty(languages) ? [] : languages;
+                        this.crtCandidateLanguages = lodash.clone(useLg);
+
                         // item categories
-                        if (!lodash.isEmpty(Candidate.meta.categories)) {
-                            let idCategories = JSON.parse(Candidate.meta.categories); // Array return
-                            let itemCategories = lodash.map(idCategories, idCtg => {
-                                let item = lodash.find(this.categories, {'id': parseInt(idCtg, 10)});
-                                return lodash.isUndefined(item) ? null : item.name;
-                            });
-                            Candidate.itemCategories = lodash.compact(itemCategories);
-                        }
-                        this.crtCandidateLanguages = lodash.compact(crtCandidateLanguages);
+                        Candidate.itemCategories = lodash.clone(Candidate.categories);
                     }
                 ));
-                const meta = Candidate.meta;
-                this.experiences = JSON.parse(meta.experiences);
-                this.educations = JSON.parse(meta.educations);
+                this.experiences = Candidate.experiences;
+                this.educations = Candidate.educations;
                 this.candidate = lodash.clone(Candidate);
                 this.loading = false;
             }
@@ -257,10 +236,13 @@
         ];
         // short for `routes: routes`
         const router = new VueRouter({ routes  });
-        Vue.component('v-select', VueSelect.VueSelect);
-        new Vue({
-            el: '#candidate-archive',
-            router
+        wp.api.loadPromise.done( () => {
+            Vue.component('v-select', VueSelect.VueSelect);
+            new Vue({
+                el: '#candidate-archive',
+                router
+            });
         });
+
     });
 })(jQuery);

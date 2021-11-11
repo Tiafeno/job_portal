@@ -117,12 +117,12 @@ get_header();
                         <div class="detail-wrapper">
                             <div class="detail-wrapper-body">
                                 <div class="row">
-                                    <div class="col-md-7 user_profile_img mrg-bot-30">
-                                        <h2 class="meg-0 text-info">{{candidate.meta.reference}}</h2>
+                                    <div class="col-md-3 user_profile_img mrg-bot-30">
+                                        <h2 class="meg-0 text-info">{{candidate.reference}}</h2>
                                     </div>
-                                    <div class="col-md-5 user_job_detail">
+                                    <div class="col-md-9 user_job_detail">
                                         <div class="col-md-12 mrg-bot-10"><i class="ti-credit-card padd-r-10"></i>
-                                            {{ candidate.meta.gender === 'Mr' ? 'Homme' : 'Femme' }}
+                                            {{ candidate.gender }}
                                         </div>
                                         <div class="col-md-12 mrg-bot-10"> <i class="ti-shield padd-r-10"></i> Déposée le {{getRegisterDate}} </div>
                                     </div>
@@ -130,26 +130,26 @@ get_header();
                                 <div class="row mrg-top-30">
                                     <div class="col-md-6 mt-3">
                                         <p class="mb-1 font-bold">Emploi recherché:</p>
-                                        <span class="skill-tag" v-for="item in candidate.itemCategories">{{item}}</span>
+                                        <span class="skill-tag" v-for="item in candidate.itemCategories">{{item.name}}</span>
                                     </div>
 
                                     <div class="col-md-6 mt-3" v-if="false">
                                         <p class="mb-1 uk-text-bold">Permis de conduire:</p>
                                     </div>
 
-                                    <div class="col-md-6 mt-3">
+                                    <div class="col-md-6 mt-3" v-if="statusToObj != null">
                                         <p class="mb-1 font-bold">Statut du candidat:</p>
                                         <span v-if="candidate !== null">{{statusToObj.name}}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="detail-wrapper" v-if="candidate.meta.profil">
+                        <div class="detail-wrapper" v-if="candidate.profil">
                             <div class="detail-wrapper-header">
                                 <h4>Profil</h4>
                             </div>
                             <div class="detail-wrapper-body">
-                                <div v-html="candidate.meta.profil"></div>
+                                <div v-html="candidate.profil"></div>
                             </div>
                         </div>
                         <div class="detail-wrapper">
@@ -160,9 +160,9 @@ get_header();
                                 <div class="edu-history success" v-for="edu in educations" :key="edu._id">
                                     <i></i>
                                     <div class="detail-info">
-                                        <h3>{{edu.establishment}}</h3>
+                                        <h3 v-html="edu.establishment"></h3>
                                         <i>{{edu.b}} - {{edu.e}}</i>
-                                        <span>{{edu.diploma}}</span>
+                                        <span v-html="edu.diploma"></span>
                                     </div>
                                 </div>
                             </div>
@@ -175,10 +175,10 @@ get_header();
                                 <div class="edu-history success" v-for="exp in experiences" :key="exp._id">
                                     <i></i>
                                     <div class="detail-info">
-                                        <h3>{{exp.office}}</h3>
+                                        <h3 v-html="exp.office"></h3>
                                         <i>{{exp.b}} - {{exp.e ? exp.e : "Jusqu'a aujourd'hui"}}</i>
                                         <span>{{exp.enterprise}}</span>
-                                        <p>{{exp.desc}}</p>
+                                        <p v-html="exp.desc"></p>
                                     </div>
                                 </div>
                             </div>

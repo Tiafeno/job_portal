@@ -5,5 +5,25 @@ Demande
 {% endblock %}
 
 {% block content %}
-sdffsdfsdfsd
+<table class="ui inverted selectable right large aligned table">
+    <thead>
+    <tr><th class="left aligned">Reference</th>
+        <th>Type</th>
+        <th>Valider</th>
+        <th>Mail</th>
+        <th>Protein</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for candidate in candidates %}
+        <tr>
+            <td class="left aligned">{{ candidate.reference }}</td>
+            <td>{{ candidate.data.display_name }}</td>
+            <td> {% if candidate.validated == 1 %} Oui {% else %} Non {% endif %}</td>
+            <td>{{ candidate.data.user_email }}</td>
+            <td><a href="{{ page.edit_cv_page }}&id={{ candidate.ID }}" >Modifier</a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

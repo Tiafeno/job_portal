@@ -2,8 +2,12 @@
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/framework/jCron.php';
 
+use Doctrine\Common\Collections\ArrayCollection;
 use JP\Framework\Elements\jCandidate;
+use JP\Framework\Elements\JDemande;
 use JP\Framework\Elements\jpJobs;
+use JP\Framework\Traits\DemandeTrait;
+use Liquid\Liquid;
 use Liquid\Template;
 
 // Disable warning php error
@@ -43,7 +47,7 @@ $jj_errors = [];
 $jj_messages = [];
 $jj_notices = [];
 
-\Liquid\Liquid::set('INCLUDE_PREFIX', '');
+Liquid::set('INCLUDE_PREFIX', '');
 $Liquid_engine = new Template(__DIR__ . '/templates');
 $Liquid_engine->setCache(new \Liquid\Cache\Local());
 
@@ -280,77 +284,112 @@ function jobjiaby_admin_page_contents()
     try {
 
         $admin_dashboard_page_url = menu_page_url('jobjiaby-dashboard', false);
-        $cv_controller_url = add_query_arg(['controller' => 'cv'], $admin_dashboard_page_url);
-        $announce_controller_url = add_query_arg(['controller' => 'announce'], $admin_dashboard_page_url);
-        $demande_controller_url = add_query_arg(['controller' => 'demande'], $admin_dashboard_page_url);
+        $cv_controller_url = add_query_arg(['controller' => 'page-candidate'], $admin_dashboard_page_url);
+        $announce_controller_url = add_query_arg(['controller' => 'page-announce'], $admin_dashboard_page_url);
+        $demande_controller_url = add_query_arg(['controller' => 'page-demande'], $admin_dashboard_page_url);
+        $employer_controller_url = add_query_arg(['controller' => 'page-employer'], $admin_dashboard_page_url);
 
-        $controller = jTools::getValue('controller', 'demande');
-        $q_view = jTools::getValue('view', false);
+        $controller = jTools::getValue('controller', 'page-candidate');
 
-        $view = $q_view ? $q_view : 'index';
-
-        $data = [];
         $template_args = [
             'page' => [
                 'cv' => $cv_controller_url,
                 'announce' => $announce_controller_url,
                 'demande' => $demande_controller_url,
-                'edit_cv_page' => add_query_arg(['controller' => 'cv', 'view' => 'edit'], $admin_dashboard_page_url),
-                'edit_demande_page' => add_query_arg(['controller' => 'demande', 'view' => 'edit'], $admin_dashboard_page_url),
-                'edit_job_page' => add_query_arg(['controller' => 'announce', 'view' => 'edit'], $admin_dashboard_page_url)
+                'employer' => $employer_controller_url,
+                'edit_cv_page' => add_query_arg(['controller' => 'page-candidate-edit'], $admin_dashboard_page_url),
+                'edit_demande_page' => add_query_arg(['controller' => 'page-demande-edit'], $admin_dashboard_page_url),
+                'edit_employer_page' => add_query_arg(['controller' => 'page-employer-edit'], $admin_dashboard_page_url),
+                'edit_job_page' => add_query_arg(['controller' => 'page-announce-edit'], $admin_dashboard_page_url)
             ]
         ];
         switch ($controller) {
-            case 'cv':
-                if ($view == 'edit') {
-                    $nonce = jTools::getValue('edit-cv-nonce', false);
-                    if (wp_verify_nonce($nonce, 'edit-cv')) {
-
+            case 'page-candidate':
+                // todo pagination for user query
+                $args = ['role__in' => 'candidate', 'number' => -1];
+                $candidate_query = new WP_User_Query($args);
+                $candidates = $candidate_query->get_results();
+                if ($candidates) {
+                    foreach ($candidates as $candidate) {
+                        $data[] = (new jCandidate($candidate->ID))->getObject('edit');
                     }
-                    array_push($template_args, [
-                        'controller' => 'cv',
-                        'view' => 'edit',
-                        'data' => $data
-                    ]);
-                    break;
                 }
-
-                if ($view == 'index'){
-                    $args = ['role__in' => 'candidate', 'number' => -1];
-                    $candidate_query = new WP_User_Query($args);
-                    $candidates = $candidate_query->get_results();
-                    if ($candidates) {
-                        foreach ($candidates as $candidate) {
-                            $data[] = (new jCandidate($candidate->ID))->getObject('edit');
-                        }
-                    }
-                    array_push($template_args, [
-                        'controller' => 'cv',
-                        'view' => 'index',
-                        'data' => $data
-                    ]);
-                    break;
-                }
-
+                $template_args = array_merge($template_args, ['candidates' => $data]);
+                echo $engine->parseFile('admin/candidates')->render($template_args);
                 break;
-            case 'demande':
-                if ($view == 'index') {
-                    // List all demande
 
-                    array_push($template_args, [
-                        'controller' => 'cv',
-                        'view' => 'index',
-                        'data' => $data
-                    ]);
-                    echo $engine->parseFile('admin/demandes')->render($template_args);
-                    break;
+            case 'page-candidate-edit':
+                $candidate_id = (int)jTools::getValue('id', 0);
+                $candidate = new jCandidate($candidate_id);
+                if (0 === $candidate_id) {
+                    wp_redirect($cv_controller_url);
+                    exit();
                 }
+                $nonce = jTools::getValue('nonce', false);
+                if (wp_verify_nonce($nonce, 'edit-cv')) {
+
+                    // edit experience
+                    $experiences = $_POST['exp'];
+                    //$candidate->set('experiences', json_encode([]));
+                    if (is_array($experiences) && !empty($experiences)) {
+                        $experience_value = [];
+                        foreach ($experiences as $experience) {
+                            $experience['enterprise'] = htmlentities($experience['enterprise'] );
+                            $experience['office'] = htmlentities($experience['office'] );
+                            $experience['desc'] = htmlentities($experience['desc'] );
+                            $experience_value[] = (object)wp_unslash($experience);
+                        }
+                        $encode = json_encode($experience_value);
+                        $candidate->set('experiences', $encode);
+                        echo $encode;
+                    }
+
+                    // edit educations
+                    $educations = $_POST['edu'];
+                    $candidate->set('educations', json_encode([]));
+                    if (is_array($educations) && !empty($educations)) {
+                        $education_value = [];
+                        foreach ($educations as $education) {
+                            $education['establishment'] = htmlentities($education['establishment'] );
+                            $education_value[] = (object)wp_unslash($education);
+                        }
+                        //echo json_encode($education_value);
+                       $candidate->set('educations', json_encode($education_value));
+                    }
+                    // validation de compte
+                    $validated = jTools::getValue('validated', 0);
+                    $candidate->set('validated', intval($validated));
+
+                }
+
+                // Get candidat information
+                $candidate = (new jCandidate($candidate_id))->getObject('edit');
+                $nonce = wp_create_nonce("edit-cv");
+                $template_args = array_merge($template_args, ['candidate' => $candidate, 'nonceform' => $nonce]);
+                echo $engine->parseFile('admin/candidate-edit')->render($template_args);
+                break;
+
+            case 'page-demande':
+                // List all demande
+                $demandes = DemandeTrait::getDemandes();
+                if (is_array($demandes) && !empty($demandes)) {
+                    $demandeCollections = new ArrayCollection($demandes);
+                    $demandes = $demandeCollections->map(function(jDemande $demande) {
+                        return $demande->getObject('view');
+                    })->toArray();
+                    $template_args = array_merge($template_args, ['demandes' => $demandes]);
+                }
+                print_r($template_args);
+                echo $engine->parseFile('admin/demandes')->render($template_args);
                 break;
         }
 
 
     } catch (\Liquid\Exception\MissingFilesystemException $e) {
         echo $e->getMessage();
+    }
+    catch (Exception $exception) {
+        echo $exception->getMessage();
     }
 }
 

@@ -29,6 +29,7 @@ require 'traits/ProfilAccessTrait.php';
 
 // Class object
 require 'elements/jCandidate.php';
+require 'elements/jDemande.php';
 require 'elements/jpCompany.php';
 require 'elements/jpEmployer.php';
 require 'elements/jpJobs.php';

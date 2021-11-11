@@ -4,6 +4,8 @@
 namespace JP\Framework\Traits;
 
 
+use JP\Framework\Elements\JDemande;
+
 trait DemandeTrait
 {
     public static $tableName;
@@ -66,5 +68,17 @@ trait DemandeTrait
         $demande = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE ID = %d", $id));
         $wpdb->flush();
         return $demande;
+    }
+
+    public static function getDemandes() {
+        global $wpdb;
+        $responses = [];
+        $table = self::getTableName();
+        $demandes = $wpdb->get_results($wpdb->prepare("SELECT ID FROM $table"));
+        $wpdb->flush();
+        foreach ($demandes as $demande) {
+            $responses[] = new jDemande($demande->ID);
+        }
+        return $responses;
     }
 }

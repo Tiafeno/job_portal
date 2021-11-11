@@ -1,0 +1,175 @@
+{% extends "dashboard" %}
+
+{% block title %}
+Modifier candidat
+{% endblock %}
+
+{% block content %}
+<form action="" method="post">
+    <div class="column">
+        <div class="ui labeled input">
+            <a class="ui label">Prénom</a>
+            <input type="text" name="firstName" disabled="disabled" value="{{ candidate.first_name }}"
+                   placeholder="Prénom">
+        </div>
+        <div class="ui labeled input">
+            <a class="ui label">Nom</a>
+            <input type="text" name="lastName" disabled="disabled" value="{{ candidate.last_name }}"
+                   placeholder="Nom">
+        </div>
+    </div>
+    <div class="ui divider"></div>
+
+    <div class="column">
+        <div class="ui form">
+            <div class="inline fields">
+                <label for="validated">Activer ou désactiver le compte:</label>
+                <div class="field">
+                    <div class="ui radio checkbox">
+                        <input type="radio" name="validated" {% if candidate.validated == 1 %} checked="" {% endif %}
+                               tabindex="0" value="1" >
+                        <label>Activer</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui radio checkbox">
+                        <input type="radio" name="validated" {% if candidate.validated != 1 %} checked="" {% endif %}
+                               tabindex="0" value="0" >
+                        <label>Désactiver</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui divider"></div>
+    <h4 class="ui header">Educations</h4>
+    <div class="column">
+        {% for edu in candidate.educations %}
+            <input type="hidden" name="edu[{{ forloop.index0 }}][_id]" value="{{ edu._id }}">
+            <div class="ui form">
+                <div class="fields">
+                    <div class="field">
+                        <label>Etablisement</label>
+                        <input type="text" name="edu[{{ forloop.index0 }}][establishment]"
+                               value="{{ edu.establishment }}" placeholder="Placeholder...">
+                    </div>
+                    <div class="field">
+                        <label>Diplome</label>
+                        <input type="text" name="edu[{{ forloop.index0 }}][diploma]" value="{{ edu.diploma }}"
+                               placeholder="Placeholder...">
+                    </div>
+                    <div class="field">
+                        <label>Pays</label>
+                        <input type="text" name="edu[{{ forloop.index0 }}][country]" value="{{ edu.country }}"
+                               placeholder="Placeholder...">
+                    </div>
+                    <div class="field">
+                        <label>Ville</label>
+                        <input type="text" name="edu[{{ forloop.index0 }}][city]" value="{{ edu.city }}"
+                               placeholder="Placeholder...">
+                    </div>
+                    <div class="field">
+                        <label>Debut</label>
+                        <input type="text" name="edu[{{ forloop.index0 }}][b]" value="{{ edu.b }}"
+                               placeholder="Placeholder...">
+                    </div>
+                    <div class="field">
+                        <label>Fin</label>
+                        <input type="text" name="edu[{{ forloop.index0 }}][e]" value="{{ edu.e }}"
+                               placeholder="Placeholder...">
+                    </div>
+
+                </div>
+                <div class="ui form">
+                    <div class="inline fields">
+                        <label for="fruit">Activation: </label>
+                        <div class="field">
+                            <div class="ui radio checkbox">
+                                <input type="radio" tabindex="0" name="edu[{{ forloop.index0 }}][locked]" {% if edu.locked != 1 %} checked {% endif %} value="0">
+                                <label>Accepter</label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui radio checkbox">
+                                <input type="radio" tabindex="0"  name="edu[{{ forloop.index0 }}][locked]"{% if edu.locked == 1 %} checked {% endif %} value="1">
+                                <label>Refuser</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
+
+    <div class="ui divider"></div>
+    <h4 class="ui header">Experiences</h4>
+
+    <div class="column">
+        {% for exp in candidate.experiences %}
+            <input type="hidden" name="exp[{{ forloop.index0 }}][_id]" value="{{ exp._id }}">
+            <div class="ui form">
+                <div class="fields">
+                    <div class="field">
+                        <label>Poste</label>
+                        <input type="text" name="exp[{{ forloop.index0 }}][office]" value="{{ exp.office }}"
+                               placeholder="Poste">
+                    </div>
+                    <div class="field">
+                        <label>Pays</label>
+                        <input type="text" name="exp[{{ forloop.index0 }}][country]" value="{{ exp.country }}"
+                               placeholder="Pays">
+                    </div>
+                    <div class="field">
+                        <label>Entreprise</label>
+                        <input type="text" name="exp[{{ forloop.index0 }}][enterprise]" value="{{ exp.enterprise }}"
+                               placeholder="Entreprise">
+                    </div>
+                    <div class="field">
+                        <label>Ville</label>
+                        <input type="text" name="exp[{{ forloop.index0 }}][city]" value="{{ exp.city }}"
+                               placeholder="Ville">
+                    </div>
+                    <div class="field">
+                        <label>Debut</label>
+                        <input type="text" name="exp[{{ forloop.index0 }}][b]" value="{{ exp.b }}" placeholder="Date debut">
+                    </div>
+                    <div class="field">
+                        <label>Fin</label>
+                        <input type="text" name="exp[{{ forloop.index0 }}][e]" value="{{ exp.e }}" placeholder="Date fin">
+                    </div>
+                </div>
+                <div class="fields">
+                    <div class="field">
+                        <label>Description courte</label>
+                        <textarea name="exp[{{ forloop.index0 }}][desc]" rows="2">{{ exp.desc }}</textarea>
+                    </div>
+                </div>
+                <div class="ui form">
+                    <div class="inline fields">
+                        <label for="fruit">Activation: </label>
+                        <div class="field">
+                            <div class="ui radio checkbox">
+                                <input type="radio" tabindex="0" name="exp[{{ forloop.index0 }}][locked]" {% if exp.locked != 1 %} checked {% endif %} value="0">
+                                <label>Accepter</label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui radio checkbox">
+                                <input type="radio" tabindex="0"  name="exp[{{ forloop.index0 }}][locked]"{% if exp.locked == 1 %} checked {% endif %} value="1">
+                                <label>Refuser</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="ui divider"></div>
+
+    <input type="hidden" name="candidate_id" value="{{ candidate.ID }}">
+    <input type="hidden" name="nonce" value="{{ nonceform }}">
+    <button type="submit" class="ui button ">Enregistrer</button>
+</form>
+{% endblock %}

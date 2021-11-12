@@ -7,7 +7,7 @@ namespace JP\Framework\Elements;
 use JP\Framework\Traits\DemandeTrait;
 use JP\Framework\Traits\DemandeTypeTrait;
 
-class JDemande
+class jDemande
 {
     public $ID;
     public $user; // WP_User

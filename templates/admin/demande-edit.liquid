@@ -6,6 +6,7 @@ Traitement du demande
 {% endblock %}
 
 {% block content %}
+{% assign company = employer.company | company_object %}
 <div class="ui two column grid">
     <div class="row">
         <div class="column">
@@ -20,8 +21,16 @@ Traitement du demande
                         <td>
                             <h4 class="ui image header">
                                 <div class="content">
+                                    Nom de l'entreprise
+                                    <div class="sub header">{{ company.company_name }}</div>
+                                </div>
+                            </h4>
+                        </td>
+                        <td>
+                            <h4 class="ui image header">
+                                <div class="content">
                                     Nom
-                                    <div class="sub header">Human Resources</div>
+                                    <div class="sub header">{{ employer.first_name }}</div>
                                 </div>
                             </h4>
                         </td>
@@ -34,28 +43,41 @@ Traitement du demande
             <h2 class="ui header">
                 Demande
             </h2>
-            <div class="ui cards">
-                <div class="card">
-                    <div class="content">
-                        <img class="right floated mini ui image" src="/images/avatar/large/elliot.jpg">
-                        <div class="header">
-                            Elliot Fu
+            {% if demande.status == 1 %}
+                <div class="ui basic green button">Demande Approuvé</div>
+            {% endif %}
+
+            {% if demande.status == 2 %}
+                <div class="ui basic red button">Demande Rejeté</div>
+
+            {% endif %}
+            <form method="post" action="" class="padd-top-15">
+                <div class="ui cards">
+                    <div class="card">
+                        <div class="content">
+                            <div class="header">
+                                <a  href="{{ candidate.profil_url }}">{{ candidate.first_name }} {{ candidate.last_name }}</a>
+                            </div>
+                            <div class="meta">
+                                {{ candidate.reference }}
+                            </div>
+                            <div class="description">
+                                {{ candidate.profil }}
+                            </div>
                         </div>
-                        <div class="meta">
-                            Friends of Veronika
+                        {% if demande.status == 0 %}
+                        <div class="extra content">
+                            <div class="ui two buttons">
+                                <input type="hidden" name="nonce" value="{{ nonceform }}">
+                                <button type="submit" name="confirm" value="accept" class="ui basic green button">Approve</button>
+                                <button type="submit" name="confirm" value="reject" class="ui basic red button">Decline</button>
+                            </div>
                         </div>
-                        <div class="description">
-                            Elliot requested permission to view your contact details
-                        </div>
-                    </div>
-                    <div class="extra content">
-                        <div class="ui two buttons">
-                            <div class="ui basic green button">Approve</div>
-                            <div class="ui basic red button">Decline</div>
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
-            </div>
+            </form>
+
         </div>
     </div>
 </div>

@@ -4,7 +4,7 @@
 namespace JP\Framework\Traits;
 
 
-use JP\Framework\Elements\JDemande;
+use JP\Framework\Elements\jDemande;
 
 trait DemandeTrait
 {
@@ -17,7 +17,7 @@ trait DemandeTrait
     /**
      * @param int $status
      * @param int $id
-     * @return bool|int
+     * @return bool|int - The number of rows updated, or false on error.
      */
     public static function updateStatus(int $status = 0, int $id) {
         global $wpdb;
@@ -26,10 +26,15 @@ trait DemandeTrait
         return $updateDemande;
     }
 
+    /**
+     * @param int $id
+     * @return int
+     * 0: pending, 1: accept, 2: reject
+     */
     public static function getStatus(int $id) {
         global $wpdb;
         $table = self::getTableName();
-        $status = $wpdb->get_col($wpdb->prepare("SELECT status FROM $table WHERE ID = %d", $id));
+        $status = $wpdb->get_var($wpdb->prepare("SELECT status FROM $table WHERE ID = %d", $id));
         $wpdb->flush();
         return intval($status);
     }
@@ -57,6 +62,9 @@ trait DemandeTrait
                 $add_profil = ProfilAccessTrait::add(wp_generate_uuid4(), $employer_id, $candidate_id);
 
                 do_action('send_mail_demande_accepted', $id); //todo create mail body
+            }
+            if (0 === $status && 'DMD_CANDIDAT' === $type_demande_name) {
+                // reject demande
             }
         }
         return null;

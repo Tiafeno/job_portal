@@ -1,7 +1,7 @@
 <?php
 
 use JP\Framework\Elements\jCandidate;
-use JP\Framework\Elements\JDemande;
+use JP\Framework\Elements\jDemande;
 use JP\Framework\Elements\jpEmployer;
 use JP\Framework\Elements\jpJobs;
 
@@ -167,7 +167,7 @@ add_action('send_mail_demande_accepted', function($id_demande) {
 
 add_action('send_mail_on_demande_posted', function(int $id_demande) {
     global $engine;
-    $demande = new JDemande($id_demande);
+    $demande = new jDemande($id_demande);
     $type_demande_name = $demande->type_demande->name;
     switch ($type_demande_name){
         case 'DMD_CANDIDAT':

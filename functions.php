@@ -4,7 +4,8 @@ require_once __DIR__ . '/framework/jCron.php';
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JP\Framework\Elements\jCandidate;
-use JP\Framework\Elements\JDemande;
+use JP\Framework\Elements\jDemande;
+use JP\Framework\Elements\jpCompany;
 use JP\Framework\Elements\jpEmployer;
 use JP\Framework\Elements\jpJobs;
 use JP\Framework\Traits\DemandeTrait;
@@ -76,6 +77,10 @@ $engine->registerFilter('get_candidate_link', function ($candidate_id) {
 $engine->registerFilter('wp_user_object', function ($user) {
     if (!$user instanceof WP_User) return null;
     return $user->to_array();
+});
+$engine->registerFilter('company_object', function ($user) {
+    if (!$user instanceof jpCompany) return null;
+    return $user->getObject('edit');
 });
 
 //*****************************************************
@@ -292,6 +297,7 @@ function jobjiaby_admin_page_contents()
         $admin_dashboard_page_url = menu_page_url('jobjiaby-dashboard', false);
         $controller_url = add_query_arg(['controller' => ''], $admin_dashboard_page_url);
         $controller = jTools::getValue('controller', 'page-candidate');
+        $nonce = jTools::getValue('nonce', false);
         $template_args = [
             'controller' => $controller,
             'page' => [
@@ -328,7 +334,6 @@ function jobjiaby_admin_page_contents()
                     wp_redirect($template_args['page']['cv']);
                     exit();
                 }
-                $nonce = jTools::getValue('nonce', false);
                 if (wp_verify_nonce($nonce, 'edit-cv')) {
 
                     // edit experience
@@ -365,8 +370,8 @@ function jobjiaby_admin_page_contents()
 
                 // Get candidat information
                 $candidate = (new jCandidate($candidate_id))->getObject('edit');
-                $nonce = wp_create_nonce("edit-cv");
-                $template_args = array_merge($template_args, ['candidate' => $candidate, 'nonceform' => $nonce]);
+                $nonceform = wp_create_nonce("edit-cv");
+                $template_args = array_merge($template_args, ['candidate' => $candidate, 'nonceform' => $nonceform]);
                 echo $engine->parseFile('admin/candidate-edit')->render($template_args);
                 break;
 
@@ -389,13 +394,41 @@ function jobjiaby_admin_page_contents()
                 $demande = new jDemande($demande_id);
                 $demande_object = $demande->getObject('edit');
 
+                if (wp_verify_nonce($nonce, 'demande_validated')) {
+
+                    $confirmation = $_POST['confirm'];
+                    if ($confirmation == 'reject') {
+                        $status = DemandeTrait::updateStatus(2, $demande_id);
+                    }
+
+                    if ($confirmation == 'accept') {
+                        // When the demande is accepted
+                        $status = DemandeTrait::updateStatus(1, $demande_id);
+                    }
+                    DemandeTrait::traiter($demande_id); // Traiter la demande
+
+                    // override demande object
+                    $demande = new jDemande($demande_id);
+                    $demande_object = $demande->getObject('edit');
+                }
+
                 // detect role of user
                 $demandeur = $demande->user;
                 $role = reset($demandeur->roles); // role name
                 switch ($role) {
                     case 'employer':
-                    case 'administrator': // for test
                         $employer = new jpEmployer($demandeur->ID);
+                        $data_request = $demande->data_request; // object {candidate_id: x}
+                        if (isset($demande->type_demande->name) &&
+                            $demande->type_demande->name === 'DMD_CANDIDAT') {
+                            $candidate_id = (int)$data_request->candidate_id;
+                            $candidate = (new jCandidate($candidate_id))->getObject('edit');
+                            $template_args = array_merge($template_args, [
+                                'candidate' => $candidate,
+                                'employer' => $employer->getObject('edit'),
+                                'nonceform' => wp_create_nonce('demande_validated')
+                            ]);
+                        }
                         break;
                     case 'candidate':
                         break;

@@ -95,4 +95,17 @@ final class jpCompany extends \WP_User
         $validated = get_user_meta($this->ID, 'validated', false); // int|bool
         return $validated ? boolval($validated) : false;
     }
+
+    /**
+     * @param string $context
+     * @return array
+     */
+    public function getObject($context = 'view') {
+        if ($context === 'edit') {
+            return get_object_vars($this);
+        }
+        $clone = $this;
+        unset($clone->allcaps, $this->data, $this->avatar);
+        return get_object_vars($clone);
+    }
 }

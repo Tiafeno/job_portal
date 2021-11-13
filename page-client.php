@@ -6,7 +6,7 @@
 
 wp_enqueue_script(
     'comp-client',
-    get_stylesheet_directory_uri() . '/libs/component-client.js',
+    get_stylesheet_directory_uri() . '/assets/js/components/component-client.js',
     ['vue-router', 'axios', 'wpapi', 'wp-api', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'sortable', 'comp-login', 'vue-select'],
     null,
     true

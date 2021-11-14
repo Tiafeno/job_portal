@@ -941,13 +941,15 @@ const getFileReader = (file) => {
                                         description: company.description
                                     }
                                     this.loading = false;
+                                    this.afterLoadData();
+
                                 });
                             } else {
                                 this.loading = false;
                             }
                         }).catch((err) => {
                             this.loading = false;
-                        });
+                        })
                     });
 
                 },
@@ -1054,6 +1056,12 @@ const getFileReader = (file) => {
                         this.errorHandler(err);
                     });
                 },
+                afterLoadData: function() {
+                    setTimeout(() => {
+                        $('select').dropdown('restore defaults');
+                    }, 600);
+
+                },
                 errorHandler: function (response) {
                     alertify.alert(response.code, response.message);
                 },
@@ -1063,13 +1071,7 @@ const getFileReader = (file) => {
             },
             created: function () {
                 this.initComponent();
-            },
-            mounted: function () {
-                $('select').dropdown({
-                    clearable: true,
-                    placeholder: ''
-                });
-            },
+            }
         };
         const AnnonceComp = {
             template: "#client-annonce",

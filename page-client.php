@@ -233,7 +233,7 @@ get_header();
                                 <select v-model="formData.category" name="category" class="form-control ui dropdown"
                                         required>
                                     <option value="">Selectionner une catégorie</option>
-                                    <option :value="cat.id" :key="cat.id" v-for="cat in categories">{{ cat.name }}
+                                    <option :value="cat.id" v-for="cat in categories">{{ cat.name }}
                                     </option>
                                 </select>
                             </div>

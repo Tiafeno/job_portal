@@ -27,7 +27,7 @@ error_reporting(E_ERROR | E_PARSE);
  * Offre archives: /emploi
  * Entreprise: /companies
  * Enregistrement: /register
- * Candidat CV: /candidate-cv?eid={employer_id}&cid={candidate_id}tk={tk}
+ * Candidat CV: /candidate-cv?token={tk}
  *
  */
 

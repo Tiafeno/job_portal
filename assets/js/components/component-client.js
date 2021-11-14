@@ -81,8 +81,19 @@ const getFileReader = (file) => {
             const isPublic = user.validated; // boolean
             const hasCV = user.meta.has_cv; // boolean
             if (!hasCV) return "Indisponible";
-            return isPublic ? "Publier" : "En attent de validation";
+            return isPublic ? "Publié" : "En attent de validation";
 
+        });
+        Vue.filter('demandeStatus', function(demande) {
+            let status = demande.status;
+            let msg = status == 0 ? "En attente" : (status == 1 ? 'Validé' : 'Refusé');
+            return `<span class="mng-jb">${msg}</span>`;
+        });
+        Vue.filter('_buildCandidateUrl', function(candidate_id) {
+            return clientApiSettings.page_candidate + '#/candidate/' + candidate_id;
+        });
+        Vue.filter('_buildFullCandidateUrl', function(token) {
+            return clientApiSettings.page_cv + '?ref=' + token;
         });
         // Return random password
         const jobHTTPInstance = axios.create({
@@ -415,7 +426,7 @@ const getFileReader = (file) => {
                 'upload-avatar': _componentUploadAvatar
             },
             beforeRouteLeave(to, from, next) {
-                const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
+                const answer = window.confirm('Voulez-vous vraiment partir ?')
                 if (answer) {
                     next()
                 } else {
@@ -831,6 +842,26 @@ const getFileReader = (file) => {
                 }
             }
         };
+        const DemandeComp = {
+            template: '#demandes',
+            data() {
+                return {
+                    loading: false,
+                    demandes: []
+                }
+            },
+            mounted() {
+                const user_id = clientApiSettings.current_user_id;
+                this.loading = true;
+                jobAXIOSInstance.get(`/demandes/${user_id}`).then(resp => {
+                    this.demandes = resp.data;
+                    this.loading = false;
+                });
+            },
+            methods: {
+
+            }
+        };
         const CompanyComp = {
             template: '#create-company',
             components: {
@@ -1204,6 +1235,11 @@ const getFileReader = (file) => {
                     path: 'jobs',
                     name: 'Annonce',
                     component: AnnonceComp,
+                },
+                {
+                    path: 'demande',
+                    name: 'Demande',
+                    component: DemandeComp
                 },
                 {
                     path: 'company',

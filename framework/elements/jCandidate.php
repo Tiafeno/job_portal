@@ -218,6 +218,14 @@ class jCandidate extends \WP_User
         }
     }
 
+    public function getStatusName() {
+        if (empty($this->status) || is_null($this->status)) return null;
+        if ($this->status instanceof \stdClass) {
+            return $this->status->name;
+        }
+        return null;
+    }
+
     /**
      * @param $key
      * @param $value

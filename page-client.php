@@ -17,7 +17,8 @@ wp_localize_script('comp-client', 'clientApiSettings', [
     'nonce' => wp_create_nonce('wp_rest'),
     'nonce_form' => wp_create_nonce('ajax-client-form'),
     'current_user_id' => intval(get_current_user_id()),
-    'page_candidate' => home_url('/candidate/')
+    'page_candidate' => home_url('/candidate/'),
+    'page_cv' => home_url('/candidate-cv/')
 ]);
 
 get_header();
@@ -106,6 +107,11 @@ get_header();
                                 <li v-if="isEmployer">
                                     <router-link :to="{ path: '/company' }"><i class="login-icon ti-dashboard"></i>
                                         Entreprise
+                                    </router-link>
+                                </li>
+                                <li>
+                                    <router-link :to="{ path: '/demande' }"><i class="login-icon ti-dashboard"></i>
+                                        Demandes
                                     </router-link>
                                 </li>
                             </ul>
@@ -404,15 +410,65 @@ get_header();
         </section>
     </script>
     <!--Annonce handler template-->
+    <script type="text/x-template" id="demandes">
+        <!-- ======================== Manage Job ========================= -->
+        <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
+            <h1 class="ui aligned left header">
+                <div class="content">
+                    Demandes
+                </div>
+            </h1>
+            <div class="table-responsive">
+                <div v-if="loading">Chargement en cours...</div>
+                <div class="alert alert-secondary" role="alert" v-if="demandes.length <= 0 && !loading">
+                    Vous n'avez pas de demande
+                </div>
+                <table class="ui compact celled definition table" v-if="demandes.length > 0 && !loading">
+                    <thead class="full-width">
+                    <tr>
+                        <th>Référence</th>
+                        <th>Statut</th>
+                        <th>Caractéristique</th>
+                        <th>Type de demande</th>
+                        <th>Description du demande</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="demande in demandes">
+                        <td>{{ demande.ID }}</td>
+                        <td><span v-html="$options.filters.demandeStatus(demande)"></span></td>
+                        <td>
+                            <span  v-if="demande.type_demande.name == 'DMD_CANDIDAT'">
+                                <a :href="demande.data_request.candidate_id | _buildCandidateUrl" class="mng-jb" target="_blank">
+                                    CV{{ demande.data_request.candidate_id}}
+                                </a>
+                            </span>
+                        </td>
+                        <td>{{ demande.type_demande.name == "DMD_CANDIDAT" ? "Demande de consultation": "Autre.."}}</td>
+                        <td>{{ demande.type_demande.description }}</td>
+                        <td><a :href="demande.reference" target="_blank" v-if="demande.status === 1">
+                                <i class="eye icon"></i> Voir
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="clearfix"></div>
+        </section>
+        <!-- ====================== End Manage Company ================ -->
+    </script>
+    <!--Annonce handler template-->
     <script type="text/x-template" id="client-annonce">
         <!-- ======================== Manage Job ========================= -->
         <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
-            <h2 class="ui aligned left header">
+            <h1 class="ui aligned left header">
                 <div class="content">
                     Mes annonces
                     <div class="sub header">Tous vos annonces se trouvent ici</div>
                 </div>
-            </h2>
+            </h1>
             <div class="table-responsive">
                 <div v-if="loading">Chargement en cours...</div>
                 <div class="alert alert-secondary" role="alert" v-if="annonces.length <= 0 && !loading">Vous n'avez pas

@@ -160,9 +160,25 @@ add_action('send_mail_when_publish_emploi', function($job_id) {
     wp_mail($employer->user_email, $subject, $content, $headers);
 }, 10, 1);
 
-add_action('send_mail_demande_accepted', function($id_demande) {
-    // todo envoyer mail au client
+add_action('send_mail_demande_candidate_accepted', function($id_demande) {
+    global $engine;
+    $subject = "Votre demande sur jobjiaby a été validé";
+    $headers = [];
+    $headers[] = 'Content-Type: text/html; charset=UTF-8';
+    $headers[] = "From: Jobjiaby <no-reply@jobjiaby.com>";
 
+    $custom_logo_id = get_theme_mod('custom_logo');
+    $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
+
+    $demande = new jDemande($id_demande);
+
+    $content = $engine->parseFile('mails/notice_demande__candidate_accepted')->render([
+        'demande' => $demande->getObject('edit'),
+        'home_url' => home_url("/"),
+        'link' => home_url("/espace-client/#/demande"),
+        'logo' => $logo[0]
+    ]);
+    wp_mail($demande->user->user_email, $subject, $content, $headers);
 }, 10, 1);
 
 add_action('send_mail_on_demande_posted', function(int $id_demande) {

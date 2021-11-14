@@ -14,6 +14,14 @@ trait DemandeTrait
         return self::$tableName = $wpdb->prefix . 'demande';
     }
 
+    public static function byToken($token) {
+        global $wpdb;
+        $table = self::getTableName();
+        $demande_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM $table WHERE reference = %s", $token));
+        $wpdb->flush();
+        return new jDemande(intval($demande_id));
+    }
+
     /**
      * @param int $status
      * @param int $id
@@ -40,7 +48,7 @@ trait DemandeTrait
     }
 
     /**
-     * @param int $id
+     * @param int $id - demande id
      * @return object|null
      */
     public static function traiter(int $id): ?object {
@@ -61,7 +69,7 @@ trait DemandeTrait
                 // generate pursache key
                 $add_profil = ProfilAccessTrait::add(wp_generate_uuid4(), $employer_id, $candidate_id);
 
-                do_action('send_mail_demande_accepted', $id); //todo create mail body
+                do_action('send_mail_demande_candidate_accepted', $id);
             }
             if (0 === $status && 'DMD_CANDIDAT' === $type_demande_name) {
                 // reject demande
@@ -83,6 +91,18 @@ trait DemandeTrait
         $responses = [];
         $table = self::getTableName();
         $demandes = $wpdb->get_results($wpdb->prepare("SELECT ID FROM $table"));
+        $wpdb->flush();
+        foreach ($demandes as $demande) {
+            $responses[] = new jDemande($demande->ID);
+        }
+        return $responses;
+    }
+
+    public static function getAccountDemande($user_id) {
+        global $wpdb;
+        $responses = [];
+        $table = self::getTableName();
+        $demandes = $wpdb->get_results($wpdb->prepare("SELECT ID FROM $table WHERE user_id = %d", intval($user_id)));
         $wpdb->flush();
         foreach ($demandes as $demande) {
             $responses[] = new jDemande($demande->ID);

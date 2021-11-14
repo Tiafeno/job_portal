@@ -426,7 +426,6 @@ get_header();
                 <table class="ui compact celled definition table" v-if="demandes.length > 0 && !loading">
                     <thead class="full-width">
                     <tr>
-                        <th>Référence</th>
                         <th>Statut</th>
                         <th>Caractéristique</th>
                         <th>Type de demande</th>
@@ -435,8 +434,7 @@ get_header();
                     </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="demande in demandes">
-                        <td>{{ demande.ID }}</td>
+                    <tr v-for="demande in demandes" :key="demande.ID">
                         <td><span v-html="$options.filters.demandeStatus(demande)"></span></td>
                         <td>
                             <span  v-if="demande.type_demande.name == 'DMD_CANDIDAT'">
@@ -447,7 +445,7 @@ get_header();
                         </td>
                         <td>{{ demande.type_demande.name == "DMD_CANDIDAT" ? "Demande de consultation": "Autre.."}}</td>
                         <td>{{ demande.type_demande.description }}</td>
-                        <td><a :href="demande.reference" target="_blank" v-if="demande.status === 1">
+                        <td><a :href="demande.reference | _buildFullCandidateUrl" target="_blank" v-if="demande.status === 1">
                                 <i class="eye icon"></i> Voir
                             </a>
                         </td>

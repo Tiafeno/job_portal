@@ -127,7 +127,7 @@ get_header();
 
                     <div class="detail-wrapper">
                         <div class="detail-wrapper-body">
-                            <h4>Competences</h4>
+                            <h4>Compétences</h4>
                             <div class="row mrg-top-30">
 
                                 <div class="col-md-6">

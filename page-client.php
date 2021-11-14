@@ -64,10 +64,16 @@ get_header();
             font-size: 11px;
         }
         input.form-control,
-        select.form-control
-        {
+        select.form-control {
             font-size: 12px !important;
             height: 40px !important;
+        }
+        span.sub-description {
+            font-size: 11px;
+            font-weight: 400;
+            color: #c3562c;
+            line-height: 18px;
+            display: block;
         }
 
     </style>
@@ -211,7 +217,7 @@ get_header();
                 <div></div>
                 <div></div>
             </div>
-            <div class="" v-if="!loading">
+            <div class="">
                 <form class="c-form" @submit="checkForm" method="post" action="" novalidate>
                     <!-- General Information -->
                     <div class="row">
@@ -258,16 +264,21 @@ get_header();
                                    class="form-control" placeholder="Adresse email" required>
                             <span class="sub-description" style="color:red">Ne pas utiliser l'adresse email de votre compte actuel.</span>
                         </div> -->
-                        <div class="col-md-4 col-sm-6 col-xs-12">
-                            <label>Adresse physique de l'entreprise <span style="color: red">*</span></label>
-                            <input type="text" v-model="formData.address" name="address" class="form-control"
-                                   placeholder="Adresse physique de l'entreprise" required>
+                        <div class="col-xs-12 mrg-bot-30">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <label>Adresse physique de l'entreprise <span style="color: red">*</span></label>
+                                <input type="text" v-model="formData.address" name="address" class="form-control"
+                                       placeholder="Adresse physique de l'entreprise" required>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <label>Numéro de téléphone</label>
+                                <input type="text" v-model="formData.phone" name="phone" class="form-control"
+                                       placeholder="03XX XXX XX">
+                                <span class="sub-description">Exemple de numéro de téléphone valide,<br> ex: 032 XX XXX XX</span>
+                            </div>
                         </div>
-                        <div class="col-md-4 col-sm-6 col-xs-12">
-                            <label>Numéro de téléphone</label>
-                            <input type="text" v-model="formData.phone" name="phone" class="form-control"
-                                   placeholder="+2613XX XXX XX">
-                        </div>
+
+
                         <div class="clearfix"></div>
                         <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
                             <label>Pays <span style="color: red">*</span></label>
@@ -327,8 +338,8 @@ get_header();
                     <div class="row">
                         <div class="col-md-4">
                             <div class="text-center">
-                                <button type="submit" :disabled="loading" class="btn btn-success">Enregistrer mon
-                                    entreprise
+                                <button type="submit" :disabled="loading" class="btn btn-success">
+                                    Enregistrer mon entreprise
                                 </button>
                             </div>
                         </div>

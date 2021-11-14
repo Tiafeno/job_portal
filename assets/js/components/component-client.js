@@ -955,16 +955,17 @@ const getFileReader = (file) => {
                     e.preventDefault();
                     this.errors = [];
                     const data = this.formData;
-                    var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+                    const validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+                    const phoneRegex = /^\+?\d{2}[- ]?\d{3}[- ]?\d{5}$/;
                     if (lodash.isEmpty(data.name)) {
                         this.errors.push('Le titre est requis');
                     }
                     if (data.category === "" || data.category === " ") {
                         this.errors.push('Champ categorie est requis');
                     }
-                    // if (lodash.isEmpty(data.email) || !data.email.match(validRegex)) {
-                    //     this.errors.push('Le champ email est requis ou verifier que c\'est une adresse email valide');
-                    // }
+                    if (lodash.isEmpty(data.phone) || !data.phone.match(phoneRegex)) {
+                        this.errors.push('Le numéro de téléphone est requis ou verifier que c\'est un numéro valide');
+                    }
                     if (lodash.isEmpty(data.nif)) {
                         this.errors.push('Champ "NIF" est requis');
                     }
@@ -1045,7 +1046,7 @@ const getFileReader = (file) => {
                         this.wpapi.users().me().update({
                             meta: {company_id: user.id}
                         }).then(() => {
-                            alertify.notify("Donnee mis a jour avec succes", 'success');
+                            alertify.notify("Données mis a jour avec succes", 'success');
                             this.loading = false;
                         });
                     }).catch(err => {

@@ -98,6 +98,7 @@ get_header();
                                 <div class="detail-info">
                                     <h3 class="info"><?= $edu->establishment ?></h3>
                                     <i><?= $edu->b ?> - <?= $edu->e ? $edu->e : "Jusqu'a aujourd'hui" ?></i>
+                                    <span><?= $edu->diploma ?> (<?= $edu->city ?>, <?= $edu->country ?>)</span>
                                     <span><?= $edu->desc ?></span>
                                 </div>
                             </div>
@@ -115,9 +116,9 @@ get_header();
                             <div class="edu-history info" id="<?= $exp->_id ?>">
                                 <i></i>
                                 <div class="detail-info">
-                                    <h3><?= $exp->office ?></h3>
+                                    <h3><?= $exp->office ?> </h3>
                                     <i><?= $exp->b ?> - <?= $exp->e ? $exp->e : "Jusqu'a aujourd'hui" ?></i>
-                                    <span><?= $exp->enterprise ?></span>
+                                    <span><?= $exp->enterprise ?> (<?= $exp->city ?>, <?= $exp->country ?>)</span>
                                     <p ><?= $exp->desc ?></p>
                                 </div>
                             </div>

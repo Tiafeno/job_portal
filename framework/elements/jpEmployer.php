@@ -45,6 +45,7 @@ class jpEmployer extends \WP_User
 
     /**
      * @return bool
+     * return true if user is valid, otherwise false
      */
     public function validated(): bool
     {

@@ -252,7 +252,7 @@ get_header();
                             </div>
                         </div>
 
-                        <upload-avatar :userid="company_account.id"
+                        <upload-avatar v-if="company_account.id !== undefined" :userid="company_account.id"
                                        :title="'Ajouter un logo'"
                                        :wpapi="wpapi"></upload-avatar>
 
@@ -551,7 +551,7 @@ get_header();
                     <div class="col-md-12 col-sm-12">
                         <div class="detail-wrapper">
                             <div class="row mrg-top-30">
-                                <upload-avatar :userid="currentUser.id"
+                                <upload-avatar v-if="currentUser.id !== undefined" :userid="currentUser.id"
                                                :title="'Ajouter une photo'"
                                                :wpapi="$parent.Wordpress"
                                                v-if="currentUser !== null"></upload-avatar>

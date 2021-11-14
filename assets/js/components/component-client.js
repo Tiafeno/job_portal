@@ -156,7 +156,9 @@ const getFileReader = (file) => {
                 },
                 __putUserAvatar: function(media) {
                     // Your media is now uploaded: let's associate it with a post
-                    this.wpapi.users().id(this.userid).update({avatar: media.id})
+                    this.wpapi.users()
+                        .id(this.userid)
+                        .update({avatar: media.id})
                         .then(resp => {
                             this.loading = false;
                             alertify.notify("Photo de profil mis a jour avec succes", 'success');
@@ -164,15 +166,19 @@ const getFileReader = (file) => {
                 }
             },
             created: function () {
-                this.btnTitle = this.title;
-                // build url
-                const ABS = '/';
-                const wpUserModel = new wp.api.models.User({id: this.userid});
-                wpUserModel.fetch().done(u => {
-                    const avatar = u.avatar;
-                    if (lodash.isEmpty(avatar)) return;
-                    this.defaultPreviewLogo = avatar.upload_dir.baseurl + ABS + avatar.image.file;
+                wp.api.loadPromise.done(() => {
+                    this.btnTitle = this.title;
+                    // build url
+                    const ABS = '/';
+                    const uModel = new wp.api.models.User({id: this.userid});
+                    uModel.fetch().done(u => {
+                        console.log(this.userid);
+                        const avatar = u.avatar;
+                        if (lodash.isEmpty(avatar)) return;
+                        this.defaultPreviewLogo = avatar.upload_dir.baseurl + ABS + avatar.image.file;
+                    });
                 });
+
             },
             delimiters: ['${', '}'],
         };
@@ -913,8 +919,7 @@ const getFileReader = (file) => {
                                 this.categories = lodash.clone(wpapiAll[0]);
                                 this.countries = lodash.clone(wpapiAll[1]);
                             }
-                        )).catch(errors => {
-                        });
+                        ));
                         this.wpapi.users().me().context('edit').then((response) => {
                             const me = lodash.cloneDeep(response);
                             const hasCompany = me.meta.company_id !== 0;

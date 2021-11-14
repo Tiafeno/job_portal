@@ -1,6 +1,7 @@
 <?php
 
 use JP\Framework\Elements\jCandidate;
+use JP\Framework\Elements\jpEmployer;
 use JP\Framework\Traits\DemandeTrait;
 use JP\Framework\Traits\DemandeTypeTrait;
 
@@ -306,6 +307,21 @@ add_action('demande_handler', function ()
                         if (!in_array('employer', $user->roles)) {
                             $jj_notices[] = ['class' => 'negative',
                                 'msg' => "Vous devriez être connecté en tant que recruteur pour faire la demande" ];
+                            break;
+                        }
+
+                        // Verifier auel'employer possede un compte entreprise valide
+                        $employer = new jpEmployer($current_user_id);
+
+                        if ($employer->isBlocked() || $employer->validated()) {
+                            $jj_notices[] = ['class' => 'negative',
+                                'msg' => "Votre compte est en attente de validation. Vous recevez un mail de confirmation." ];
+                            break;
+                        }
+
+                        if (!$employer->has_company()) {
+                            $jj_notices[] = ['class' => 'negative',
+                                'msg' => "Veuillez remplir les informations concernant votre entreprise pour continuer." ];
                             break;
                         }
 

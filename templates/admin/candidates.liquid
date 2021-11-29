@@ -31,4 +31,12 @@ Candidates
     {% endfor %}
     </tbody>
 </table>
+<div class="ui pagination menu" style="padding-top:0px">
+    {% assign total_pages = pagination.total_pages %}
+    {% for i in (1..total_pages) %}
+        <a class="item {% if i ==  pagination.current_page %}active{% endif %}" href="{{ page.cv }}&paged={{ i }}">
+            {{ i }}
+        </a>
+    {% endfor %}
+</div>
 {% endblock %}

@@ -6,7 +6,7 @@
 
 wp_enqueue_script(
     'comp-archive-candidate',
-    get_stylesheet_directory_uri() . '/libs/comp-archive-candidate.js',
+    get_stylesheet_directory_uri() . '/assets/js/components/comp-archive-candidate.js',
     ['vue-router', 'axios', 'wpapi', 'wp-api', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'vue-select', 'momentjs'],
     null,
     true
@@ -162,7 +162,7 @@ get_header();
                                     <div class="detail-info">
                                         <h3 v-html="edu.establishment"></h3>
                                         <i>{{edu.b}} - {{edu.e}}</i>
-                                        <span v-html="edu.diploma"></span>
+                                        <span>{{ edu.diploma }} ({{ edu.city }}, {{ edu.country }})</span>
                                     </div>
                                 </div>
                             </div>
@@ -177,7 +177,7 @@ get_header();
                                     <div class="detail-info">
                                         <h3 v-html="exp.office"></h3>
                                         <i>{{exp.b}} - {{exp.e ? exp.e : "Jusqu'a aujourd'hui"}}</i>
-                                        <span>{{exp.enterprise}}</span>
+                                        <span>{{exp.enterprise}} ({{ exp.city }}, {{ exp.country }})</span>
                                         <p v-html="exp.desc"></p>
                                     </div>
                                 </div>

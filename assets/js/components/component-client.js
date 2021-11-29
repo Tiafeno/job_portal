@@ -81,8 +81,19 @@ const getFileReader = (file) => {
             const isPublic = user.validated; // boolean
             const hasCV = user.meta.has_cv; // boolean
             if (!hasCV) return "Indisponible";
-            return isPublic ? "Publier" : "En attent de validation";
+            return isPublic ? "Publié" : "En attent de validation";
 
+        });
+        Vue.filter('demandeStatus', function(demande) {
+            let status = demande.status;
+            let msg = status == 0 ? "En attente" : (status == 1 ? 'Validé' : 'Refusé');
+            return `<span class="mng-jb">${msg}</span>`;
+        });
+        Vue.filter('_buildCandidateUrl', function(candidate_id) {
+            return clientApiSettings.page_candidate + '#/candidate/' + candidate_id;
+        });
+        Vue.filter('_buildFullCandidateUrl', function(token) {
+            return clientApiSettings.page_cv + '?ref=' + token;
         });
         // Return random password
         const jobHTTPInstance = axios.create({
@@ -145,7 +156,9 @@ const getFileReader = (file) => {
                 },
                 __putUserAvatar: function(media) {
                     // Your media is now uploaded: let's associate it with a post
-                    this.wpapi.users().id(this.userid).update({avatar: media.id})
+                    this.wpapi.users()
+                        .id(this.userid)
+                        .update({avatar: media.id})
                         .then(resp => {
                             this.loading = false;
                             alertify.notify("Photo de profil mis a jour avec succes", 'success');
@@ -153,15 +166,19 @@ const getFileReader = (file) => {
                 }
             },
             created: function () {
-                this.btnTitle = this.title;
-                // build url
-                const ABS = '/';
-                const wpUserModel = new wp.api.models.User({id: this.userid});
-                wpUserModel.fetch().done(u => {
-                    const avatar = u.avatar;
-                    if (lodash.isEmpty(avatar)) return;
-                    this.defaultPreviewLogo = avatar.upload_dir.baseurl + ABS + avatar.image.file;
+                wp.api.loadPromise.done(() => {
+                    this.btnTitle = this.title;
+                    // build url
+                    const ABS = '/';
+                    const uModel = new wp.api.models.User({id: this.userid});
+                    uModel.fetch().done(u => {
+                        console.log(this.userid);
+                        const avatar = u.avatar;
+                        if (lodash.isEmpty(avatar)) return;
+                        this.defaultPreviewLogo = avatar.upload_dir.baseurl + ABS + avatar.image.file;
+                    });
                 });
+
             },
             delimiters: ['${', '}'],
         };
@@ -415,7 +432,7 @@ const getFileReader = (file) => {
                 'upload-avatar': _componentUploadAvatar
             },
             beforeRouteLeave(to, from, next) {
-                const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
+                const answer = window.confirm('Voulez-vous vraiment partir ?')
                 if (answer) {
                     next()
                 } else {
@@ -831,6 +848,26 @@ const getFileReader = (file) => {
                 }
             }
         };
+        const DemandeComp = {
+            template: '#demandes',
+            data() {
+                return {
+                    loading: false,
+                    demandes: []
+                }
+            },
+            mounted() {
+                const user_id = clientApiSettings.current_user_id;
+                this.loading = true;
+                jobAXIOSInstance.get(`/demandes/${user_id}`).then(resp => {
+                    this.demandes = resp.data;
+                    this.loading = false;
+                });
+            },
+            methods: {
+
+            }
+        };
         const CompanyComp = {
             template: '#create-company',
             components: {
@@ -882,8 +919,7 @@ const getFileReader = (file) => {
                                 this.categories = lodash.clone(wpapiAll[0]);
                                 this.countries = lodash.clone(wpapiAll[1]);
                             }
-                        )).catch(errors => {
-                        });
+                        ));
                         this.wpapi.users().me().context('edit').then((response) => {
                             const me = lodash.cloneDeep(response);
                             const hasCompany = me.meta.company_id !== 0;
@@ -910,13 +946,15 @@ const getFileReader = (file) => {
                                         description: company.description
                                     }
                                     this.loading = false;
+                                    this.afterLoadData();
+
                                 });
                             } else {
                                 this.loading = false;
                             }
                         }).catch((err) => {
                             this.loading = false;
-                        });
+                        })
                     });
 
                 },
@@ -924,16 +962,17 @@ const getFileReader = (file) => {
                     e.preventDefault();
                     this.errors = [];
                     const data = this.formData;
-                    var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+                    const validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+                    const phoneRegex = /^\+?\d{2}[- ]?\d{3}[- ]?\d{5}$/;
                     if (lodash.isEmpty(data.name)) {
                         this.errors.push('Le titre est requis');
                     }
                     if (data.category === "" || data.category === " ") {
                         this.errors.push('Champ categorie est requis');
                     }
-                    // if (lodash.isEmpty(data.email) || !data.email.match(validRegex)) {
-                    //     this.errors.push('Le champ email est requis ou verifier que c\'est une adresse email valide');
-                    // }
+                    if (lodash.isEmpty(data.phone) || !data.phone.match(phoneRegex)) {
+                        this.errors.push('Le numéro de téléphone est requis ou verifier que c\'est un numéro valide');
+                    }
                     if (lodash.isEmpty(data.nif)) {
                         this.errors.push('Champ "NIF" est requis');
                     }
@@ -1014,13 +1053,19 @@ const getFileReader = (file) => {
                         this.wpapi.users().me().update({
                             meta: {company_id: user.id}
                         }).then(() => {
-                            alertify.notify("Donnee mis a jour avec succes", 'success');
+                            alertify.notify("Données mis a jour avec succes", 'success');
                             this.loading = false;
                         });
                     }).catch(err => {
                         this.loading = false;
                         this.errorHandler(err);
                     });
+                },
+                afterLoadData: function() {
+                    setTimeout(() => {
+                        $('select').dropdown('restore defaults');
+                    }, 600);
+
                 },
                 errorHandler: function (response) {
                     alertify.alert(response.code, response.message);
@@ -1031,13 +1076,7 @@ const getFileReader = (file) => {
             },
             created: function () {
                 this.initComponent();
-            },
-            mounted: function () {
-                $('select').dropdown({
-                    clearable: true,
-                    placeholder: ''
-                });
-            },
+            }
         };
         const AnnonceComp = {
             template: "#client-annonce",
@@ -1204,6 +1243,11 @@ const getFileReader = (file) => {
                     path: 'jobs',
                     name: 'Annonce',
                     component: AnnonceComp,
+                },
+                {
+                    path: 'demande',
+                    name: 'Demande',
+                    component: DemandeComp
                 },
                 {
                     path: 'company',

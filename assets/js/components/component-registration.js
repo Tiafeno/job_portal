@@ -1,4 +1,12 @@
 (function($) {
+    $.validator.addMethod(
+        "phone",
+        function(value, element, regexp) {
+            var re = new RegExp(regexp);
+            return this.optional(element) || re.test(value);
+        },
+        "Numéro de téléphone invalide."
+    );
     $().ready(function() {
         var registerForm = $("#register-form");
         if (registerForm.length > 0) {
@@ -22,6 +30,10 @@
                     email: {
                         required: true,
                         email: true
+                    },
+                    phone : {
+                        phone : /^\+?\d{2}[- ]?\d{3}[- ]?\d{5}$/,
+                        minlength: 10
                     }
                 },
                 messages: {

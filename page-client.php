@@ -6,7 +6,7 @@
 
 wp_enqueue_script(
     'comp-client',
-    get_stylesheet_directory_uri() . '/libs/component-client.js',
+    get_stylesheet_directory_uri() . '/assets/js/components/component-client.js',
     ['vue-router', 'axios', 'wpapi', 'wp-api', 'jquery', 'bluebird', 'lodash', 'paginationjs', 'sortable', 'comp-login', 'vue-select'],
     null,
     true
@@ -17,7 +17,8 @@ wp_localize_script('comp-client', 'clientApiSettings', [
     'nonce' => wp_create_nonce('wp_rest'),
     'nonce_form' => wp_create_nonce('ajax-client-form'),
     'current_user_id' => intval(get_current_user_id()),
-    'page_candidate' => home_url('/candidate/')
+    'page_candidate' => home_url('/candidate/'),
+    'page_cv' => home_url('/candidate-cv/')
 ]);
 
 get_header();
@@ -63,10 +64,16 @@ get_header();
             font-size: 11px;
         }
         input.form-control,
-        select.form-control
-        {
+        select.form-control {
             font-size: 12px !important;
             height: 40px !important;
+        }
+        span.sub-description {
+            font-size: 11px;
+            font-weight: 400;
+            color: #c3562c;
+            line-height: 18px;
+            display: block;
         }
 
     </style>
@@ -106,6 +113,11 @@ get_header();
                                 <li v-if="isEmployer">
                                     <router-link :to="{ path: '/company' }"><i class="login-icon ti-dashboard"></i>
                                         Entreprise
+                                    </router-link>
+                                </li>
+                                <li>
+                                    <router-link :to="{ path: '/demande' }"><i class="login-icon ti-dashboard"></i>
+                                        Demandes
                                     </router-link>
                                 </li>
                             </ul>
@@ -205,7 +217,7 @@ get_header();
                 <div></div>
                 <div></div>
             </div>
-            <div class="" v-if="!loading">
+            <div class="">
                 <form class="c-form" @submit="checkForm" method="post" action="" novalidate>
                     <!-- General Information -->
                     <div class="row">
@@ -221,7 +233,7 @@ get_header();
                                 <select v-model="formData.category" name="category" class="form-control ui dropdown"
                                         required>
                                     <option value="">Selectionner une catégorie</option>
-                                    <option :value="cat.id" :key="cat.id" v-for="cat in categories">{{ cat.name }}
+                                    <option :value="cat.id" v-for="cat in categories">{{ cat.name }}
                                     </option>
                                 </select>
                             </div>
@@ -240,7 +252,7 @@ get_header();
                             </div>
                         </div>
 
-                        <upload-avatar :userid="company_account.id"
+                        <upload-avatar v-if="company_account.id !== undefined" :userid="company_account.id"
                                        :title="'Ajouter un logo'"
                                        :wpapi="wpapi"></upload-avatar>
 
@@ -252,16 +264,21 @@ get_header();
                                    class="form-control" placeholder="Adresse email" required>
                             <span class="sub-description" style="color:red">Ne pas utiliser l'adresse email de votre compte actuel.</span>
                         </div> -->
-                        <div class="col-md-4 col-sm-6 col-xs-12">
-                            <label>Adresse physique de l'entreprise <span style="color: red">*</span></label>
-                            <input type="text" v-model="formData.address" name="address" class="form-control"
-                                   placeholder="Adresse physique de l'entreprise" required>
+                        <div class="col-xs-12 mrg-bot-30">
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <label>Adresse physique de l'entreprise <span style="color: red">*</span></label>
+                                <input type="text" v-model="formData.address" name="address" class="form-control"
+                                       placeholder="Adresse physique de l'entreprise" required>
+                            </div>
+                            <div class="col-md-4 col-sm-6 col-xs-12">
+                                <label>Numéro de téléphone</label>
+                                <input type="text" v-model="formData.phone" name="phone" class="form-control"
+                                       placeholder="03XX XXX XX">
+                                <span class="sub-description">Exemple de numéro de téléphone valide,<br> ex: 032 XX XXX XX</span>
+                            </div>
                         </div>
-                        <div class="col-md-4 col-sm-6 col-xs-12">
-                            <label>Numéro de téléphone</label>
-                            <input type="text" v-model="formData.phone" name="phone" class="form-control"
-                                   placeholder="+2613XX XXX XX">
-                        </div>
+
+
                         <div class="clearfix"></div>
                         <div class="col-md-4 col-sm-6 col-xs-12 m-clear">
                             <label>Pays <span style="color: red">*</span></label>
@@ -321,8 +338,8 @@ get_header();
                     <div class="row">
                         <div class="col-md-4">
                             <div class="text-center">
-                                <button type="submit" :disabled="loading" class="btn btn-success">Enregistrer mon
-                                    entreprise
+                                <button type="submit" :disabled="loading" class="btn btn-success">
+                                    Enregistrer mon entreprise
                                 </button>
                             </div>
                         </div>
@@ -404,15 +421,63 @@ get_header();
         </section>
     </script>
     <!--Annonce handler template-->
+    <script type="text/x-template" id="demandes">
+        <!-- ======================== Manage Job ========================= -->
+        <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
+            <h1 class="ui aligned left header">
+                <div class="content">
+                    Demandes
+                </div>
+            </h1>
+            <div class="table-responsive">
+                <div v-if="loading">Chargement en cours...</div>
+                <div class="alert alert-secondary" role="alert" v-if="demandes.length <= 0 && !loading">
+                    Vous n'avez pas de demande
+                </div>
+                <table class="ui compact celled definition table" v-if="demandes.length > 0 && !loading">
+                    <thead class="full-width">
+                    <tr>
+                        <th>Statut</th>
+                        <th>Caractéristique</th>
+                        <th>Type de demande</th>
+                        <th>Description du demande</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="demande in demandes" :key="demande.ID">
+                        <td><span v-html="$options.filters.demandeStatus(demande)"></span></td>
+                        <td>
+                            <span  v-if="demande.type_demande.name == 'DMD_CANDIDAT'">
+                                <a :href="demande.data_request.candidate_id | _buildCandidateUrl" class="mng-jb" target="_blank">
+                                    CV{{ demande.data_request.candidate_id}}
+                                </a>
+                            </span>
+                        </td>
+                        <td>{{ demande.type_demande.name == "DMD_CANDIDAT" ? "Demande de consultation": "Autre.."}}</td>
+                        <td>{{ demande.type_demande.description }}</td>
+                        <td><a :href="demande.reference | _buildFullCandidateUrl" target="_blank" v-if="demande.status === 1">
+                                <i class="eye icon"></i> Voir
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="clearfix"></div>
+        </section>
+        <!-- ====================== End Manage Company ================ -->
+    </script>
+    <!--Annonce handler template-->
     <script type="text/x-template" id="client-annonce">
         <!-- ======================== Manage Job ========================= -->
         <section class="utf_manage_jobs_area padd-top-0 mrg-top-0">
-            <h2 class="ui aligned left header">
+            <h1 class="ui aligned left header">
                 <div class="content">
                     Mes annonces
                     <div class="sub header">Tous vos annonces se trouvent ici</div>
                 </div>
-            </h2>
+            </h1>
             <div class="table-responsive">
                 <div v-if="loading">Chargement en cours...</div>
                 <div class="alert alert-secondary" role="alert" v-if="annonces.length <= 0 && !loading">Vous n'avez pas
@@ -486,7 +551,7 @@ get_header();
                     <div class="col-md-12 col-sm-12">
                         <div class="detail-wrapper">
                             <div class="row mrg-top-30">
-                                <upload-avatar :userid="currentUser.id"
+                                <upload-avatar v-if="currentUser.id !== undefined" :userid="currentUser.id"
                                                :title="'Ajouter une photo'"
                                                :wpapi="$parent.Wordpress"
                                                v-if="currentUser !== null"></upload-avatar>

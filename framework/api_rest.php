@@ -1,6 +1,8 @@
 <?php
 
 use JP\Framework\Elements\jCandidate as jCandidateAlias;
+use JP\Framework\Elements\jDemande;
+use JP\Framework\Traits\DemandeTrait;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -247,6 +249,28 @@ add_action('rest_api_init', function () {
             }
         ),
     ]);
+
+    // Recuperer les demandes d'un utilisateur specifique
+    register_rest_route('job/v2', '/demandes/(?P<user_id>\d+)', [
+        array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => function (WP_REST_Request $request) {
+                $user_id = (int)$request->get_param('user_id');
+                $demandes = DemandeTrait::getAccountDemande($user_id);
+                $page = isset($_GET['paged']) ? intval($_GET['paged']) : 0;
+                $demande_response = [];
+                foreach ($demandes as $demande) {
+                    if (! $demande instanceof jDemande) continue;
+                    $demande_response[] = $demande->getObject('edit');
+                }
+                wp_send_json($demande_response);
+            },
+            'permission_callback' => function ($data) {
+                return true;
+            }
+        ),
+    ]);
+
     // Recuperer une entreprise
     register_rest_route('job/v2', '/companies/(?P<company_id>\d+)', [
         array(

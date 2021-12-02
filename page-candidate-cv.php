@@ -54,7 +54,7 @@ get_header();
                         <div class="detail-wrapper-body">
                             <div class="row">
                                 <div class="col-md-4 text-center user_profile_img mrg-bot-30">
-                                    <h4 class="meg-0"><?= $demande->getCustomerName() ?></h4>
+                                    <h4 class="meg-0"><?= $candidate->display_name ?></h4>
                                     <span><?= $candidate->reference ?></span>
                                 </div>
                                 <div class="col-md-8 user_job_detail">

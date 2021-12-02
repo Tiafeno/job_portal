@@ -314,16 +314,42 @@ function jobjiaby_admin_page_contents()
 
         switch ($controller) {
             case 'page-candidate':
-                // todo pagination for user query
-                $args = ['role__in' => 'candidate', 'number' => -1];
+                $data = [];
+                // Pagination
+                $no = 10;
+                $paged = jTools::getValue('paged', 1);
+                $offset = $paged == 1 ? 0 : ($paged - 1) * $no;
+
+                $args = [
+                    'role__in' => 'candidate',
+                    'number' => $no,
+                    'offset' => $offset,
+                    'meta_query' => array(
+                        'relation' => 'AND',
+                        array(
+                            'key'     => 'has_cv',
+                            'value'   => 1,
+                            'compare' => '='
+                        )
+                    )
+                ];
                 $candidate_query = new WP_User_Query($args);
                 $candidates = $candidate_query->get_results();
+
+                $total_user = $candidate_query->get_total();
+                $total_pages= ceil($total_user/$no);
+
+                $pagination = [
+                    'total_user' => $total_user,
+                    'total_pages' => $total_pages,
+                    'current_page' => $paged
+                ];
                 if ($candidates) {
                     foreach ($candidates as $candidate) {
                         $data[] = (new jCandidate($candidate->ID))->getObject('edit');
                     }
                 }
-                $template_args = array_merge($template_args, ['candidates' => $data]);
+                $template_args = array_merge($template_args, ['candidates' => $data, 'pagination' => $pagination]);
                 echo $engine->parseFile('admin/candidates')->render($template_args);
                 break;
 

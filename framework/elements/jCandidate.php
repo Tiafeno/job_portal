@@ -300,7 +300,7 @@ class jCandidate extends \WP_User
             return get_object_vars($this);
         }
         $clone = $this;
-        unset($clone->allcaps, $this->data, $this->avatar);
+        unset($clone->allcaps, $this->data, $this->avatar, $this->phone, $this->first_name, $this->last_name);
         return get_object_vars($clone);
     }
 

@@ -51,7 +51,7 @@ var CompLogin = {
           uId: 0,
           uRole: null,
           uObject: null
-        }; // Effacer tous les enregistrements
+        }; // Effacer toutes les enregistrements
 
         sessionStorage.removeItem('job_session');
         var role = lodash.indexOf(user.roles, 'employer') >= 0 ? 'employer' : 'candidate';

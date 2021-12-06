@@ -36,7 +36,7 @@ get_header();
                                 </div>
                                 <div class="col-md-3 col-sm-3">
                                     <select class="wide form-control" v-model="region" name="region" value="">
-                                        <option value="" data-display="Location">Tous les regions</option>
+                                        <option value="" data-display="Location">Toutes les regions</option>
                                         <?php foreach ($regions as $term): ?>
                                             <option value="<?= $term->term_id ?>" >
                                                 <?= $term->name ?>
@@ -46,7 +46,7 @@ get_header();
                                 </div>
                                 <div class="col-md-4 col-sm-4">
                                     <select class="wide form-control" name="cat" v-model="cat" value="">
-                                        <option value="" data-display="Category">Tous les métiers</option>
+                                        <option value="" data-display="Category">Toutes les métiers</option>
                                         <?php foreach ($categories as $term): ?>
                                             <option value="<?= $term->term_id ?>" >
                                                 <?= $term->name ?>

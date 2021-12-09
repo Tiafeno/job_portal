@@ -204,7 +204,7 @@ get_header();
 
                         <div>
                             <form method="post" action="">
-                                <input type="hidden" name="candidate_id" :value="candidate.id">
+                                <input type="hidden" name="candidate_id" :value="candidate.ID">
                                 <input type="hidden" name="type_demande" value="DMD_CANDIDAT">
                                 <input type="hidden" name="controller" value="DEMANDE">
                                 <input type="hidden" name="method" value="CREATE">

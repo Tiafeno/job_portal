@@ -98,7 +98,7 @@ add_action('register_services', function () {
             'edit_item' => 'Modifier',
             'view_item' => 'Voir',
             'search_items' => "Trouver des emplois",
-            'all_items' => "Tous les emplois",
+            'all_items' => "Toutes les emplois",
             'not_found' => "Aucune emploi trouver",
             'not_found_in_trash' => "Aucune emploi dans la corbeille"
         ],

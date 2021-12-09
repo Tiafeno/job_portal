@@ -46,7 +46,7 @@ const CompLogin = {
                     uRole: null,
                     uObject: null,
                 };
-                // Effacer tous les enregistrements
+                // Effacer toutes les enregistrements
                 sessionStorage.removeItem('job_session');
                 let role = lodash.indexOf(user.roles, 'employer') >= 0 ? 'employer' : 'candidate';
                 Storage.uId = user.id;

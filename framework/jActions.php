@@ -235,7 +235,7 @@ function process_validate_user_email()
                 return;
             }
             update_user_meta($user_id, 'email_verify', 1);
-            $jj_messages[] = ['type' => 'success', 'msg' => "Votre compte est activer"];
+            $jj_messages[] = ['type' => 'success', 'msg' => "Votre compte est activé"];
         }
     } else {
         $jj_messages[] = ['type' => 'danger', 'msg' => "Lien invalide"];
